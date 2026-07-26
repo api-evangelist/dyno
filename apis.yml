@@ -1,7 +1,27 @@
 aid: dyno
+accessModel:
+  pricing: unknown
+  onboarding: unknown
+  trial: false
+  try_now: false
+  public: false
+  label: Unknown
+  confidence: low
+  source: []
+  generated: '2026-07-22'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/dyno.png
 name: Dyno
-description: Dyno is a company surfaced as a portfolio company of a16z and added to the API Evangelist
-  network as a stub for enrichment. This profile is a lead awaiting the enrichment pipeline.
+description: >-
+  Dyno Therapeutics is an AI and biotechnology company building high-performance
+  gene delivery technologies to unlock the potential of next-generation genetic
+  medicine. Using its CapsidMap platform, which combines machine learning with
+  high-throughput in vivo measurement, Dyno designs novel adeno-associated virus
+  (AAV) capsids with improved tissue targeting, immune evasion, manufacturability,
+  and payload capacity. The company partners with leading gene therapy developers
+  rather than exposing a public developer API; it is tracked in the API Evangelist
+  network as an a16z Bio+Health portfolio company. Founded on research from George
+  Church's lab at Harvard, Dyno is headquartered in Watertown, Massachusetts.
 url: https://raw.githubusercontent.com/api-evangelist/dyno/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
@@ -9,14 +29,40 @@ x-backed-by:
 - a16z
 x-tier: stub
 x-tier-reason: portfolio-lead
+x-industry: biotechnology
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-18'
 tags:
 - Company
+- Biotechnology
+- Gene Therapy
+- Genetic Medicine
+- Gene Delivery
+- AAV Capsid
+- Artificial Intelligence
+- Machine Learning
+- Drug Discovery
+- Healthcare
 apis: []
+common:
+- type: DomainSecurity
+  url: security/dyno-domain-security.yml
+- type: Website
+  url: https://www.dynotx.com
+- type: Blog
+  url: https://dynotx.substack.com/
+- type: TermsOfService
+  url: https://www.dynotx.com/legal/terms-and-conditions
+- type: PrivacyPolicy
+  url: https://www.dynotx.com/legal/privacy-policy
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+x-enrichment:
+  date: '2026-07-19'
+  status: backfilled
+  pass: local-v1
+  note: backfilled from .gitignore signal + verified work evidence
