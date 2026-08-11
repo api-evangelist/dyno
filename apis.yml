@@ -1,15 +1,17 @@
 aid: dyno
 accessModel:
   pricing: unknown
-  onboarding: unknown
-  trial: false
-  try_now: false
-  public: false
-  label: Unknown
-  confidence: low
-  source: []
-  generated: '2026-07-22'
-  method: derived
+  onboarding: self-service
+  trial: true
+  try_now: true
+  public: true
+  label: Self-service signup, API key from dashboard
+  confidence: medium
+  source:
+  - https://design.dynotx.com/
+  - https://design.dynotx.com/cli
+  generated: '2026-08-10'
+  method: searched
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/dyno.png
 name: Dyno
 description: >-
@@ -18,21 +20,27 @@ description: >-
   medicine. Using its CapsidMap platform, which combines machine learning with
   high-throughput in vivo measurement, Dyno designs novel adeno-associated virus
   (AAV) capsids with improved tissue targeting, immune evasion, manufacturability,
-  and payload capacity. The company partners with leading gene therapy developers
-  rather than exposing a public developer API; it is tracked in the API Evangelist
-  network as an a16z Bio+Health portfolio company. Founded on research from George
-  Church's lab at Harvard, Dyno is headquartered in Watertown, Massachusetts.
+  and payload capacity. Alongside its capsid partnerships, Dyno operates a public
+  developer platform — Dyno Psi-Phi at design.dynotx.com — that exposes a REST
+  API for agentic protein design: submit structure-prediction, inverse-folding
+  and binder-scoring jobs against GPU-backed open models (AlphaFold2, ESMFold,
+  ProteinMPNN, Boltz, ESM-2, RFDiffusion3, BoltzGen, OpenFold3), track job status,
+  and retrieve scored results. The platform ships a first-party Python CLI
+  (dyno-phi), an MIT-licensed open-source repository, and a provider-published
+  Claude Code Agent Skill. Founded on research from George Church's lab at
+  Harvard, Dyno is headquartered in Watertown, Massachusetts, and is an a16z
+  Bio+Health portfolio company.
 url: https://raw.githubusercontent.com/api-evangelist/dyno/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
 - a16z
-x-tier: stub
-x-tier-reason: portfolio-lead
+x-tier: profile
+x-tier-reason: public-api-discovered
 x-industry: biotechnology
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-18'
+modified: '2026-08-10'
 tags:
 - Company
 - Biotechnology
@@ -44,25 +52,133 @@ tags:
 - Machine Learning
 - Drug Discovery
 - Healthcare
-apis: []
+- Protein Design
+- Protein Structure Prediction
+- Bioinformatics
+- Computational Biology
+- Agentic AI
+- Life Sciences
+apis:
+- name: Dyno Phi — Protein Design API
+  description: >-
+    Phi is a biomodal computation platform for protein design. The REST API lets
+    a caller create datasets from PDB/CIF structures, submit structure-prediction
+    and sequence-design jobs across twenty biomodal job types (ESMFold,
+    AlphaFold2 multimer, ProteinMPNN, Boltz, Chai-1, ESM-2, RFDiffusion3,
+    BoltzGen, OpenFold3, BindCraft, AF2Rank, TM-score and more), compose and
+    execute multi-step workflows and protocols, register agents and tools, poll
+    job status, stream job logs, and download scored results and artifacts.
+    Authentication is a static API key; per-user and per-organization job quotas
+    are exposed through the API itself.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - Protein Design
+  - Structure Prediction
+  - Machine Learning
+  - Jobs
+  - Workflows
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-phi-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Overlay
+    url: overlays/dyno-phi-overlay.yaml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: AgentSkill
+    url: skills/_index.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
 common:
-- type: DomainSecurity
-  url: security/dyno-domain-security.yml
 - type: Website
   url: https://www.dynotx.com
+- type: DeveloperPortal
+  url: https://design.dynotx.com/
+- type: Documentation
+  url: https://design.dynotx.com/docs
+- type: APIReference
+  url: https://api.dyno-agents.app/
+- type: GettingStarted
+  url: https://design.dynotx.com/cli
 - type: Blog
   url: https://dynotx.substack.com/
+- type: GitHubOrganization
+  url: https://github.com/dynotx
+- type: Support
+  url: https://github.com/dynotx/phi-cli/issues
+- type: SignUp
+  url: https://design.dynotx.com/
 - type: TermsOfService
   url: https://www.dynotx.com/legal/terms-and-conditions
 - type: PrivacyPolicy
   url: https://www.dynotx.com/legal/privacy-policy
+- type: AcceptableUsePolicy
+  url: https://design.dynotx.com/acceptable-use
+- type: OpenSourceNotice
+  url: https://design.dynotx.com/open-source
+- type: SourceCode
+  url: https://github.com/dynotx/phi-cli
+- type: Packages
+  url: packages/dyno-packages.yml
+- type: SDKs
+  url: packages/dyno-packages.yml
+- type: CLI
+  url: cli/dyno-cli.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Authentication
+  url: authentication/dyno-authentication.yml
+- type: Conventions
+  url: conventions/dyno-conventions.yml
+- type: ErrorCatalog
+  url: errors/dyno-problem-types.yml
+- type: RateLimits
+  url: rate-limits/dyno-rate-limits.yml
+- type: Plans
+  url: plans/dyno-plans-pricing.yml
+- type: DataModel
+  url: data-model/dyno-data-model.yml
+- type: Lifecycle
+  url: lifecycle/dyno-lifecycle.yml
+- type: ChangeLog
+  url: changelog/dyno-changelog.yml
+- type: Conformance
+  url: conformance/dyno-conformance.yml
+- type: Sandbox
+  url: sandbox/dyno-sandbox.yml
+- type: LLMsTxt
+  url: llms/dyno-llms.txt
+- type: DomainSecurity
+  url: security/dyno-domain-security.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 x-enrichment:
-  date: '2026-07-19'
-  status: backfilled
+  date: '2026-08-10'
+  status: enriched
+  artifacts_added: 21
   pass: local-v1
-  note: backfilled from .gitignore signal + verified work evidence
+  note: >-
+    STEP 0b contract discovery overturned the prior "no public developer API"
+    profile. A live OpenAPI 3.1.0 (64 paths, 80 operations, 62 schemas) is
+    served at https://api.dyno-agents.app/v1/phi/openapi.json with ReDoc at the
+    API root — neither the docs host nor the API host answers /openapi.json, so
+    only probing the versioned path prefix found it.

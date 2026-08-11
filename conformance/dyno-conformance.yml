@@ -1,0 +1,116 @@
+generated: '2026-08-10'
+method: derived
+source: openapi/dyno-phi-openapi.yml
+description: >-
+  Cross-cutting standards conformance for the Dyno Phi Protein Design API,
+  derived from the provider's OpenAPI 3.1.0 document, a live probe of the API,
+  and the platform's published open-source notice. Dyno publishes NO security or
+  privacy certifications, so no Compliance pointer is wired in apis.yml.
+standards:
+- id: openapi-3.1
+  conforms: true
+  evidence: 'openapi: 3.1.0 served at https://api.dyno-agents.app/v1/phi/openapi.json; 64 paths, 80 operations, 62 component schemas; every operation carries an operationId, a summary and a description.'
+- id: json-schema-2020-12
+  conforms: true
+  evidence: OpenAPI 3.1 dialect; component schemas use anyOf/null unions and $ref throughout.
+- id: rest-http-semantics
+  conforms: true
+  evidence: Correct verb usage (GET/POST/PUT/PATCH/DELETE), 201 on create-agent, 202 on batch submit, 204 on delete-protocol.
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: 'Errors return a {detail} JSON object as application/json; no application/problem+json appears in the document.'
+- id: oauth2
+  conforms: false
+  evidence: No oauth2 securityScheme; no /.well-known/oauth-authorization-server (404 on every host).
+- id: oidc
+  conforms: partial
+  evidence: >-
+    Clerk session tokens are accepted per the spec description and Clerk is
+    listed in the platform's open-source notice, but no
+    /.well-known/openid-configuration is served, so the issuer is not
+    discoverable and the scheme is not declared in the spec.
+- id: api-key-auth
+  conforms: true
+  evidence: x-api-key header enforced; live 401 {"detail":"Missing API key. Provide an x-api-key header."}
+  caveat: Modelled as an optional header parameter, not a securityScheme.
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: /.well-known/security.txt returns 404 on api.dyno-agents.app, design.dynotx.com and www.dynotx.com.
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: No Sunset or Deprecation header support; no deprecated operations in the spec.
+- id: rfc9110-conditional-requests
+  conforms: false
+  evidence: No ETag / If-None-Match / If-Match declared on any operation.
+- id: idempotency-key
+  conforms: false
+  evidence: No Idempotency-Key header anywhere in the spec. See conventions/dyno-conventions.yml.
+- id: ratelimit-headers
+  conforms: false
+  evidence: No RateLimit-* or X-RateLimit-* headers; quota is introspected out of band via GET /v1/phi/auth/me/quota.
+- id: pagination
+  conforms: partial
+  evidence: Two incompatible styles in one API — page/page_size on jobs and datasets, limit/offset on protocols, workflows and agents. No cursor, no Link header.
+- id: server-sent-events
+  conforms: true
+  evidence: GET /v1/phi/jobs/{job_id}/logs/stream declares text/event-stream.
+- id: asyncapi
+  conforms: false
+  evidence: No event or webhook surface is published; job completion is discovered by polling.
+- id: json-api
+  conforms: false
+- id: odata
+  conforms: false
+- id: scim
+  conforms: false
+- id: fhir
+  conforms: false
+  note: Not applicable — this is a protein-engineering compute API, not a clinical data API.
+- id: hl7
+  conforms: false
+  note: Not applicable.
+domain_standards:
+- id: pdb-format
+  conforms: true
+  evidence: The platform ingests and emits PDB files; fixtures in the CLI repo are .pdb.
+- id: mmcif-format
+  conforms: true
+  evidence: phi upload accepts .cif alongside .pdb.
+- id: rcsb-pdb-accession
+  conforms: true
+  evidence: phi fetch --pdb <ID> resolves RCSB PDB accessions.
+- id: uniprot-accession
+  conforms: true
+  evidence: phi fetch --uniprot <ACC> resolves AlphaFold DB entries by UniProt accession.
+open_source_models_exposed:
+  source: https://design.dynotx.com/open-source
+  note: >-
+    The platform publishes a full third-party model licence notice, which is a
+    genuine transparency artifact even though it is not a compliance
+    certification.
+  models:
+  - {name: AlphaFold2, license: 'Apache-2.0 / CC BY 4.0'}
+  - {name: ESMFold, license: MIT}
+  - {name: ProteinMPNN, license: MIT}
+  - {name: Boltz-1/2, license: MIT}
+  - {name: Chai-1, license: Apache-2.0}
+  - {name: AF2Rank, license: 'MIT / Apache-2.0'}
+  - {name: ESM-2, license: MIT}
+  - {name: RFDiffusion, license: BSD-3-Clause}
+  - {name: RFDiffusion3, license: BSD-3-Clause}
+  - {name: BoltzGen, license: MIT}
+  - {name: OpenFold3, license: Apache-2.0}
+compliance_certifications:
+  published: false
+  probed: [SOC 2, ISO 27001, PCI DSS, HIPAA, FedRAMP, GDPR statement, trust center]
+  result: none found
+  note: >-
+    No trust center, no certification page and no compliance statement on
+    dynotx.com or design.dynotx.com. probe-security-programs.py returned
+    vdp=none trust=none. No Compliance or TrustCenter pointer is emitted.
+x-evidence:
+  fetched: '2026-08-10'
+  urls:
+  - {url: 'https://api.dyno-agents.app/v1/phi/openapi.json', http_status: 200}
+  - {url: 'https://design.dynotx.com/open-source', http_status: 200}
+  - {url: 'https://api.dyno-agents.app/.well-known/security.txt', http_status: 404}

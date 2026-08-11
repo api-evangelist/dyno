@@ -1,0 +1,67 @@
+generated: '2026-08-10'
+method: searched
+source: https://pypi.org/project/dyno-phi/
+description: >-
+  First-party client libraries published by Dyno Therapeutics. Both packages are
+  published to PyPI from the company's own GitHub organisation (github.com/dynotx)
+  and are referenced from the Dyno Phi platform at design.dynotx.com. No npm,
+  crates.io, RubyGems, Maven Central, NuGet or Go-module client was found — the
+  Python CLI is the only distributed client for the Phi REST API.
+packages:
+- language: python
+  registry: pypi
+  name: dyno-phi
+  url: https://pypi.org/project/dyno-phi/
+  install: pip install dyno-phi
+  alt_install: uv tool install dyno-phi
+  repository: https://github.com/dynotx/phi-cli
+  license: MIT
+  requires_python: ">=3.9"
+  official: true
+  role: cli-and-client
+  version: 0.2.3
+  published: '2026-03-18'
+  release_history:
+  - {version: 0.1.1, published: '2026-03-16'}
+  - {version: 0.2.0, published: '2026-03-17'}
+  - {version: 0.2.2, published: '2026-03-18'}
+  - {version: 0.2.3, published: '2026-03-18'}
+  note: >-
+    "Phi CLI and biomodals for the dyno protein design platform." Wraps the
+    Phi REST API at https://api.dyno-agents.app/v1/phi and ships the provider's
+    own Claude Code Agent Skill at skills/phi/SKILL.md. Version and date read
+    from pypi.org/pypi/dyno-phi/json.
+- language: python
+  registry: pypi
+  name: dynopsi
+  url: https://pypi.org/project/dynopsi/
+  install: pip install dynopsi
+  repository: https://github.com/dynotx/dynopsi
+  license: Apache-2.0
+  official: true
+  role: model-inference
+  version: 1.0.0
+  published: '2026-03-18'
+  note: >-
+    "dynopsi inference model for protein binder design" — local inference and
+    sampling for Dyno Psi-1. Not a REST API client; the open weights are
+    distributed on Hugging Face at huggingface.co/dynotx/dynopsi.
+registries_checked:
+- {registry: pypi, result: hit, packages: [dyno-phi, dynopsi]}
+- {registry: npm, result: miss, probed: ['dyno-phi', '@dynotx/phi'], status: 404}
+- {registry: crates.io, result: miss, probed: [dyno-phi]}
+- {registry: rubygems, result: miss}
+- {registry: maven-central, result: miss}
+- {registry: nuget, result: miss}
+- {registry: pkg.go.dev, result: miss}
+- {registry: packagist, result: miss}
+related_non_registry_artifacts:
+- {kind: model-weights, host: huggingface.co, name: dynotx/dynopsi, url: 'https://huggingface.co/dynotx/dynopsi'}
+- {kind: dataset, host: huggingface.co, name: dynotx/synthetic_dimers, url: 'https://huggingface.co/datasets/dynotx/synthetic_dimers'}
+x-evidence:
+  fetched: '2026-08-10'
+  urls:
+  - {url: 'https://pypi.org/pypi/dyno-phi/json', http_status: 200}
+  - {url: 'https://pypi.org/pypi/dynopsi/json', http_status: 200}
+  - {url: 'https://registry.npmjs.org/dyno-phi', http_status: 404}
+  - {url: 'https://api.github.com/orgs/dynotx/repos', http_status: 200}

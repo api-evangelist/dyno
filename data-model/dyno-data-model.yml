@@ -1,0 +1,144 @@
+generated: '2026-08-10'
+method: derived
+source: openapi/dyno-phi-openapi.yml
+description: >-
+  Entity-relationship graph for the Dyno Phi Protein Design API, derived from the
+  62 component schemas and the id-reference fields they carry. The API has no
+  $ref-based composition between top-level resources — entities are linked by
+  plain string id fields (dataset_id, job_id, run_id, artifact_id, org_id,
+  user_id), so every relationship below is stated with the field that carries it.
+identifier_style:
+  format: opaque string (UUID-shaped in provider examples, e.g. d7c3a1b2-...)
+  prefixed: false
+  note: >-
+    Resource ids are NOT type-prefixed. The only prefixed identifier in the whole
+    platform is the API key (ak_). An agent cannot tell a dataset_id from a
+    job_id by looking at it.
+entities:
+- name: Organization
+  id_field: org_id
+  schema: UserProfileResponse.org_id
+  description: Tenant boundary. Static-key callers assert it with the X-Organization-ID header; Clerk sessions derive it.
+  operations: []
+- name: User
+  id_field: user_id
+  schema: UserProfileResponse
+  fields: [user_id, email, display_name, org_id, org_name, created_at]
+  operations: [get_current_user_profile_v1_phi_auth_me_get]
+- name: Quota
+  id_field: "{scope}/{scope_id}"
+  schema: [QuotaResponse, UserQuotaResponse]
+  fields: [scope, scope_id, max_total_jobs, max_concurrent_jobs, reset_at, current_total_jobs, current_concurrent_jobs]
+  operations: [get_my_quota_v1_phi_auth_me_quota_get, list_quotas_v1_phi_admin_quotas_get, set_quota_v1_phi_admin_quotas__scope___scope_id__put]
+- name: IngestSession
+  id_field: session_id
+  schema: [CreateSessionResponse, IngestSessionStatusResponse]
+  description: Staging container for a multi-file upload; finalizing it produces a Dataset.
+  terminal_states: [READY, FAILED]
+  operations: [create_ingest_session_v1_phi_ingest_sessions__post, get_upload_urls_v1_phi_ingest_sessions__session_id__upload_urls_post, upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post, finalize_ingest_session_v1_phi_ingest_sessions__session_id__finalize_post, get_ingest_session_v1_phi_ingest_sessions__session_id__get]
+- name: Dataset
+  id_field: dataset_id
+  schema: DatasetResponse
+  fields: [dataset_id, org_id, user_id, name, file_type, artifact_count, status, created_at, sample_files]
+  description: A named collection of uploaded PDB/CIF structures; the unit jobs run against.
+  operations: [list_datasets_v1_phi_datasets__get, get_dataset_v1_phi_datasets__dataset_id__get, update_dataset_v1_phi_datasets__dataset_id__patch, list_dataset_jobs_v1_phi_datasets__dataset_id__jobs_get, get_dataset_scores_v1_phi_datasets__dataset_id__scores_get]
+- name: DatasetFile
+  id_field: filename
+  schema: DatasetFileSummary
+  fields: [filename, size_bytes, checksum]
+- name: ResearchNotes
+  id_field: dataset_id
+  schema: ResearchNotesResponse
+  description: Free-text research notes appended to a dataset by phi research / phi notes.
+  operations: [append_research_notes_v1_phi_datasets__dataset_id__research_notes_post, get_research_notes_v1_phi_datasets__dataset_id__research_notes_get]
+- name: Job
+  id_field: job_id
+  schema: [JobSubmitRequest, JobSubmitResponse, JobStatusResponse, JobListResponse, JobCancelResponse, BatchJobSubmitResponse]
+  fields: [job_id, run_id, status, progress, output_files, outputs, assets_url, asset_count, asset_group, assets, error, created_at, started_at, completed_at]
+  description: One biomodal computation. job_type is a closed enum of 20 values.
+  operations: [submit_job_v1_phi_jobs__post, submit_batch_jobs_v1_phi_jobs_batch_post, list_jobs_v1_phi_jobs__get, get_job_status_v1_phi_jobs__job_id__status_get, stream_job_logs_v1_phi_jobs__job_id__logs_stream_get, cancel_job_v1_phi_jobs__job_id__delete, get_job_scores_v1_phi_jobs__job_id__scores_get, manually_create_assets_v1_phi_jobs__job_id__assets_create_post]
+- name: JobProgress
+  schema: JobProgress
+  fields: [current_step, percent_complete, eta_seconds]
+- name: Run
+  id_field: run_id
+  description: >-
+    Execution identity for a job or workflow. Caller may supply run_id on job
+    submit; otherwise generated. Also addressed by the unversioned /runs surface.
+  operations: [create_run_runs_post, get_run_status_runs__run_id__get, cancel_run_runs__run_id__delete, get_run_result_runs__run_id__result_get, list_run_artifacts_runs__run_id__artifacts_get, get_run_assets_v1_phi_runs__run_id__assets_get, get_workflow_results_v1_phi_runs__run_id__results_get]
+- name: Artifact
+  id_field: artifact_id
+  schema: [ArtifactResponse, ArtifactListResponse, DownloadURLResponse]
+  fields: [artifact_id, run_id, artifact_type, filename, storage_path, size_bytes, mime_type, created_at, metadata]
+  operations: [get_artifact_artifacts__artifact_id__get, get_artifact_download_url_artifacts__artifact_id__download_get, get_artifact_download_url_v1_phi_artifacts__artifact_id__download_get]
+- name: Project
+  id_field: project_id
+  schema: CreateProjectRequest
+  operations: [create_project_v1_phi_projects_post, list_projects_v1_phi_projects_get, get_project_v1_phi_projects__project_id__get, list_asset_groups_v1_phi_projects__project_id__asset_groups_get]
+- name: AssetGroup
+  id_field: asset_group_id
+  operations: [list_asset_groups_v1_phi_projects__project_id__asset_groups_get, list_assets_v1_phi_asset_groups__asset_group_id__assets_get]
+- name: Asset
+  id_field: asset_id
+  operations: [get_asset_v1_phi_assets__asset_id__get, list_assets_v1_phi_asset_groups__asset_group_id__assets_get, get_run_assets_v1_phi_runs__run_id__assets_get]
+- name: Workflow
+  id_field: workflow_id
+  schema: [CreateWorkflowRequest, UpdateWorkflowRequest, WorkflowSpec, ExecuteWorkflowRequest, PlanWorkflowRequest, PlanExecuteRequest]
+  fields: [name, description, nodes, edges, version, expected_artifacts, initial_artifacts]
+  description: Immutable DAG plan — NodeSpec{id, op, params, retry_policy, map_config} joined by EdgeSpec{src, dst, condition}.
+  operations: [create_workflow_v1_phi_workflows__post, list_workflows_v1_phi_workflows__get, get_workflow_v1_phi_workflows__workflow_id__get, update_workflow_v1_phi_workflows__workflow_id__put, publish_workflow_v1_phi_workflows__workflow_id__publish_post, get_workflow_versions_v1_phi_workflows__workflow_id__versions_get, execute_workflow_v1_phi_workflows__workflow_id__execute_post, get_workflow_run_status_v1_phi_workflows__workflow_id__runs__run_id__status_get, plan_workflow_v1_phi_workflows_plan_post, plan_workflow_public_v1_phi_workflows_plan_public_post, plan_and_execute_with_protocol_v1_phi_workflows_plan_execute_post]
+- name: Protocol
+  id_field: protocol_id
+  schema: [CreateProtocolRequest, UpdateProtocolRequest, ProtocolResponse, ForkProtocolRequest, ValidateProtocolRequest, RecommendProtocolRequest]
+  fields: [id, name, description, intent_signature, protocol_template, source_workflow_id, parent_protocol_id, version, visibility, tags, is_starred, created_at, updated_at]
+  description: A shareable, forkable, versioned, starrable workflow template. The social/reuse layer of the platform.
+  operations: [list_protocols_v1_phi_protocols_get, create_protocol_v1_phi_protocols_post, get_protocol_v1_phi_protocols__protocol_id__get, update_protocol_v1_phi_protocols__protocol_id__put, delete_protocol_v1_phi_protocols__protocol_id__delete, validate_protocol_template_v1_phi_protocols_validate_post, fork_protocol_v1_phi_protocols__protocol_id__fork_post, get_protocol_executions_v1_phi_protocols__protocol_id__executions_get, recommend_protocols_v1_phi_protocols_recommend_post, star_protocol_v1_phi_protocols__protocol_id__star_post, unstar_protocol_v1_phi_protocols__protocol_id__star_delete]
+- name: Agent
+  id_field: agent_id
+  schema: [CreateAgentRequest, UpdateAgentRequest, AgentConfig]
+  fields: [name, instructions, model, temperature, tool_choice, tools]
+  description: A first-class LLM agent registered on the platform with an attached tool set.
+  operations: [create_agent_v1_phi_agents__post, list_agents_v1_phi_agents__get, get_agent_v1_phi_agents__agent_id__get, update_agent_v1_phi_agents__agent_id__put, update_agent_tools_v1_phi_agents__agent_id__tools_post]
+- name: Tool
+  id_field: tool_id
+  description: Platform tool registry, grouped by category, bindable to an Agent.
+  operations: [list_tools_v1_phi_tools__get, get_tool_v1_phi_tools__tool_id__get, list_categories_v1_phi_tools_categories__get]
+relationships:
+- {from: Organization, to: User, kind: has_many, via: org_id}
+- {from: Organization, to: Dataset, kind: has_many, via: org_id}
+- {from: User, to: Dataset, kind: has_many, via: user_id}
+- {from: User, to: Quota, kind: has_one, via: user_id}
+- {from: Organization, to: Quota, kind: has_one, via: scope_id}
+- {from: IngestSession, to: Dataset, kind: produces, via: finalize}
+- {from: Dataset, to: DatasetFile, kind: has_many, via: sample_files}
+- {from: Dataset, to: Job, kind: has_many, via: dataset_id}
+- {from: Dataset, to: ResearchNotes, kind: has_one, via: dataset_id}
+- {from: Job, to: Run, kind: has_one, via: run_id}
+- {from: Job, to: Dataset, kind: belongs_to, via: dataset_id}
+- {from: Run, to: Artifact, kind: has_many, via: run_id}
+- {from: Run, to: Asset, kind: has_many, via: run_id}
+- {from: Job, to: JobProgress, kind: has_one, via: progress}
+- {from: Project, to: AssetGroup, kind: has_many, via: project_id}
+- {from: AssetGroup, to: Asset, kind: has_many, via: asset_group_id}
+- {from: Workflow, to: NodeSpec, kind: has_many, via: nodes}
+- {from: Workflow, to: EdgeSpec, kind: has_many, via: edges}
+- {from: Workflow, to: Run, kind: has_many, via: execute}
+- {from: Protocol, to: Workflow, kind: belongs_to, via: source_workflow_id}
+- {from: Protocol, to: Protocol, kind: belongs_to, via: parent_protocol_id, note: fork lineage}
+- {from: Agent, to: Tool, kind: has_many, via: tools}
+enumerations:
+  JobType: [esmfold, proteinmpnn, alphafold, rfdiffusion, ligandmpnn, chai1, boltz, align_structures, tm_score, af2rank, rso, bindcraft, rf3, rfdiffusion3, boltzgen, esm2, openfold3, research, design_pipeline, filter_pipeline]
+  JobStatus: [pending, running, completed, failed, cancelled]
+  IngestTerminal: [READY, FAILED]
+domain_note: >-
+  The domain is protein engineering, not a business object graph: Dataset holds
+  structures, Job runs a named open model over them, Artifact/Asset holds the
+  outputs, and Protocol is the shareable recipe. Scoring metrics that travel with
+  results (plddt, ptm, af2_iptm, af2_ipae, rmsd) are documented in
+  cli/dyno-cli.yml rather than typed in the spec — scores are delivered as a CSV
+  behind a signed URL, not as a JSON schema.
+gaps_to_report_upstream:
+- Scores are returned only as a signed-URL CSV; there is no typed score object in
+  the OpenAPI, so an agent cannot read results without parsing an untyped file.
+- No id prefixes and no $ref links between resources; every relationship is an
+  untyped string field.

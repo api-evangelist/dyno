@@ -1,0 +1,94 @@
+generated: '2026-08-10'
+method: searched
+source: https://design.dynotx.com/cli
+description: >-
+  `phi` is Dyno's first-party command-line interface for the Phi Protein Design
+  API — the primary way the platform is used, and the surface the provider's own
+  Claude Code Agent Skill drives. It wraps the REST API at
+  https://api.dyno-agents.app/v1/phi. The distributable package itself is
+  catalogued in packages/dyno-packages.yml; this artifact enumerates the command
+  surface.
+docs: https://design.dynotx.com/cli
+repo: https://github.com/dynotx/phi-cli
+license: MIT
+binary: phi
+package: dyno-phi
+version: 0.2.3
+requires: Python >= 3.9
+install:
+  pip: pip install dyno-phi
+  uv: uv tool install dyno-phi
+authentication:
+  env_var: DYNO_API_KEY
+  key_prefix: ak_
+  issue_at: https://design.dynotx.com/dashboard/settings
+  verify: phi login
+  cache: .phi/state.json (api_key, dataset_id, last_job_id, user_id, org_id)
+  base_url_override: DYNO_API_BASE_URL (default https://api.dyno-agents.app)
+commands:
+  auth:
+  - {name: login, description: Verify the API key and connection to the platform.}
+  data:
+  - {name: upload, description: Upload PDB/CIF files or a whole directory as a new dataset.}
+  - {name: fetch, description: Fetch a structure from RCSB PDB or the AlphaFold DB; optionally crop by chain or residue range and trim by pLDDT, then upload.}
+  - {name: use, description: Set the active dataset, cached to .phi/state.json.}
+  - {name: datasets, description: List all datasets.}
+  - {name: dataset, description: Show details for one dataset.}
+  - {name: ingest-session, description: Multi-file ingest session for large uploads.}
+  modeling:
+  - {name: folding, alias: esmfold, description: Single-sequence structure prediction (ESMFold).}
+  - {name: complex_folding, alias: alphafold, description: Multi-chain complex prediction (AlphaFold2 multimer).}
+  - {name: inverse_folding, alias: proteinmpnn, description: Sequence design from a backbone (ProteinMPNN).}
+  - {name: boltz, description: Structure prediction with Boltz-1.}
+  - {name: esm2, description: ESM2 sequence embedding and scoring.}
+  scoring:
+  - {name: filter, description: "Full quality-control pipeline: inverse folding -> folding -> complex folding -> score, against a threshold preset."}
+  - {name: scores, description: Display the scores table for a completed filter job; --top N, --out CSV.}
+  jobs:
+  - {name: status, description: Poll the status of one job.}
+  - {name: jobs, description: List recent jobs; --status filter.}
+  - {name: logs, description: Stream (or print the URL for) a job's log stream.}
+  - {name: cancel, description: Cancel a running job.}
+  - {name: download, description: "Download job artifacts into structures/, scores/ and scores.csv; --all includes MSA files and archives."}
+  research:
+  - {name: research, description: Run a biological research query with literature citations against the platform, optionally streaming and appending to a notes file.}
+  - {name: notes, description: Fetch and display accumulated research notes for a dataset.}
+  - {name: tutorial, description: Download five example PD-L1 binder structures and print a step-by-step scoring walkthrough.}
+  feature_flagged:
+  - {name: design, alias: rfdiffusion3, description: Backbone diffusion. Hidden from --help since 0.2.2; reachable via DYNO_ENABLE_DESIGN=1.}
+  - {name: boltzgen, description: All-atom binder design. Hidden from --help since 0.2.2; reachable via DYNO_ENABLE_DESIGN=1.}
+common_flags:
+- {flag: --dataset-id ID, applies_to: most, description: Target dataset; omit to use the cached one.}
+- {flag: --wait, applies_to: most, description: Poll until the job completes, then print a summary.}
+- {flag: --out DIR, applies_to: [download, scores], description: 'Output directory (default ./results).'}
+- {flag: --preset default|relaxed, applies_to: filter, description: Filter threshold preset.}
+- {flag: --num-sequences N, applies_to: inverse_folding, description: 'Sequences per design (default 4).'}
+- {flag: --models 1,2, applies_to: complex_folding, description: 'AlphaFold2 model numbers (default 1,2,3).'}
+- {flag: --msa-tool mmseqs2|single_sequence, applies_to: [filter, complex_folding], description: MSA strategy; single_sequence for de novo binders with no natural homologs.}
+- {flag: --poll-interval S, applies_to: global, description: 'Seconds between status polls (default 5).'}
+filter_presets:
+  default: {plddt: '>=0.80', ptm: '>=0.55', iptm: '>=0.50', ipae: '<=10.85 A', rmsd: '<=3.5 A', msa_tool: single_sequence}
+  relaxed: {plddt: '>=0.80', ptm: '>=0.45', iptm: '>=0.50', ipae: '<=12.4 A', rmsd: '<=4.5 A', msa_tool: single_sequence}
+  source: github.com/dynotx/phi-cli src/phi/config.py::_FILTER_PRESETS
+  note: >-
+    The published docs page and SKILL.md state iPAE as a normalized 0.35/0.40;
+    the shipped code uses 10.85/12.4 Angstrom (0.35 x 31 per the BindCraft
+    convention). Values captured verbatim from the code, which is authoritative.
+key_flows:
+- name: research-guided scoring
+  steps: [phi research --question ... --target ... --structures, phi fetch --pdb ... --chain A --upload, phi filter --preset relaxed --wait, phi scores]
+- name: score an existing design set
+  steps: [phi upload ./designs/, phi filter --preset default --wait --out ./results, phi scores]
+- name: first run
+  steps: [pip install dyno-phi, export DYNO_API_KEY=..., phi login, phi tutorial, phi filter]
+agent_integration:
+  claude_code_skill: skills/dyno-phi.md
+  claude_code_plugin: https://github.com/dynotx/phi-cli/tree/main/phi-plugin
+  marketplace_manifest: .claude-plugin/marketplace.json
+  allowed_tools: Bash(phi *)
+x-evidence:
+  fetched: '2026-08-10'
+  urls:
+  - {url: 'https://design.dynotx.com/cli', http_status: 200}
+  - {url: 'https://raw.githubusercontent.com/dynotx/phi-cli/main/README.md', http_status: 200}
+  - {url: 'https://raw.githubusercontent.com/dynotx/phi-cli/main/src/phi/config.py', http_status: 200}

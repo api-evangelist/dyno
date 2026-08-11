@@ -1,0 +1,60 @@
+generated: '2026-08-10'
+method: probed
+source: live GET probes of /.well-known/* on every Dyno host
+description: >-
+  Recorded ABSENCE. Every /.well-known/ discovery path was probed on all three
+  Dyno hosts and every one returned 404. No WellKnown or SecurityTxt pointer is
+  wired into apis.yml, because no document is served — this file documents the
+  gap, it does not assert a surface.
+result: none
+hosts:
+- host: https://api.dyno-agents.app
+  role: api
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+  note: >-
+    All 404s return a genuine JSON API body ({"detail":"Not Found"}) from the
+    FastAPI application, not an SPA HTML shell — these are true negatives.
+- host: https://design.dynotx.com
+  role: developer-portal
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+  note: >-
+    Next.js application; 404s render the app's HTML not-found page with a real
+    404 status code. No document served on any path.
+- host: https://www.dynotx.com
+  role: website
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+gaps_to_report_upstream:
+- >-
+  No /.well-known/security.txt (RFC 9116) on any host — there is no published
+  machine-readable security contact for the Phi API. legal@dynotx.com is the only
+  contact address published anywhere (open-source notice page).
+- >-
+  The Phi API authenticates against Clerk for session tokens, but no
+  /.well-known/openid-configuration or /.well-known/oauth-authorization-server is
+  served from api.dyno-agents.app, so an agent cannot discover the OIDC issuer.
+x-evidence:
+  fetched: '2026-08-10'
+  method: curl -sS -o /dev/null -w '%{http_code}' -L

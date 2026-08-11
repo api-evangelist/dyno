@@ -1,0 +1,79 @@
+generated: '2026-08-10'
+method: searched
+source: https://api.dyno-agents.app/v1/phi/openapi.json
+docs: https://design.dynotx.com/cli
+description: >-
+  Dyno Phi does not throttle by request rate. It meters by JOB QUOTA — a
+  lifetime job cap and a concurrency cap, held per user and per organization —
+  and returns HTTP 429 on job submission when the cap is hit. The quota surface
+  is machine-readable through the API itself, which is better than most
+  providers; what is missing is any published NUMBER and any response header.
+limit_count: 0
+published_numeric_limits: false
+model: job-quota
+scopes:
+- scope: per-user
+  dimension: max_total_jobs
+  limit: null
+  window: lifetime-until-reset
+  reset: reset_at (nullable timestamp)
+  introspection: GET /v1/phi/auth/me/quota
+  response_schema: UserQuotaResponse
+  live_usage_fields: [current_total_jobs, current_concurrent_jobs]
+  note: Value is account-specific and not published. -1 means unlimited.
+- scope: per-user
+  dimension: max_concurrent_jobs
+  limit: null
+  window: instantaneous
+  definition: maximum simultaneously active (pending/running) jobs
+  introspection: GET /v1/phi/auth/me/quota
+  note: Value is account-specific and not published. -1 means unlimited.
+- scope: per-organization
+  dimension: [max_total_jobs, max_concurrent_jobs]
+  limit: null
+  introspection: GET /v1/phi/admin/quotas (admin only)
+  admin_write: PUT /v1/phi/admin/quotas/{scope}/{scope_id}
+  note: >-
+    Quotas are settable per scope by an administrator, which confirms they are
+    assigned per account rather than published as a public tier.
+exhaustion:
+  status_code: 429
+  body: '{"detail": "<quota message>"}'
+  headers: []
+  retry_after: false
+  evidence: >-
+    github.com/dynotx/phi-cli src/phi/api.py::_submit maps HTTP 429 from
+    POST /v1/phi/jobs/ to "Job quota exceeded" and tells the user to check and
+    cancel running jobs.
+response_headers:
+  ratelimit_standard: none
+  x_ratelimit: none
+  retry_after: none
+  note: >-
+    No RateLimit-*, X-RateLimit-* or Retry-After header is declared in the
+    OpenAPI or documented anywhere. An agent cannot see how close it is to the
+    cap from a response — it must call GET /v1/phi/auth/me/quota out of band.
+client_side_backoff:
+  scope: signed-URL uploads only
+  retries: 3
+  base: 2 (exponential)
+  statuses: [429, 500, 502, 503, 504]
+  source: github.com/dynotx/phi-cli src/phi/api.py::_put_file
+  note: Job submission itself is NOT retried by the first-party client on 429.
+polling_guidance:
+  default_interval_seconds: 5
+  timeout_seconds: 7200
+  source: github.com/dynotx/phi-cli src/phi/config.py (POLL_INTERVAL, POLL_TIMEOUT)
+  note: The provider's own client polls job status every 5s for up to 2 hours.
+gaps_to_report_upstream:
+- No published numeric quota for any tier — a developer cannot size an
+  integration before signing up.
+- No rate-limit response headers, so an agent has no runtime signal.
+- 429 is not declared on POST /v1/phi/jobs/ in the OpenAPI even though the
+  provider's own CLI handles it.
+x-evidence:
+  fetched: '2026-08-10'
+  urls:
+  - {url: 'https://api.dyno-agents.app/v1/phi/openapi.json', http_status: 200}
+  - {url: 'https://design.dynotx.com/cli', http_status: 200}
+  - {url: 'https://raw.githubusercontent.com/dynotx/phi-cli/main/src/phi/api.py', http_status: 200}

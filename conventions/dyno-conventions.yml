@@ -1,0 +1,122 @@
+generated: '2026-08-10'
+method: derived
+source: openapi/dyno-phi-openapi.yml
+docs: https://design.dynotx.com/docs
+description: >-
+  Cross-cutting runtime semantics for the Dyno Phi Protein Design API, derived
+  from the provider's OpenAPI 3.1.0 document and its first-party CLI source, and
+  cross-checked against a live unauthenticated probe. Cross-links
+  authentication/dyno-authentication.yml, errors/dyno-problem-types.yml,
+  rate-limits/dyno-rate-limits.yml and lifecycle/dyno-lifecycle.yml.
+auth:
+  style: static API key in the `x-api-key` request header (prefix `ak_`)
+  tenancy: X-Organization-ID / X-User-ID headers for static-key callers
+  detail: authentication/dyno-authentication.yml
+idempotency:
+  supported: false
+  key_header: null
+  scope: null
+  retention: null
+  evidence: >-
+    No Idempotency-Key header, no idempotent-replay semantics, and no
+    x-idempotency extension appear anywhere in the OpenAPI document. The single
+    occurrence of the word "idempotent" in the spec is prose on
+    GET /v1/phi/tutorial ("idempotently pre-creates a tutorial Dataset"), which
+    describes that one handler, not a client-facing contract.
+  partial_mechanism:
+    field: run_id
+    where: POST /v1/phi/jobs/ request body (JobSubmitRequest)
+    description: "Optional custom run_id (generated if not provided)"
+    note: >-
+      A caller-supplied run_id is the closest thing to a client-controlled key,
+      but the spec does not state that resubmitting the same run_id is safe or
+      returns the original job, so it must NOT be relied on as an idempotency
+      key. No Idempotency pointer is wired in apis.yml for this reason.
+pagination:
+  styles:
+  - style: page-number
+    params: [page, page_size]
+    defaults: {page: 1, page_size: 50}
+    used_by: [list_jobs_v1_phi_jobs__get, list_datasets_v1_phi_datasets__get, list_dataset_jobs_v1_phi_datasets__dataset_id__jobs_get]
+    response_fields: [total_count, total_pending, total_running, total_completed, total_failed]
+  - style: limit-offset
+    params: [limit, offset]
+    defaults: {limit: 100, offset: 0}
+    used_by: [list_protocols_v1_phi_protocols_get, list_workflows_v1_phi_workflows__get, list_agents_v1_phi_agents__get]
+  consistency: >-
+    INCONSISTENT — the same API mixes page/page_size and limit/offset across
+    collections. No cursor pagination and no Link header anywhere.
+  cursor: false
+field_expansion:
+  supported: false
+sparse_fieldsets:
+  supported: false
+metadata:
+  supported: true
+  mechanism: >-
+    JobSubmitRequest.context is a free-form object ("Additional context, e.g.
+    project_id for asset creation"); PatchDatasetRequest allows dataset
+    annotation; POST /v1/phi/datasets/{dataset_id}/research-notes appends
+    free-text research notes to a dataset.
+request_id_tracing:
+  header: null
+  supported: false
+  note: >-
+    No X-Request-Id / traceparent / correlation header is declared on any
+    operation. Job-level correlation is via the server-assigned job_id and the
+    optional caller-supplied run_id.
+versioning:
+  scheme: uri-path
+  current: v1
+  prefix: /v1/phi
+  info_version: 1.0.0
+  note: >-
+    A second, unversioned surface exists alongside the versioned one —
+    /health, /runs, /runs/{run_id}, /runs/{run_id}/result,
+    /runs/{run_id}/artifacts, /artifacts/{artifact_id} — untagged and outside
+    the /v1/phi prefix. Some of it is duplicated inside the prefix
+    (/v1/phi/artifacts/{artifact_id}/download). See lifecycle/.
+  detail: lifecycle/dyno-lifecycle.yml
+error_envelope:
+  shape: '{"detail": <string | array of ValidationError>}'
+  media_type: application/json
+  rfc9457: false
+  observed_401: '{"detail":"Missing API key. Provide an x-api-key header."}'
+  declared_codes: [200, 201, 202, 204, 422]
+  undeclared_but_real: [401, 429]
+  detail: errors/dyno-problem-types.yml
+rate_limit_signaling:
+  headers: []
+  status_on_exhaustion: 429
+  model: job quota (max_total_jobs, max_concurrent_jobs) rather than request rate
+  introspection: GET /v1/phi/auth/me/quota
+  note: >-
+    No RateLimit-* / X-RateLimit-* / Retry-After header is declared or
+    documented. The CLI treats an HTTP 429 on job submission as "job quota
+    exceeded". See rate-limits/dyno-rate-limits.yml.
+async_and_streaming:
+  model: submit-and-poll
+  submit: POST /v1/phi/jobs/ (also POST /v1/phi/jobs/batch)
+  poll: GET /v1/phi/jobs/{job_id}/status
+  terminal_statuses: [completed, failed, cancelled]
+  non_terminal_statuses: [pending, running]
+  cli_poll_interval_seconds: 5
+  cli_poll_timeout_seconds: 7200
+  log_stream: GET /v1/phi/jobs/{job_id}/logs/stream (text/event-stream)
+  webhooks: none published
+file_transfer:
+  pattern: signed-URL upload
+  flow: >-
+    POST /v1/phi/files/upload-url or POST
+    /v1/phi/ingest_sessions/{session_id}/upload_urls returns signed URLs; the
+    client PUTs bytes with Content-Type application/octet-stream, then calls
+    /finalize. Direct multipart upload is also available at
+    POST /v1/phi/files/upload.
+  retry_policy_client_side: 3 attempts, exponential base 2, on 429/500/502/503/504
+  download: GET /artifacts/{artifact_id}/download and /v1/phi/artifacts/{artifact_id}/download return signed URLs
+content_type: application/json
+gaps_to_report_upstream:
+- Two pagination styles in one API (page/page_size vs limit/offset).
+- No request-correlation header.
+- No published idempotency mechanism on job submission, which is the API's most
+  expensive and most retried call.

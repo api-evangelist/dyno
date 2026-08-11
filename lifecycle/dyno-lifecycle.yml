@@ -1,0 +1,93 @@
+generated: '2026-08-10'
+method: searched
+source: https://api.dyno-agents.app/v1/phi/openapi.json
+description: >-
+  Lifecycle posture for the Dyno Phi Protein Design API. The API is versioned in
+  the URI path and the first-party CLI keeps a Keep-a-Changelog file, but the
+  provider publishes no status page, no deprecation policy, no SLA and no
+  Sunset/Deprecation header support. No StatusPage or Deprecation pointer is
+  wired in apis.yml, because neither exists.
+versioning:
+  scheme: uri-path
+  current: v1
+  prefix: /v1/phi
+  info_version: 1.0.0
+  policy_url: null
+  policy_published: false
+  note: >-
+    The API is young — the platform launched publicly at NVIDIA GTC in March
+    2026 and the ASGCT announcement in May 2026 — and has not yet shipped a
+    second version.
+unversioned_surface:
+  present: true
+  paths:
+  - GET /health
+  - POST /runs
+  - GET /runs/{run_id}
+  - DELETE /runs/{run_id}
+  - GET /runs/{run_id}/result
+  - GET /runs/{run_id}/artifacts
+  - GET /artifacts/{artifact_id}
+  - GET /artifacts/{artifact_id}/download
+  note: >-
+    Eight operations sit outside the /v1/phi prefix and carry no tags. At least
+    one is duplicated inside the prefix
+    (/v1/phi/artifacts/{artifact_id}/download), which suggests an in-progress
+    migration of the older run/artifact surface under the versioned namespace.
+    Which of the pair is canonical is not stated.
+deprecation:
+  policy_url: null
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  deprecated_operations: []
+  evidence: >-
+    Zero operations carry `deprecated: true`; the strings "sunset" and
+    "deprecat" do not appear anywhere in the OpenAPI document.
+  feature_flagged_withdrawals:
+  - feature: phi design (rfdiffusion3) and phi boltzgen CLI commands
+    action: removed from user-facing help in 0.2.2/0.2.3, still reachable behind DYNO_ENABLE_DESIGN=1
+    date: '2026-03-17'
+    source: https://github.com/dynotx/phi-cli/blob/main/CHANGELOG.md
+    note: >-
+      Withdrawn from the documented surface without a deprecation notice or
+      sunset date — the closest thing to a deprecation event this provider has
+      published, and it happened in the CLI changelog only.
+sla:
+  url: null
+  uptime_target: null
+  published: false
+status_page:
+  url: null
+  published: false
+  probes:
+  - {url: 'https://design.dynotx.com/status', status: 404}
+  - {url: 'https://status.dynotx.com/', status: 'DNS NXDOMAIN'}
+  health_endpoint: GET https://api.dyno-agents.app/health
+  note: >-
+    A /health operation exists on the API, but a health endpoint is not a status
+    page — there is no public incident history or uptime record.
+changelog:
+  api_changelog_published: false
+  cli_changelog: https://github.com/dynotx/phi-cli/blob/main/CHANGELOG.md
+  detail: changelog/dyno-changelog.yml
+support:
+  issues: https://github.com/dynotx/phi-cli/issues
+  engineering_contact: engineering@dynotx.com
+  legal_contact: legal@dynotx.com
+  note: >-
+    engineering@dynotx.com is published in the repo's Claude Code marketplace
+    manifest; legal@dynotx.com on the open-source notice page. Neither is
+    presented as a support channel on the platform itself.
+gaps_to_report_upstream:
+- No status page and no published SLA for a GPU-backed compute API where jobs run
+  for minutes to hours.
+- No deprecation policy and no Sunset/Deprecation header support; the one real
+  withdrawal (design/boltzgen commands) was announced only in a CLI changelog.
+- No API-level changelog — a consumer cannot see when the REST contract changes.
+x-evidence:
+  fetched: '2026-08-10'
+  urls:
+  - {url: 'https://api.dyno-agents.app/v1/phi/openapi.json', http_status: 200}
+  - {url: 'https://design.dynotx.com/status', http_status: 404}
+  - {url: 'https://raw.githubusercontent.com/dynotx/phi-cli/main/CHANGELOG.md', http_status: 200}

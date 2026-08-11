@@ -1,0 +1,90 @@
+generated: '2026-08-10'
+method: searched
+source: https://api.dyno-agents.app/v1/phi/openapi.json
+docs: https://design.dynotx.com/cli
+description: >-
+  Authentication profile for the Dyno Phi Protein Design API. Derived from the
+  provider's OpenAPI 3.1.0 document, its first-party CLI source
+  (github.com/dynotx/phi-cli), and a live unauthenticated probe of the API.
+  IMPORTANT: the spec declares NO components.securitySchemes and no top-level
+  security[] block — the API key is modelled as an ordinary optional header
+  PARAMETER on every operation. The real, enforced mechanism was confirmed by
+  probing the live API.
+summary:
+  types: [apiKey, http-bearer, oidc-session]
+  api_key_in: [header]
+  oauth2_flows: []
+  spec_declares_security_schemes: false
+  enforced: true
+schemes:
+- name: x-api-key
+  type: apiKey
+  in: header
+  parameter: x-api-key
+  required: true
+  key_prefix: ak_
+  source: live probe + github.com/dynotx/phi-cli/src/phi/api.py
+  evidence: >-
+    GET https://api.dyno-agents.app/v1/phi/jobs/ with no credentials returns
+    HTTP 401 {"detail":"Missing API key. Provide an x-api-key header."}. The
+    first-party CLI sends the header as `x-api-key` on every request.
+  note: >-
+    Declared in the OpenAPI only as an optional header parameter
+    (`required: false`) on all 80 operations, which understates the contract —
+    the header is in fact mandatory.
+- name: Authorization Bearer
+  type: http
+  scheme: bearer
+  source: openapi info.description
+  evidence: >-
+    "All endpoints require an API key supplied as `Authorization: Bearer <key>`
+    or a Clerk session token."
+  note: >-
+    Documented in the spec description but contradicted by the live 401, which
+    names only x-api-key. Treat x-api-key as authoritative; Bearer may be an
+    accepted alternate. Not independently confirmed.
+- name: Clerk session token
+  type: openIdConnect
+  provider: Clerk
+  source: https://design.dynotx.com/open-source
+  evidence: >-
+    The open-source notice lists Clerk (commercial licence) in the platform
+    stack; the OpenAPI description states organisation ID is derived
+    automatically from Clerk tokens. Used by the design.dynotx.com dashboard.
+  discovery: none
+  note: >-
+    No /.well-known/openid-configuration is served on any Dyno host, so the
+    issuer is not machine-discoverable. See well-known/dyno-well-known.yml.
+tenancy_headers:
+- name: X-Organization-ID
+  required_when: static API key callers
+  source: openapi info.description
+  note: "\"Organisation ID is derived automatically from Clerk tokens; static-key callers must include X-Organization-ID.\""
+- name: X-User-ID
+  required: false
+  source: openapi parameters + phi-cli (DYNO_USER_ID env var)
+key_management:
+  issue_url: https://design.dynotx.com/dashboard/settings
+  path: Settings -> API keys
+  env_var: DYNO_API_KEY
+  base_url_env_var: DYNO_API_BASE_URL
+  local_cache: .phi/state.json (written by the CLI on first use)
+  rotation_policy: not published
+  expiry_policy: not published
+  scoping: not published (no scopes/permissions surface)
+gaps_to_report_upstream:
+- >-
+  No components.securitySchemes in the OpenAPI — every generated client and
+  every agent reading the spec will treat auth as optional. Adding an apiKey
+  scheme named x-api-key plus a top-level security requirement is a one-line fix.
+- >-
+  The spec description documents an `Authorization: Bearer` scheme but the
+  server answers with an x-api-key challenge; the two disagree.
+- No 401 or 403 response is declared on any of the 80 operations.
+x-evidence:
+  fetched: '2026-08-10'
+  urls:
+  - {url: 'https://api.dyno-agents.app/v1/phi/openapi.json', http_status: 200}
+  - {url: 'https://api.dyno-agents.app/v1/phi/jobs/', http_status: 401}
+  - {url: 'https://api.dyno-agents.app/v1/phi/auth/me', http_status: 401}
+  - {url: 'https://raw.githubusercontent.com/dynotx/phi-cli/main/src/phi/config.py', http_status: 200}

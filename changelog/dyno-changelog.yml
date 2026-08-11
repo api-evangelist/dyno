@@ -1,0 +1,81 @@
+generated: '2026-08-10'
+method: searched
+source: https://github.com/dynotx/phi-cli/blob/main/CHANGELOG.md
+description: >-
+  Dyno publishes a dated changelog for the phi CLI — the client for the Phi
+  Protein Design API — in Keep a Changelog format under semantic versioning. It
+  is the only dated change record the company publishes for its developer
+  platform. There is NO changelog for the REST API itself: the OpenAPI carries a
+  static info.version of 1.0.0 and no release notes accompany contract changes.
+  Scope is therefore CLIENT, not API.
+scope: client-cli
+scheme: keep-a-changelog + semver
+current_version: 0.2.3
+current_version_date: '2026-03-17'
+api_changelog_published: false
+entries:
+- version: Unreleased
+  date: null
+  breaking: []
+  additions: []
+  highlights: []
+- version: 0.2.3
+  date: '2026-03-17'
+  breaking: []
+  additions:
+  - phi research accepts --dataset_id as an alias for --dataset-id
+  - phi notes implemented — fetches and displays accumulated research notes for a dataset
+  changed:
+  - phi design (rfdiffusion3) and phi boltzgen removed from --help; reachable only via DYNO_ENABLE_DESIGN=1
+  fixes:
+  - missing imports in phi notes
+  - mypy "Cannot assign to a method" replaced with a _FilteredSubParsersAction subclass
+- version: 0.2.2
+  date: '2026-03-17'
+  breaking: []
+  additions:
+  - phi tutorial — downloads example PD-L1 binder structures from the API and prints a scoring walkthrough
+  fixes:
+  - GCS internal paths (gs://...) no longer shown in status output, research notes or phi fetch results
+  - phi design / phi boltzgen feature-flagged behind DYNO_ENABLE_DESIGN=1
+  - macOS SSL certificate error when downloading tutorial files via signed URLs
+- version: 0.2.0
+  date: '2026-03-17'
+  breaking: []
+  additions:
+  - dashboard URL printed after every command that sets an active dataset
+  - API key cached to .phi/state.json on first use
+  - filter dataset-ready panel shows a prominent next step
+  changed:
+  - Python compatibility widened from 3.11-only to 3.9-3.13
+  - filter jobs renamed job-filter_pipeline-<hash> (was job-design_pipeline-<hash>)
+  - phi login panel no longer displays endpoint, user_id or org_id
+  - generative model commands (phi design, phi boltzgen) removed from user-facing documentation
+  - repository URLs corrected (dyno-tx -> dynotx)
+- version: 0.1.0
+  date: '2024-03-01'
+  breaking: []
+  additions:
+  - initial public release of the phi CLI (upload, fetch, datasets, use, design, boltzgen, folding, complex_folding, inverse_folding, esm2, boltz, filter, status, jobs, logs, cancel, scores, download, research, notes)
+  - biomodals/ — Modal GPU apps for AlphaFold2, ESMFold, ProteinMPNN, Boltz, BoltzGen, BindCraft, Chai-1, RFdiffusion3, RF3, LigandMPNN, AF2Rank, RSO, TM-score, structure alignment
+  - Claude Code skill (skills/phi/SKILL.md)
+  note: >-
+    The 0.1.0 heading is dated 2024-03-01 in the file, but the first release on
+    PyPI (0.1.1) is 2026-03-16 and every other entry is March 2026. Recorded
+    verbatim; the 2024 date appears to be a typo in the provider's changelog.
+release_cadence:
+  first_release: '2026-03-16'
+  latest_release: '2026-03-18'
+  releases_to_date: 4
+  note: >-
+    All four PyPI releases landed within three days in March 2026 at launch.
+    Nothing has shipped since — see packages/dyno-packages.yml for the currency
+    signal.
+gaps_to_report_upstream:
+- No changelog or release notes for the REST API contract itself.
+- info.version has been 1.0.0 since launch with no dated record of change.
+x-evidence:
+  fetched: '2026-08-10'
+  urls:
+  - {url: 'https://raw.githubusercontent.com/dynotx/phi-cli/main/CHANGELOG.md', http_status: 200}
+  - {url: 'https://pypi.org/pypi/dyno-phi/json', http_status: 200}

@@ -1,0 +1,41 @@
+generated: '2026-08-10'
+method: searched
+source: https://design.dynotx.com/
+description: >-
+  Dyno publishes NO pricing page and NO plan tiers for the Phi Protein Design
+  API. Signup at design.dynotx.com is self-service and an API key is issued from
+  the dashboard, but no price, no included quota and no overage rate is stated
+  anywhere on the platform, the marketing site, or the launch announcements.
+  Press coverage describes the REST APIs as "community-tier", and the company's
+  own Substack frames commercial engagement as a lab-validation arrangement
+  ("we will only charge you for designs that do validate in the lab") rather
+  than a published subscription. Quotas are assigned per account by an
+  administrator (see rate-limits/dyno-rate-limits.yml), which is consistent with
+  there being no public tier table.
+plan_count: 0
+plans: []
+pricing_model: unpublished
+free_tier:
+  exists: likely
+  evidence: >-
+    Self-service signup with immediate API-key issuance and a built-in tutorial
+    dataset (GET /v1/phi/tutorial) implies a no-cost entry point, and third-party
+    coverage calls the APIs "community-tier". Dyno does not state terms, so this
+    is recorded as likely, not confirmed.
+  confidence: medium
+commercial_path:
+  described_as: >-
+    Partnership / lab-validation model for capsid and binder programs, plus
+    contact for licensing at legal@dynotx.com.
+  source: https://dynotx.substack.com/p/dyno-psi-phi-shaping-new-futures
+probes:
+- {url: 'https://design.dynotx.com/pricing', status: 404}
+- {url: 'https://www.dynotx.com/', status: 200, note: 'no pricing link in sitemap or navigation'}
+- {url: 'https://www.dynotx.com/sitemap.xml', status: 200, note: 'no /pricing entry among the site URLs'}
+- {url: 'https://design.dynotx.com/terms', status: 200, note: 'terms of service, no price schedule'}
+- {url: 'https://design.dynotx.com/', status: 200}
+gaps_to_report_upstream:
+- No pricing page. A developer cannot determine cost, included job quota, or the
+  boundary between free and paid before integrating.
+x-evidence:
+  fetched: '2026-08-10'

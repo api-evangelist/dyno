@@ -42,6 +42,10 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Dyno is a company surfaced as a portfolio company of a16z and added to the API Evangelist network as a stub for enrichment. This profile is a lead awaiting the enrichment pipeline.
+Dyno Therapeutics was first surfaced as an a16z portfolio company and profiled as a stub. It is no longer a stub: Dyno operates a public developer platform, **Dyno Psi-Phi** at [design.dynotx.com](https://design.dynotx.com/), whose **Phi Protein Design API** serves a live OpenAPI 3.1.0 document at `https://api.dyno-agents.app/v1/phi/openapi.json` — 64 paths, 80 operations, 62 schemas — with ReDoc at the API root.
+
+The platform runs GPU-backed open protein models (AlphaFold2, ESMFold, ProteinMPNN, Boltz, ESM-2, Chai-1, RFDiffusion3, BoltzGen, OpenFold3) as submit-and-poll jobs over uploaded PDB/CIF structures and returns filtered, scored binder candidates. Dyno also publishes a first-party Python CLI (`dyno-phi` on PyPI, MIT, [github.com/dynotx/phi-cli](https://github.com/dynotx/phi-cli)) and its own Claude Code Agent Skill.
+
+What this profile captures, and the gaps it records: the OpenAPI declares no `securitySchemes` even though `x-api-key` is enforced; only `200` and `422` responses are declared, while `401` and `429` are real; there is no status page, no deprecation policy, no pricing page, no idempotency key, no rate-limit response headers, and every `/.well-known/` path 404s on all three hosts. See `authentication/`, `errors/`, `lifecycle/`, `plans/`, `rate-limits/` and `well-known/` for the evidence.
 
 Backed by: a16z

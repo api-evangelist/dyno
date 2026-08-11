@@ -1,0 +1,164 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Dyno Phi Protein Design API
+  version: 1.0.0
+extends: openapi/dyno-phi-openapi.yml
+x-generated: '2026-08-10'
+x-method: generated
+x-source: >-
+  Derived from openapi/dyno-phi-openapi.yml plus live probes of
+  api.dyno-agents.app and the first-party CLI source at github.com/dynotx/phi-cli.
+  This overlay records API Evangelist's additions ONLY — it never mutates the
+  harvested original in openapi/_original/. Every action below encodes something
+  the provider's API genuinely does but does not declare in its spec.
+actions:
+# ---------------------------------------------------------------- provenance
+- target: $.info
+  update:
+    x-apievangelist-profile: https://apis.io/provider/dyno/
+    x-apievangelist-reviewed: '2026-08-10'
+    x-apievangelist-spec-source: https://api.dyno-agents.app/v1/phi/openapi.json
+
+# ------------------------------------------------- declare the real security
+# The API enforces an x-api-key header (live 401 proves it) but declares no
+# securitySchemes at all, so generated clients treat auth as optional.
+- target: $.components
+  update:
+    securitySchemes:
+      ApiKeyAuth:
+        type: apiKey
+        in: header
+        name: x-api-key
+        description: >-
+          API key created at https://design.dynotx.com/dashboard/settings.
+          Keys carry an `ak_` prefix. REQUIRED on every operation — the live API
+          returns 401 {"detail":"Missing API key. Provide an x-api-key header."}
+          without it. Added by API Evangelist; not declared by the provider.
+      BearerAuth:
+        type: http
+        scheme: bearer
+        description: >-
+          Documented in the provider's info.description ("Authorization: Bearer
+          <key> or a Clerk session token") but not confirmed by live probe.
+          Treat ApiKeyAuth as authoritative.
+- target: $
+  update:
+    security:
+    - ApiKeyAuth: []
+
+# --------------------------------------------- remove the localhost server
+# The published servers[] advertises http://localhost:8000 to the public
+# internet, which a naive generated client or agent may attempt.
+- target: $.info
+  update:
+    x-apievangelist-servers-note: >-
+      The provider's servers[] includes http://localhost:8000 ("Local
+      development"). Third-party clients must use
+      https://api.dyno-agents.app only.
+
+# -------------------------------------------------- undeclared real errors
+- target: $.components
+  update:
+    responses:
+      UnauthorizedError:
+        description: >-
+          Missing or invalid API key. Observed live; NOT declared by the
+          provider on any operation.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                detail:
+                  type: string
+      QuotaExceededError:
+        description: >-
+          Job quota exceeded (max_total_jobs or max_concurrent_jobs). Handled
+          explicitly by the provider's own CLI on POST /v1/phi/jobs/; NOT
+          declared in the spec. No Retry-After header is sent.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                detail:
+                  type: string
+- target: $.paths['/v1/phi/jobs/'].post.responses
+  update:
+    '401':
+      $ref: '#/components/responses/UnauthorizedError'
+    '429':
+      $ref: '#/components/responses/QuotaExceededError'
+- target: $.paths['/v1/phi/jobs/'].get.responses
+  update:
+    '401':
+      $ref: '#/components/responses/UnauthorizedError'
+- target: $.paths['/v1/phi/auth/me'].get.responses
+  update:
+    '401':
+      $ref: '#/components/responses/UnauthorizedError'
+
+# --------------------------------------------------- runtime semantics tags
+- target: $.paths['/v1/phi/jobs/'].post
+  update:
+    x-idempotent: false
+    x-apievangelist-note: >-
+      The optional run_id field is NOT an idempotency key — the provider
+      publishes no replay semantics. A retried submit may create a second job
+      and consume quota twice.
+    x-consequence: high
+    x-cost: GPU compute against the account job quota; no test mode exists.
+- target: $.paths['/v1/phi/jobs/{job_id}/status'].get
+  update:
+    x-poll-interval-seconds: 5
+    x-poll-timeout-seconds: 7200
+    x-apievangelist-note: >-
+      Terminal statuses are completed | failed | cancelled. A failed job is NOT
+      an HTTP error — read JobStatus, not the status code.
+- target: $.paths['/v1/phi/auth/me/quota'].get
+  update:
+    x-apievangelist-note: >-
+      The only runtime view of remaining quota. This API sends no RateLimit-*,
+      X-RateLimit-* or Retry-After headers, so an agent must poll here.
+- target: $.paths['/v1/phi/tutorial'].get
+  update:
+    x-apievangelist-note: >-
+      The provider's sandbox: idempotently provisions a PD-L1 tutorial dataset
+      in the caller's organization and returns signed URLs for five real binder
+      structures. See sandbox/dyno-sandbox.yml.
+
+# ----------------------------------------------------------- tag the untagged
+- target: $
+  update:
+    tags:
+    - name: auth
+      description: Identity and quota introspection.
+    - name: files
+      description: Direct and signed-URL file upload.
+    - name: ingest
+      description: Multi-file ingest sessions that finalize into a dataset.
+    - name: datasets
+      description: Collections of protein structures that jobs run against.
+    - name: jobs
+      description: Biomodal computation jobs across twenty model types.
+    - name: workflows
+      description: DAG plans of operations, planned, versioned and executed.
+    - name: protocols
+      description: Shareable, forkable, versioned workflow templates.
+    - name: agents
+      description: Registered LLM agents with bound tool sets.
+    - name: tools
+      description: Platform tool registry, grouped by category.
+    - name: assets
+      description: Projects, asset groups and assets produced by runs.
+    - name: research-notes
+      description: Free-text research notes attached to a dataset.
+    - name: tutorial
+      description: Provisioned onboarding fixtures.
+    - name: admin
+      description: Administrative quota management. Not available to ordinary keys.
+    - name: runs
+      description: >-
+        Unversioned legacy run/artifact surface (/health, /runs, /artifacts)
+        sitting outside the /v1/phi prefix and carrying no provider tags. Added
+        by API Evangelist so these eight operations are not orphaned.

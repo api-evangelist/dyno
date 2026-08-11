@@ -1,0 +1,81 @@
+generated: '2026-08-10'
+method: derived
+source: openapi/dyno-phi-openapi.yml
+description: >-
+  Error catalog for the Dyno Phi Protein Design API. Derived from the 4xx
+  responses declared in the provider's OpenAPI 3.1.0 document and supplemented
+  with two error conditions observed live or handled explicitly by the
+  provider's own CLI but NOT declared in the spec. The API does not use RFC 9457
+  problem+json.
+format: json-detail
+rfc9457: false
+envelope:
+  media_type: application/json
+  schema: '{"detail": string | ValidationError[]}'
+  validation_error_shape: '{"detail":[{"loc":[string|int],"msg":string,"type":string}]}'
+  component: '#/components/schemas/HTTPValidationError'
+problems:
+- status: 422
+  title: Validation Error
+  declared: true
+  occurrences: 76
+  schema: HTTPValidationError
+  detail_shape: array of ValidationError {loc, msg, type}
+  remediation: >-
+    Correct the offending field named in detail[].loc. FastAPI request-model
+    validation; the only 4xx declared anywhere in the spec.
+  source_operation: openapi/dyno-phi-openapi.yml (76 of 80 operations)
+- status: 401
+  title: Missing or invalid API key
+  declared: false
+  observed: true
+  observed_body: '{"detail":"Missing API key. Provide an x-api-key header."}'
+  remediation: >-
+    Send the `x-api-key` header with a key created at
+    https://design.dynotx.com/dashboard/settings. The CLI surfaces this as
+    "Not authenticated. Run 'phi login' to verify your API key and endpoint."
+  source: live probe GET https://api.dyno-agents.app/v1/phi/jobs/ -> 401
+- status: 429
+  title: Job quota exceeded
+  declared: false
+  observed: false
+  handled_by_provider_client: true
+  remediation: >-
+    Check running jobs (`phi jobs --status running`) and cancel one
+    (`phi cancel <job_id>`), or wait for the quota reset_at. Inspect current
+    usage with GET /v1/phi/auth/me/quota.
+  source: >-
+    github.com/dynotx/phi-cli src/phi/api.py — _submit() maps HTTP 429 on
+    POST /v1/phi/jobs/ to "Job quota exceeded". Also retried by the upload path
+    for 429/500/502/503/504.
+- status: 404
+  title: Not Found
+  declared: false
+  observed: true
+  observed_body: '{"detail":"Not Found"}'
+  remediation: Check the path; the API root serves ReDoc, and the spec lives at /v1/phi/openapi.json.
+  source: live probe of unknown paths on api.dyno-agents.app
+transient_errors_retried_by_first_party_client:
+  statuses: [429, 500, 502, 503, 504]
+  strategy: 3 attempts, exponential backoff base 2
+  scope: signed-URL file upload (PUT)
+  source: github.com/dynotx/phi-cli src/phi/api.py::_put_file
+job_failure_semantics:
+  note: >-
+    A job that fails does NOT surface as an HTTP error. POST /v1/phi/jobs/
+    returns 200 and the failure appears later as JobStatus "failed" on
+    GET /v1/phi/jobs/{job_id}/status. Agents must treat the terminal job status
+    as the real error channel, not the HTTP status.
+  terminal_statuses: [completed, failed, cancelled]
+gaps_to_report_upstream:
+- No 401, 403, 404, 409 or 429 response is declared on ANY of the 80 operations,
+  though 401 and 429 are demonstrably real. A generated client sees only 200/422.
+- No error code registry, no machine-readable error type URIs, no
+  application/problem+json (RFC 9457).
+- No published error reference page on design.dynotx.com.
+x-evidence:
+  fetched: '2026-08-10'
+  urls:
+  - {url: 'https://api.dyno-agents.app/v1/phi/openapi.json', http_status: 200}
+  - {url: 'https://api.dyno-agents.app/v1/phi/jobs/', http_status: 401}
+  - {url: 'https://api.dyno-agents.app/openapi.json', http_status: 404}

@@ -1,0 +1,78 @@
+generated: '2026-08-10'
+method: searched
+source: https://github.com/dynotx/phi-cli
+description: >-
+  Dyno Phi has no test-vs-live key separation and no mock mode — every call runs
+  real GPU jobs against the production API and counts against the account's job
+  quota. What it DOES publish is a first-class onboarding fixture set: a
+  server-side tutorial endpoint that pre-creates a dataset in the caller's
+  organization and hands back signed URLs for five real PD-L1 binder structures,
+  plus the same fixtures committed to the open-source CLI repo. That is the
+  provider's sandbox, and it is real published test data — no values are
+  invented here.
+sandbox_type: fixture-dataset
+test_mode_keys: false
+key_prefixes:
+  live: ak_
+  test: null
+  note: One key prefix only; there is no test key.
+mock_mode: false
+tutorial:
+  command: phi tutorial
+  endpoint: GET /v1/phi/tutorial
+  operation_id: get_tutorial_v1_phi_tutorial_get
+  behavior: >-
+    Returns signed download URLs for the PD-L1 tutorial files and idempotently
+    pre-creates a tutorial Dataset in the caller's organization, so
+    `phi filter --dataset-id <id>` works without a prior `phi upload`.
+  response_schema: TutorialResponse {files[TutorialFile{filename,url,gcs_uri}], dataset_id, message}
+  default_message: "Download the files below, then run: phi filter --dataset-id <dataset_id>"
+  source: openapi/dyno-phi-openapi.yml
+published_fixtures:
+- set: PD-L1 binder designs
+  count: 5
+  files: [binder_009.pdb, binder_047.pdb, binder_106.pdb, binder_188.pdb, binder_246.pdb]
+  location: https://github.com/dynotx/phi-cli/tree/main/examples/binders/pdl1
+  also_served_by: GET /v1/phi/tutorial (signed URLs)
+- set: PD-L1 reference targets
+  count: 2
+  files: [5O45.pdb, pdl1_pdb_19_132.pdb]
+  location: https://github.com/dynotx/phi-cli/tree/main/examples/fixtures/pdl1
+  note: 5O45 is a real RCSB PDB entry; the cropped variant is derived from it.
+external_structure_sources:
+  description: >-
+    `phi fetch` pulls real structures from public databases for experimentation,
+    which serves the same purpose as sample data without the provider having to
+    host it.
+  sources: [RCSB PDB, AlphaFold DB]
+  examples_in_provider_docs: [6M0J, 1IVO, P12345]
+  note: >-
+    Those accessions appear as illustrative arguments in the provider's own
+    SKILL.md; 6M0J and 1IVO are genuine PDB entries and P12345 is a UniProt
+    placeholder in Dyno's docs.
+local_development_server:
+  url: http://localhost:8000
+  declared_in: openapi servers[] ("Local development")
+  note: >-
+    The provider ships a localhost server entry in its public OpenAPI. It is not
+    a hosted sandbox and is not reachable by a third party; recorded because it
+    is part of the published contract.
+time_simulation: false
+triggers_or_fixture_tooling:
+  admin_seed: POST /v1/phi/admin/seed-test-data (operation seed_test_data_v1_phi_admin_seed_test_data_post, admin-only)
+  note: A seed-test-data operation exists but is under /admin and not available to ordinary API keys.
+quota_impact:
+  note: >-
+    Tutorial and experimentation jobs consume the same max_total_jobs and
+    max_concurrent_jobs quota as production work. See
+    rate-limits/dyno-rate-limits.yml.
+gaps_to_report_upstream:
+- No test mode, no test key prefix, no dry-run flag on job submission. Every
+  experiment burns real GPU quota.
+- The public OpenAPI advertises http://localhost:8000 as a server, which a
+  naive generated client or agent may attempt.
+x-evidence:
+  fetched: '2026-08-10'
+  urls:
+  - {url: 'https://api.dyno-agents.app/v1/phi/openapi.json', http_status: 200}
+  - {url: 'https://api.github.com/repos/dynotx/phi-cli/git/trees/HEAD?recursive=1', http_status: 200}
