@@ -2,68 +2,122 @@ generated: '2026-08-10'
 method: derived
 status: candidate
 source: openapi/dyno-phi-openapi.yml
-description: >-
-  Dyno publishes NO MCP server. This file is an API Evangelist CANDIDATE tool
-  surface derived from the provider's OpenAPI, offered as a design sketch — it is
-  NOT wired as a type: MCPServer pointer in apis.yml, because asserting an MCP
-  server the provider does not run would be a false claim. What Dyno DOES publish
-  for agents is a Claude Code Agent Skill and plugin over its CLI (see
-  skills/_index.yml), which is a different, CLI-mediated agent surface.
+description: 'Dyno publishes NO MCP server. This file is an API Evangelist CANDIDATE tool surface derived
+  from the provider''s OpenAPI, offered as a design sketch — it is NOT wired as a type: MCPServer pointer
+  in apis.yml, because asserting an MCP server the provider does not run would be a false claim. What
+  Dyno DOES publish for agents is a Claude Code Agent Skill and plugin over its CLI (see skills/_index.yml),
+  which is a different, CLI-mediated agent surface.'
 published_mcp_server: false
 searched:
-- {source: 'https://registry.modelcontextprotocol.io/v0/servers?search=dyno', result: 'no Dyno server (only unrelated io.github.nubo-db/dynoxide)'}
-- {source: 'https://api.dyno-agents.app/mcp', result: '404 {"detail":"Not Found"}'}
-- {source: 'https://design.dynotx.com/mcp', result: 404}
-- {source: 'github.com/dynotx/phi-cli file tree', result: 'no MCP server; ships a Claude Code plugin + skill instead'}
-- {source: 'openapi document', result: 'zero occurrences of "mcp"'}
+- source: https://registry.modelcontextprotocol.io/v0/servers?search=dyno
+  result: no Dyno server (only unrelated io.github.nubo-db/dynoxide)
+- source: https://api.dyno-agents.app/mcp
+  result: 404 {"detail":"Not Found"}
+- source: https://design.dynotx.com/mcp
+  result: 404
+- source: github.com/dynotx/phi-cli file tree
+  result: no MCP server; ships a Claude Code plugin + skill instead
+- source: openapi document
+  result: zero occurrences of "mcp"
 provider_agent_surface_that_does_exist:
   kind: claude-code-skill-and-plugin
   skill: https://github.com/dynotx/phi-cli/blob/main/skills/phi/SKILL.md
   plugin: https://github.com/dynotx/phi-cli/tree/main/phi-plugin
   marketplace: https://github.com/dynotx/phi-cli/blob/main/.claude-plugin/marketplace.json
   transport: local shell (Bash(phi *)) — requires the CLI and DYNO_API_KEY on the machine
-  note: >-
-    This is agent access mediated by a local CLI, not a hosted tool server. An
-    agent without a shell cannot use it.
+  note: This is agent access mediated by a local CLI, not a hosted tool server. An agent without a shell
+    cannot use it.
 candidate_server:
   name: dyno-phi
   transport: http
   url: null
   note: Candidate only — no such endpoint is operated by Dyno.
 candidate_tools:
-- {name: list_datasets, description: List protein structure datasets, source_operation: 'openapi/dyno-phi-openapi.yml#list_datasets_v1_phi_datasets__get'}
-- {name: get_dataset, description: Get one dataset, source_operation: 'openapi/dyno-phi-openapi.yml#get_dataset_v1_phi_datasets__dataset_id__get'}
-- {name: create_ingest_session, description: Start a multi-file structure upload, source_operation: 'openapi/dyno-phi-openapi.yml#create_ingest_session_v1_phi_ingest_sessions__post'}
-- {name: finalize_ingest_session, description: Finalize an upload into a dataset, source_operation: 'openapi/dyno-phi-openapi.yml#finalize_ingest_session_v1_phi_ingest_sessions__session_id__finalize_post'}
-- {name: submit_job, description: Submit a biomodal job (20 job types incl. filter_pipeline), source_operation: 'openapi/dyno-phi-openapi.yml#submit_job_v1_phi_jobs__post'}
-- {name: submit_batch_jobs, description: Submit a batch of jobs, source_operation: 'openapi/dyno-phi-openapi.yml#submit_batch_jobs_v1_phi_jobs_batch_post'}
-- {name: get_job_status, description: Poll job status and progress, source_operation: 'openapi/dyno-phi-openapi.yml#get_job_status_v1_phi_jobs__job_id__status_get'}
-- {name: list_jobs, description: List recent jobs with status counts, source_operation: 'openapi/dyno-phi-openapi.yml#list_jobs_v1_phi_jobs__get'}
-- {name: cancel_job, description: Cancel a running job, source_operation: 'openapi/dyno-phi-openapi.yml#cancel_job_v1_phi_jobs__job_id__delete'}
-- {name: get_job_scores, description: Get a signed URL for a job's scores CSV, source_operation: 'openapi/dyno-phi-openapi.yml#get_job_scores_v1_phi_jobs__job_id__scores_get'}
-- {name: get_dataset_scores, description: Get a signed URL for a dataset's scores, source_operation: 'openapi/dyno-phi-openapi.yml#get_dataset_scores_v1_phi_datasets__dataset_id__scores_get'}
-- {name: get_quota, description: Read current job quota and usage, source_operation: 'openapi/dyno-phi-openapi.yml#get_my_quota_v1_phi_auth_me_quota_get'}
-- {name: list_protocols, description: Browse shareable workflow protocols, source_operation: 'openapi/dyno-phi-openapi.yml#list_protocols_v1_phi_protocols_get'}
-- {name: recommend_protocols, description: Recommend protocols for an intent, source_operation: 'openapi/dyno-phi-openapi.yml#recommend_protocols_v1_phi_protocols_recommend_post'}
-- {name: fork_protocol, description: Fork a protocol, source_operation: 'openapi/dyno-phi-openapi.yml#fork_protocol_v1_phi_protocols__protocol_id__fork_post'}
-- {name: plan_and_execute_protocol, description: Plan and execute a workflow from a protocol, source_operation: 'openapi/dyno-phi-openapi.yml#plan_and_execute_with_protocol_v1_phi_workflows_plan_execute_post'}
-- {name: get_workflow_run_status, description: Poll a workflow run, source_operation: 'openapi/dyno-phi-openapi.yml#get_workflow_run_status_v1_phi_workflows__workflow_id__runs__run_id__status_get'}
-- {name: get_run_assets, description: List assets produced by a run, source_operation: 'openapi/dyno-phi-openapi.yml#get_run_assets_v1_phi_runs__run_id__assets_get'}
-- {name: download_artifact, description: Get a signed download URL for an artifact, source_operation: 'openapi/dyno-phi-openapi.yml#get_artifact_download_url_v1_phi_artifacts__artifact_id__download_get'}
-- {name: get_tutorial, description: Provision the PD-L1 tutorial dataset and fixture URLs, source_operation: 'openapi/dyno-phi-openapi.yml#get_tutorial_v1_phi_tutorial_get'}
+- name: list_datasets
+  description: List protein structure datasets
+  source_operation: openapi/dyno-phi-openapi.yml#list_datasets_v1_phi_datasets__get
+- name: get_dataset
+  description: Get one dataset
+  source_operation: openapi/dyno-phi-openapi.yml#get_dataset_v1_phi_datasets__dataset_id__get
+- name: create_ingest_session
+  description: Start a multi-file structure upload
+  source_operation: openapi/dyno-phi-openapi.yml#create_ingest_session_v1_phi_ingest_sessions__post
+- name: finalize_ingest_session
+  description: Finalize an upload into a dataset
+  source_operation: openapi/dyno-phi-openapi.yml#finalize_ingest_session_v1_phi_ingest_sessions__session_id__finalize_post
+- name: submit_job
+  description: Submit a biomodal job (20 job types incl. filter_pipeline)
+  source_operation: openapi/dyno-phi-openapi.yml#submit_job_v1_phi_jobs__post
+- name: submit_batch_jobs
+  description: Submit a batch of jobs
+  source_operation: openapi/dyno-phi-openapi.yml#submit_batch_jobs_v1_phi_jobs_batch_post
+- name: get_job_status
+  description: Poll job status and progress
+  source_operation: openapi/dyno-phi-openapi.yml#get_job_status_v1_phi_jobs__job_id__status_get
+- name: list_jobs
+  description: List recent jobs with status counts
+  source_operation: openapi/dyno-phi-openapi.yml#list_jobs_v1_phi_jobs__get
+- name: cancel_job
+  description: Cancel a running job
+  source_operation: openapi/dyno-phi-openapi.yml#cancel_job_v1_phi_jobs__job_id__delete
+- name: get_job_scores
+  description: Get a signed URL for a job's scores CSV
+  source_operation: openapi/dyno-phi-openapi.yml#get_job_scores_v1_phi_jobs__job_id__scores_get
+- name: get_dataset_scores
+  description: Get a signed URL for a dataset's scores
+  source_operation: openapi/dyno-phi-openapi.yml#get_dataset_scores_v1_phi_datasets__dataset_id__scores_get
+- name: get_quota
+  description: Read current job quota and usage
+  source_operation: openapi/dyno-phi-openapi.yml#get_my_quota_v1_phi_auth_me_quota_get
+- name: list_protocols
+  description: Browse shareable workflow protocols
+  source_operation: openapi/dyno-phi-openapi.yml#list_protocols_v1_phi_protocols_get
+- name: recommend_protocols
+  description: Recommend protocols for an intent
+  source_operation: openapi/dyno-phi-openapi.yml#recommend_protocols_v1_phi_protocols_recommend_post
+- name: fork_protocol
+  description: Fork a protocol
+  source_operation: openapi/dyno-phi-openapi.yml#fork_protocol_v1_phi_protocols__protocol_id__fork_post
+- name: plan_and_execute_protocol
+  description: Plan and execute a workflow from a protocol
+  source_operation: openapi/dyno-phi-openapi.yml#plan_and_execute_with_protocol_v1_phi_workflows_plan_execute_post
+- name: get_workflow_run_status
+  description: Poll a workflow run
+  source_operation: openapi/dyno-phi-openapi.yml#get_workflow_run_status_v1_phi_workflows__workflow_id__runs__run_id__status_get
+- name: get_run_assets
+  description: List assets produced by a run
+  source_operation: openapi/dyno-phi-openapi.yml#get_run_assets_v1_phi_runs__run_id__assets_get
+- name: download_artifact
+  description: Get a signed download URL for an artifact
+  source_operation: openapi/dyno-phi-openapi.yml#get_artifact_download_url_v1_phi_artifacts__artifact_id__download_get
+- name: get_tutorial
+  description: Provision the PD-L1 tutorial dataset and fixture URLs
+  source_operation: openapi/dyno-phi-openapi.yml#get_tutorial_v1_phi_tutorial_get
 excluded_from_candidate:
   reason: admin-scoped or destructive without a public contract
-  operations: [seed_test_data_v1_phi_admin_seed_test_data_post, list_quotas_v1_phi_admin_quotas_get, set_quota_v1_phi_admin_quotas__scope___scope_id__put, delete_quota_v1_phi_admin_quotas__scope___scope_id__delete, reset_user_quota_v1_phi_admin_quotas_user__user_id__reset_post, get_user_quota_usage_v1_phi_admin_quotas_user__user_id__usage_get]
+  operations:
+  - seed_test_data_v1_phi_admin_seed_test_data_post
+  - list_quotas_v1_phi_admin_quotas_get
+  - set_quota_v1_phi_admin_quotas__scope___scope_id__put
+  - delete_quota_v1_phi_admin_quotas__scope___scope_id__delete
+  - reset_user_quota_v1_phi_admin_quotas_user__user_id__reset_post
+  - get_user_quota_usage_v1_phi_admin_quotas_user__user_id__usage_get
 tool_crosswalk:
   emitted: false
-  reason: >-
-    A crosswalk binds PUBLISHED MCP tools (or GraphQL fields) to backing REST
-    operations. Dyno publishes neither an MCP server nor a GraphQL endpoint, so
-    there are no two surfaces to reconcile — a crosswalk here would just restate
-    the OpenAPI.
+  reason: A crosswalk binds PUBLISHED MCP tools (or GraphQL fields) to backing REST operations. Dyno publishes
+    neither an MCP server nor a GraphQL endpoint, so there are no two surfaces to reconcile — a crosswalk
+    here would just restate the OpenAPI.
 x-evidence:
   fetched: '2026-08-10'
   urls:
-  - {url: 'https://api.dyno-agents.app/mcp', http_status: 404}
-  - {url: 'https://design.dynotx.com/mcp', http_status: 404}
-  - {url: 'https://registry.modelcontextprotocol.io/v0/servers?search=dyno', http_status: 200}
+  - url: https://api.dyno-agents.app/mcp
+    http_status: 404
+  - url: https://design.dynotx.com/mcp
+    http_status: 404
+  - url: https://registry.modelcontextprotocol.io/v0/servers?search=dyno
+    http_status: 200
+deployment:
+  mode: none
+  verified: derived
+  checked: '2026-08-12'
+  source: catalog MCP census

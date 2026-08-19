@@ -1,0 +1,2533 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Phi — Protein Design API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "auth",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Current User Profile",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/auth/me",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "Return the Clerk-verified user profile and primary org ID.\n\n``org_id`` is sourced in priority order:\n  1. Directly from the verified token claims (``org_id`` claim in session JWTs\n     and ``ak_…`` keys scoped to an org).  This is the common path now that\n     Clerk \"Membership required\" is enabled.\n  2. Fetched from the Clerk membership API when the token has no ``org_id``\n     claim (older sessions / tokens issued without an active org context).\n  3. Returns a 422 if no org can be determined f"
+        },
+        {
+          "info": {
+            "name": "Get My Quota",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/auth/me/quota",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "Return the authenticated user's quota limits and current usage.\n\nAvailable to any user with a valid Clerk JWT or ``ak_`` key — no admin\nprivilege required.  Use this to drive quota banners and progress bars in\nthe frontend."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "files",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create Upload Url",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/files/upload-url",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Generate a short-lived signed GCS URL so the browser or CLI can PUT a file\ndirectly to cloud storage without routing through the API server.\n\nClient workflow:\n  1. POST /v1/phi/files/upload-url → receive upload_url + gcs_uri\n  2. PUT upload_url with raw file bytes (no auth header needed)\n  3. Pass gcs_uri as params.fasta_gcs_uri or params.pdb_gcs_uri in job submission"
+        },
+        {
+          "info": {
+            "name": "Upload File Direct",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/files/upload",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": []
+            }
+          },
+          "docs": "Upload a file directly through the API server (proxy to GCS).\n\nUse this instead of ``POST /upload-url`` when a direct client→GCS PUT is\nblocked by VPC Service Controls or firewall rules.\n\nClient workflow:\n  1. POST /v1/phi/files/upload (multipart/form-data, field ``file``)\n  2. Pass the returned ``gcs_uri`` as ``params.fasta_gcs_uri`` or\n     ``params.pdb_gcs_uri`` in job submission — identical to the signed-URL flow."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "ingest",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create Ingest Session",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/ingest_sessions/",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new ingest session for a batch of files.\n\nReturns a session ID and a GCS prefix where files should be uploaded\nusing the signed URLs returned by POST /ingest_sessions/{id}/upload_urls."
+        },
+        {
+          "info": {
+            "name": "Get Upload Urls",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/ingest_sessions/:session_id/upload_urls",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Return signed GCS PUT URLs for a batch of filenames (max 50 per request).\n\nThe client should PUT each file directly to its signed URL.\nMultiple calls are supported for large batches."
+        },
+        {
+          "info": {
+            "name": "Upload File To Session",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/ingest_sessions/:session_id/upload/:filename",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "filename",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": []
+            }
+          },
+          "docs": "Upload a single file to an ingest session through the API server (proxy to GCS).\n\nUse this instead of ``POST /upload_urls`` + client-side PUT when a direct\nclient→GCS PUT is blocked by VPC Service Controls or firewall rules.\n\nClient workflow:\n  1. POST /v1/phi/ingest_sessions/ → session_id\n  2. POST /v1/phi/ingest_sessions/{id}/upload/{filename} for each file\n  3. POST /v1/phi/ingest_sessions/{id}/finalize\n  4. Poll GET /v1/phi/ingest_sessions/{id} until status == READY"
+        },
+        {
+          "info": {
+            "name": "Finalize Ingest Session",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/ingest_sessions/:session_id/finalize",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Trigger the asynchronous ingest pipeline for a completed upload session.\n\nThe pipeline will:\n  1. List all objects under the session's GCS prefix\n  2. Compute checksums and deduplicate\n  3. Create a Dataset record and link DatasetFile rows\n  4. Update the session status to READY\n\nPoll GET /ingest_sessions/{id} to track progress."
+        },
+        {
+          "info": {
+            "name": "Get Ingest Session",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/ingest_sessions/:session_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Poll ingest session status."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "datasets",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Datasets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/datasets/",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "page",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List datasets owned by the current organization."
+        },
+        {
+          "info": {
+            "name": "Get Dataset",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/datasets/:dataset_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "dataset_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Return dataset metadata and a sample of its file artifacts."
+        },
+        {
+          "info": {
+            "name": "Update Dataset",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.dyno-agents.app/v1/phi/datasets/:dataset_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "dataset_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Rename a dataset. Returns the full updated dataset object."
+        },
+        {
+          "info": {
+            "name": "List Dataset Jobs",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/datasets/:dataset_id/jobs",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "dataset_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List all jobs that were run against this dataset, newest first."
+        },
+        {
+          "info": {
+            "name": "Get Dataset Scores",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/datasets/:dataset_id/scores",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "dataset_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "expires_in",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Return a signed download URL for the most recent scores.csv for this dataset."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "research-notes",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get dataset research notes",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/datasets/:dataset_id/research-notes",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "dataset_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieve the accumulated research notes for a dataset.\n\nReturns the full markdown content inline plus a signed GCS URL for direct\ndownload. Returns ``exists: false`` (with no content) if no notes have been\nsaved for this dataset yet."
+        },
+        {
+          "info": {
+            "name": "Append to dataset research notes",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/datasets/:dataset_id/research-notes",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "dataset_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Append markdown content to the dataset's cumulative research notes file in GCS.\n\nThe notes file lives at ``research/{dataset_id}/notes.md``. If it does not exist\nyet it is created. If it does, the new content is appended after a separator."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "workflows",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Plan Workflow Public",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/workflows/plan/public",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Generate a workflow plan from a natural language prompt — no authentication required.\n\nIdentical to POST /plan but:\n- Requires no API key or session token\n- ``execute_immediately`` and ``auto_publish`` are always ignored (planning only)\n- The resulting spec is **not saved** to the database; no ``workflow_id`` is returned\n\nIntended for public demos, embedded widgets, and unauthenticated frontend previews."
+        },
+        {
+          "info": {
+            "name": "Plan Workflow",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/workflows/plan",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Generate workflow plan from natural language prompt.\n\nThis is the primary endpoint for AI-powered workflow planning.\nTakes a natural language description and generates a validated WorkflowSpec.\n\nArgs:\n    request: Planning request with prompt and options\n    org_id: Organization ID from header\n    user_id: User ID from header\n    openai_api_key: OpenAI API key from dependency\n\nReturns:\n    workflow_id: ID of created workflow\n    spec: Full WorkflowSpec JSON\n    status: draft or published\n    val"
+        },
+        {
+          "info": {
+            "name": "Plan And Execute With Protocol",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/workflows/plan/execute",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Plan and execute workflow from protocol with user adjustments (frontend contract).\n\nThis endpoint:\n1. Loads the selected protocol template\n2. Substitutes protocolAdjustments into template variables\n3. Uses agent to adapt template to user's specific query\n4. Executes the workflow if executeImmediately=true\n\nArgs:\n    request: PlanExecuteRequest with protocol ID and adjustments\n    org_id: Organization ID from header\n    user_id: User ID from header\n    openai_api_key: OpenAI API key from dependen"
+        },
+        {
+          "info": {
+            "name": "List Workflows",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/workflows/",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "include_runs",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "runs_limit",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List workflows for organization.\n\nArgs:\n    org_id: Organization ID from header\n    status: Optional status filter (draft/published/archived)\n    limit: Maximum workflows to return (default: 100)\n    offset: Pagination offset (default: 0)\n    include_runs: Include recent execution runs (default: False for list endpoint)\n    runs_limit: Maximum number of runs per workflow (default: 10, max: 50)\n    db: Database session\n\nReturns:\n    List of workflows with optional runs arrays"
+        },
+        {
+          "info": {
+            "name": "Create Workflow",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/workflows/",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "force_new",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create new workflow from planner output.\n\nValidates and saves the workflow to database as a draft.\n\nBy default, returns existing workflow if identical spec already exists.\nSet force_new=true query parameter to create a copy anyway.\n\nArgs:\n    request: Workflow creation request\n    org_id: Organization ID (from header)\n    user_id: User ID (from header)\n    force_new: If true, always create new workflow even if duplicate exists\n\nReturns:\n    workflow_id: ID of workflow (new or existing)\n    is_ne"
+        },
+        {
+          "info": {
+            "name": "Get Workflow",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/workflows/:workflow_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "workflow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_runs",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "runs_limit",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get workflow by ID.\n\nArgs:\n    workflow_id: Workflow ID\n    org_id: Organization ID from header\n    include_runs: Include recent execution runs (default: True)\n    runs_limit: Maximum number of runs to return (default: 10, max: 50)\n    db: Database session\n\nReturns:\n    Workflow details with optional runs array"
+        },
+        {
+          "info": {
+            "name": "Update Workflow",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.dyno-agents.app/v1/phi/workflows/:workflow_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "workflow_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update workflow (creates new version)."
+        },
+        {
+          "info": {
+            "name": "Publish Workflow",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/workflows/:workflow_id/publish",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "workflow_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Publish workflow (make it executable)."
+        },
+        {
+          "info": {
+            "name": "Get Workflow Versions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/workflows/:workflow_id/versions",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "workflow_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get all versions of workflow."
+        },
+        {
+          "info": {
+            "name": "Execute Workflow",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/workflows/:workflow_id/execute",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "workflow_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Execute a published workflow."
+        },
+        {
+          "info": {
+            "name": "Get Workflow Run Status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/workflows/:workflow_id/runs/:run_id/status",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "workflow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get real-time workflow execution status.\n\nQueries the running Temporal workflow for current state including\nnode-level progress, artifacts produced, and execution metrics.\n\nArgs:\n    workflow_id: Workflow ID\n    run_id: Temporal run ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    WorkflowStatusResponse with real-time state\n\nRaises:\n    HTTPException: If workflow not found or query fails"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "agents",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Agents",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/agents/",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List agents for organization."
+        },
+        {
+          "info": {
+            "name": "Create Agent",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/agents/",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create new agent."
+        },
+        {
+          "info": {
+            "name": "Get Agent",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/agents/:agent_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "agent_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get agent by ID."
+        },
+        {
+          "info": {
+            "name": "Update Agent",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.dyno-agents.app/v1/phi/agents/:agent_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "agent_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update agent configuration and/or tools."
+        },
+        {
+          "info": {
+            "name": "Update Agent Tools",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/agents/:agent_id/tools",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "agent_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update which tools are enabled for agent."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "assets",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Projects",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/projects",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List projects for team.\n\nArgs:\n    auth: Verified auth context\n    status: Status filter (active/archived)\n    db: Database session\n\nReturns:\n    List of projects"
+        },
+        {
+          "info": {
+            "name": "Create Project",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/projects",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new project.\n\nArgs:\n    request: Project creation request\n    auth: Verified auth context (org_id maps to team_id, user_id maps to owner_id)\n    db: Database session\n\nReturns:\n    Created project details"
+        },
+        {
+          "info": {
+            "name": "Get Project",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/projects/:project_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "project_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get project details.\n\nArgs:\n    project_id: Project ID\n    auth: Verified auth context\n    db: Database session\n\nReturns:\n    Project details"
+        },
+        {
+          "info": {
+            "name": "List Asset Groups",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/projects/:project_id/asset-groups",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "project_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "List asset groups for a project.\n\nArgs:\n    project_id: Project ID\n    auth: Verified auth context\n    db: Database session\n\nReturns:\n    List of asset groups"
+        },
+        {
+          "info": {
+            "name": "List Assets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/asset-groups/:asset_group_id/assets",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "asset_group_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "asset_type",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filter_key",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filter_op",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "filter_value",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "sort_order",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List assets in an asset group with optional filtering and sorting.\n\nArgs:\n    asset_group_id: Asset group ID\n    team_id: Team ID from header\n    asset_type: Optional filter by asset type (sequence, structure, etc.)\n    filter_key: Metadata key to filter on (e.g., \"plddt\", \"rmsd\", \"score\")\n    filter_op: Comparison operator (eq, ne, gt, gte, lt, lte, contains)\n    filter_value: Value to compare against\n    sort_by: Metadata key to sort by (e.g., \"plddt\", \"rmsd\")\n    sort_order: Sort order (\"asc\""
+        },
+        {
+          "info": {
+            "name": "Get Asset",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/assets/:asset_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "asset_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get asset details.\n\nArgs:\n    asset_id: Asset ID\n    auth: Verified auth context\n    db: Database session\n\nReturns:\n    Asset details"
+        },
+        {
+          "info": {
+            "name": "Get Run Assets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/runs/:run_id/assets",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get asset group and assets for a specific run.\n\nArgs:\n    run_id: Run ID\n    auth: Verified auth context\n    db: Database session\n\nReturns:\n    Asset group with assets"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "tools",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Tools",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/tools/",
+            "params": [
+              {
+                "name": "category",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List all available system tools."
+        },
+        {
+          "info": {
+            "name": "Get Tool",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/tools/:tool_id",
+            "params": [
+              {
+                "name": "tool_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get tool details including parameter schema."
+        },
+        {
+          "info": {
+            "name": "List Categories",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/tools/categories/"
+          },
+          "docs": "List all tool categories."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "protocols",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Protocols",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/protocols",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "visibility",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "tags",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "starred",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List protocols for organization.\n\nArgs:\n    org_id: Organization ID from header\n    visibility: Filter by visibility (private/team/org)\n    tags: Comma-separated tags to filter by\n    starred: Filter by starred status (true/false/null for all)\n    limit: Max results\n    offset: Pagination offset\n    db: Database session\n\nReturns:\n    List of protocols with reputation"
+        },
+        {
+          "info": {
+            "name": "Create Protocol",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/protocols",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create new protocol.\n\nArgs:\n    request: Protocol creation request\n    org_id: Organization ID from header\n    user_id: User ID from header\n    db: Database session\n\nReturns:\n    Created protocol"
+        },
+        {
+          "info": {
+            "name": "Get Protocol",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/protocols/:protocol_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "protocol_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get protocol by ID.\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Protocol details"
+        },
+        {
+          "info": {
+            "name": "Update Protocol",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.dyno-agents.app/v1/phi/protocols/:protocol_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "protocol_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update protocol metadata.\n\nArgs:\n    protocol_id: Protocol ID\n    request: Update request\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Updated protocol"
+        },
+        {
+          "info": {
+            "name": "Delete Protocol",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.dyno-agents.app/v1/phi/protocols/:protocol_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "protocol_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete a protocol.\n\nDeletes the protocol and cascades to:\n- ProtocolExecution records (CASCADE)\n- ProtocolReputation records (CASCADE)\n\nSets NULL on:\n- Workflow.source_workflow_id (SET NULL)\n- Protocol.parent_protocol_id (SET NULL)\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Success response\n\nRaises:\n    HTTPException: If protocol not found or deletion fails"
+        },
+        {
+          "info": {
+            "name": "Validate Protocol Template",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/protocols/validate",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Validate a protocol template without persisting.\n\nReturns validation errors and warnings. Useful for UI to validate before submit."
+        },
+        {
+          "info": {
+            "name": "Fork Protocol",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/protocols/:protocol_id/fork",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "protocol_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Fork protocol to create variant.\n\nArgs:\n    protocol_id: Protocol to fork\n    request: Fork request\n    org_id: Organization ID from header\n    user_id: User ID from header\n    db: Database session\n\nReturns:\n    Forked protocol"
+        },
+        {
+          "info": {
+            "name": "Get Protocol Executions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/protocols/:protocol_id/executions",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "protocol_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get execution history for protocol.\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    limit: Max results\n    offset: Pagination offset\n    db: Database session\n\nReturns:\n    List of protocol executions"
+        },
+        {
+          "info": {
+            "name": "Recommend Protocols",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/protocols/recommend",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Recommend protocols based on user intent.\n\nExtracts intent from prompt, searches for matching protocols,\nand ranks by performance metrics.\n\nArgs:\n    request: Recommendation request with prompt\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Recommended protocols with match scores and rationale"
+        },
+        {
+          "info": {
+            "name": "Star Protocol",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/protocols/:protocol_id/star",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "protocol_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Star a protocol for the organization.\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Success response with updated starred status"
+        },
+        {
+          "info": {
+            "name": "Unstar Protocol",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.dyno-agents.app/v1/phi/protocols/:protocol_id/star",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "protocol_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Unstar a protocol for the organization.\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Success response with updated starred status"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "admin",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Seed Test Data",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/admin/seed-test-data",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "Seed test organization and user for development/staging.\n\n⚠️  DEV/STAGING ONLY: This endpoint should be disabled in production.\n\nCreates:\n- Organization: test-org\n- User: test-user (test@example.com)\n\nReturns:\n    Status and counts of created entities"
+        },
+        {
+          "info": {
+            "name": "List Quotas",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/admin/quotas",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "List all configured job quotas with current usage counts."
+        },
+        {
+          "info": {
+            "name": "Set Quota",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.dyno-agents.app/v1/phi/admin/quotas/:scope/:scope_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "scope",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "scope_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create or update job quota limits for an org or user.\n\n- **scope**: `org` to cap all jobs in an organisation, `user` to cap a single user.\n- **scope_id**: the `org_id` or `user_id` to apply the limit to.\n- **max_total_jobs**: lifetime cap (-1 = unlimited).\n- **max_concurrent_jobs**: max active jobs at one time (-1 = unlimited)."
+        },
+        {
+          "info": {
+            "name": "Delete Quota",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.dyno-agents.app/v1/phi/admin/quotas/:scope/:scope_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "scope",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "scope_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Remove quota limits for an org or user, restoring them to the default (100 jobs for users)."
+        },
+        {
+          "info": {
+            "name": "Reset User Quota",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/admin/quotas/user/:user_id/reset",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Reset a user's job usage counter.\n\nSets ``reset_at`` to the current time so only jobs submitted *after* this\ncall count toward their limit.  The user effectively gets a fresh 100-job\nallowance (or whatever ``max_total_jobs`` is set to on their row).\n\nCreates the quota row with the default limit if it does not exist yet."
+        },
+        {
+          "info": {
+            "name": "Get User Quota Usage",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/admin/quotas/user/:user_id/usage",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Return current quota limits and usage for a specific user.\n\nWorks even when no explicit quota row exists — reports the default limit."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "tutorial",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Tutorial",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/tutorial",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ]
+          },
+          "docs": "Return signed download URLs for the PDL-1 tutorial files.\n\nAlso idempotently pre-creates a tutorial Dataset in the caller's org so\nthat ``phi filter --dataset-id <id>`` works without a prior ``phi upload``.\n\nFiles are hosted at ``gs://<bucket>/tutorial/pdl1/`` and must be seeded\nonce with ``uv run python scripts/seed_tutorial_files.py``."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "jobs",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Jobs",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/jobs/",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "page",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "job_type",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "dataset_id",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List all jobs for an organization with pagination and filtering.\n\nArgs:\n    org_id: Organization ID from header\n    user_id: Optional user ID filter from header\n    page: Page number (1-indexed)\n    page_size: Number of results per page (max 100)\n    status: Optional status filter (pending, running, completed, failed, cancelled)\n    job_type: Optional job type filter (esmfold, alphafold, proteinmpnn, etc.)\n    dataset_id: Optional dataset ID filter\n    db: Database session\n\nReturns:\n    JobListR"
+        },
+        {
+          "info": {
+            "name": "Submit Job",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/jobs/",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Submit a biomodal job for execution.\n\nThis endpoint submits a single biomodal tool execution (e.g., ESMFold, ProteinMPNN)\nas a Temporal workflow. The job runs asynchronously and status can be polled via\nthe status endpoint.\n\nArgs:\n    request: Job submission request with type and parameters\n    org_id: Organization ID from header\n    user_id: User ID from header\n    db: Database session\n\nReturns:\n    JobSubmitResponse with job_id and run_id\n\nRaises:\n    HTTPException: If validation fails or subm"
+        },
+        {
+          "info": {
+            "name": "Get Job Status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/jobs/:job_id/status",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "job_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_assets",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get job execution status.\n\nQueries both the database and Temporal for the most up-to-date status information.\n\nArgs:\n    job_id: Job ID (UUID)\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    JobStatusResponse with current status and progress\n\nRaises:\n    HTTPException: If job not found or query fails"
+        },
+        {
+          "info": {
+            "name": "Stream Job Logs",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/jobs/:job_id/logs/stream",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "job_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Stream job logs via Server-Sent Events (SSE).\n\nThis endpoint provides real-time log streaming for a running job.\nLogs are aggregated from Temporal workflow events and GCS log files.\n\nThe stream continues until the job completes or the client disconnects.\n\nArgs:\n    job_id: Job ID (UUID)\n    org_id: Organization ID from header\n    request: FastAPI request object (for disconnect detection)\n    db: Database session\n\nReturns:\n    StreamingResponse with text/event-stream content\n\nRaises:\n    HTTPExce"
+        },
+        {
+          "info": {
+            "name": "Submit Batch Jobs",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/jobs/batch",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Submit multiple biomodal jobs in a batch.\n\nThis endpoint allows submitting multiple jobs at once, with partial failure handling.\nEach job is submitted independently, and failures don't prevent other jobs from being submitted.\n\nArgs:\n    requests: List of job submission requests\n    org_id: Organization ID from header\n    user_id: User ID from header\n    db: Database session\n\nReturns:\n    BatchJobSubmitResponse with batch_id and per-job results\n\nExample:\n    ```json\n    {\n      \"requests\": [\n    "
+        },
+        {
+          "info": {
+            "name": "Cancel Job",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.dyno-agents.app/v1/phi/jobs/:job_id",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "job_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Cancel a running job.\n\nAttempts to cancel a job by terminating its Temporal workflow.\nJobs that have already completed cannot be cancelled.\n\nArgs:\n    job_id: Job ID (UUID)\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    JobCancelResponse with cancellation status\n\nRaises:\n    HTTPException: If job not found, access denied, or cancellation fails"
+        },
+        {
+          "info": {
+            "name": "Manually Create Assets",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/v1/phi/jobs/:job_id/assets/create",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "job_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Manually trigger asset creation for a completed job.\n\nUse this endpoint if automatic asset creation failed during job completion.\nThis is a fallback mechanism for debugging and recovery.\n\nArgs:\n    job_id: Job ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Asset creation result with asset_group_id and assets_url\n\nRaises:\n    HTTPException: If job not found, not completed, or asset creation fails"
+        },
+        {
+          "info": {
+            "name": "Get Job Scores",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/jobs/:job_id/scores",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "X-User-ID",
+                "value": ""
+              },
+              {
+                "name": "X-Organization-ID",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "job_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "expires_in",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Return a signed download URL for the scores.csv produced by a design_pipeline job."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Default",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Health",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/health"
+          },
+          "docs": "Health check endpoint with Modal authentication status."
+        },
+        {
+          "info": {
+            "name": "Create Run",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.dyno-agents.app/runs",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Submit a design workflow to Temporal (async execution).\n\nReturns immediately with a run_id. Check status with GET /runs/{run_id}."
+        },
+        {
+          "info": {
+            "name": "Get Run Status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/runs/:run_id",
+            "params": [
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get workflow status from database."
+        },
+        {
+          "info": {
+            "name": "Cancel Run",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.dyno-agents.app/runs/:run_id",
+            "params": [
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Cancel a running workflow."
+        },
+        {
+          "info": {
+            "name": "Get Run Result",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/runs/:run_id/result",
+            "params": [
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get workflow result from database.\n\nReturns 404 if run not found, 202 if still running, 500 if failed."
+        },
+        {
+          "info": {
+            "name": "Get Workflow Results",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/runs/:run_id/results",
+            "params": [
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_artifacts",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get complete workflow execution results with all details.\n\nReturns comprehensive workflow results including:\n- Full workflow state (node-by-node status)\n- All artifacts with GCS URIs\n- Execution metrics (pLDDT, RMSD, alignment scores, etc.)\n- Node-level execution details\n\nArgs:\n    run_id: The workflow run ID\n    include_artifacts: Include artifact file list (default: true)\n    db: Database session\n\nReturns:\n    Complete workflow results with final_state, artifacts, metrics\n\nRaises:\n    404: Run"
+        },
+        {
+          "info": {
+            "name": "List Run Artifacts",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/runs/:run_id/artifacts",
+            "params": [
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "List all artifacts for a specific run.\n\nReturns:\n    ArtifactListResponse with all artifacts and summary statistics"
+        },
+        {
+          "info": {
+            "name": "Get Artifact",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/artifacts/:artifact_id",
+            "params": [
+              {
+                "name": "artifact_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get details for a specific artifact.\n\nReturns:\n    ArtifactResponse with artifact metadata"
+        },
+        {
+          "info": {
+            "name": "Get Artifact Download Url",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/artifacts/:artifact_id/download",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "artifact_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "expires_in",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Generate a signed HTTPS download URL for an artifact.\n\nThe signed URL allows the caller to download the file directly from GCS\nwithout any GCP credentials.  The URL expires after `expires_in` seconds\n(default 1 hour).\n\nAuthentication is required: provide a valid x-api-key header (Clerk API key\nor the static API_SECRET_KEY for local dev).\n\nArgs:\n    artifact_id: Artifact ID\n    expires_in: URL expiry time in seconds (default: 3600 = 1 hour)\n\nReturns:\n    DownloadURLResponse with signed HTTPS down"
+        },
+        {
+          "info": {
+            "name": "Get Artifact Download Url",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.dyno-agents.app/v1/phi/artifacts/:artifact_id/download",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "artifact_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "expires_in",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Generate a signed HTTPS download URL for an artifact.\n\nThe signed URL allows the caller to download the file directly from GCS\nwithout any GCP credentials.  The URL expires after `expires_in` seconds\n(default 1 hour).\n\nAuthentication is required: provide a valid x-api-key header (Clerk API key\nor the static API_SECRET_KEY for local dev).\n\nArgs:\n    artifact_id: Artifact ID\n    expires_in: URL expiry time in seconds (default: 3600 = 1 hour)\n\nReturns:\n    DownloadURLResponse with signed HTTPS down"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
