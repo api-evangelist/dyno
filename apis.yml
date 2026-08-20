@@ -49,6 +49,23 @@ tags:
 - Gene Delivery
 - AAV Capsid
 - Artificial Intelligence
+- Machine-Learning
+- Drug Discovery
+- Healthcare
+- Protein Design
+- Protein Structure Prediction
+- Bioinformatics
+- Computational Biology
+- Agentic AI
+- Life Sciences
+tags_raw:
+- Company
+- Biotechnology
+- Gene Therapy
+- Genetic Medicine
+- Gene Delivery
+- AAV Capsid
+- Artificial Intelligence
 - Machine Learning
 - Drug Discovery
 - Healthcare
@@ -73,6 +90,12 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - Protein Design
+  - Structure Prediction
+  - Machine-Learning
+  - Job
+  - Workflows
+  tags_raw:
   - Protein Design
   - Structure Prediction
   - Machine Learning
