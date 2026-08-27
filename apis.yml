@@ -76,34 +76,16 @@ tags_raw:
 - Agentic AI
 - Life Sciences
 apis:
-- name: Dyno Phi — Protein Design API
-  description: >-
-    Phi is a biomodal computation platform for protein design. The REST API lets
-    a caller create datasets from PDB/CIF structures, submit structure-prediction
-    and sequence-design jobs across twenty biomodal job types (ESMFold,
-    AlphaFold2 multimer, ProteinMPNN, Boltz, Chai-1, ESM-2, RFDiffusion3,
-    BoltzGen, OpenFold3, BindCraft, AF2Rank, TM-score and more), compose and
-    execute multi-step workflows and protocols, register agents and tools, poll
-    job status, stream job logs, and download scored results and artifacts.
-    Authentication is a static API key; per-user and per-organization job quotas
-    are exposed through the API itself.
+- aid: dyno:dyno-admin-api
+  name: Dyno Admin API
+  description: The admin API from Dyno — 5 operation(s) for admin.
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
-  - Protein Design
-  - Structure Prediction
-  - Machine-Learning
-  - Job
-  - Workflows
-  tags_raw:
-  - Protein Design
-  - Structure Prediction
-  - Machine Learning
-  - Jobs
-  - Workflows
+  - admin
   properties:
   - type: OpenAPI
-    url: openapi/dyno-phi-openapi.yml
+    url: openapi/dyno-admin-api-openapi.yml
   - type: Documentation
     url: https://design.dynotx.com/docs
   - type: APIReference
@@ -118,17 +100,495 @@ apis:
     url: data-model/dyno-data-model.yml
   - type: RateLimits
     url: rate-limits/dyno-rate-limits.yml
-  - type: Overlay
-    url: overlays/dyno-phi-overlay.yaml
   - type: Sandbox
     url: sandbox/dyno-sandbox.yml
   - type: CLI
     url: cli/dyno-cli.yml
-  - type: AgentSkill
-    url: skills/_index.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-agents-api
+  name: Dyno Agents API
+  description: The agents API from Dyno — 3 operation(s) for agents.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - agents
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-agents-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-artifacts-api
+  name: Dyno Artifacts API
+  description: The Artifacts API from Dyno — 2 operation(s) for artifacts.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - Artifacts
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-artifacts-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-assets-api
+  name: Dyno Assets API
+  description: The assets API from Dyno — 6 operation(s) for assets.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - assets
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-assets-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-auth-api
+  name: Dyno Auth API
+  description: The auth API from Dyno — 2 operation(s) for auth.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - auth
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-auth-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-datasets-api
+  name: Dyno Datasets API
+  description: The datasets API from Dyno — 4 operation(s) for datasets.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - datasets
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-datasets-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-files-api
+  name: Dyno Files API
+  description: The files API from Dyno — 2 operation(s) for files.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - files
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-files-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-health-api
+  name: Dyno Health API
+  description: The Health API from Dyno — 1 operation(s) for health.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - Health
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-health-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-ingest-api
+  name: Dyno Ingest API
+  description: The ingest API from Dyno — 5 operation(s) for ingest.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - ingest
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-ingest-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-jobs-api
+  name: Dyno Jobs API
+  description: The jobs API from Dyno — 7 operation(s) for jobs.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - jobs
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-jobs-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-phi-api
+  name: Dyno Phi API
+  description: The Phi API from Dyno — 2 operation(s) for phi.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - Phi
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-phi-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-protocols-api
+  name: Dyno Protocols API
+  description: The protocols API from Dyno — 7 operation(s) for protocols.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - protocols
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-protocols-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-research-notes-api
+  name: Dyno Research Notes API
+  description: The research-notes API from Dyno — 1 operation(s) for research-notes.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - research-notes
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-research-notes-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-runs-api
+  name: Dyno Runs API
+  description: The Runs API from Dyno — 4 operation(s) for runs.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - Runs
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-runs-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-tools-api
+  name: Dyno Tools API
+  description: The tools API from Dyno — 3 operation(s) for tools.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - tools
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-tools-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-tutorial-api
+  name: Dyno Tutorial API
+  description: The tutorial API from Dyno — 1 operation(s) for tutorial.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - tutorial
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-tutorial-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
+  - type: SDKs
+    url: packages/dyno-packages.yml
+- aid: dyno:dyno-workflows-api
+  name: Dyno Workflows API
+  description: The workflows API from Dyno — 9 operation(s) for workflows.
+  humanURL: https://design.dynotx.com/docs
+  baseURL: https://api.dyno-agents.app
+  tags:
+  - workflows
+  properties:
+  - type: OpenAPI
+    url: openapi/dyno-workflows-api-openapi.yml
+  - type: Documentation
+    url: https://design.dynotx.com/docs
+  - type: APIReference
+    url: https://api.dyno-agents.app/
+  - type: Authentication
+    url: authentication/dyno-authentication.yml
+  - type: Conventions
+    url: conventions/dyno-conventions.yml
+  - type: ErrorCatalog
+    url: errors/dyno-problem-types.yml
+  - type: DataModel
+    url: data-model/dyno-data-model.yml
+  - type: RateLimits
+    url: rate-limits/dyno-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/dyno-sandbox.yml
+  - type: CLI
+    url: cli/dyno-cli.yml
   - type: SDKs
     url: packages/dyno-packages.yml
 common:
+- type: Overlay
+  url: overlays/dyno-phi-overlay.yaml
 - type: MCPServer
   url: mcp/dyno-mcp.yml
 - type: License
