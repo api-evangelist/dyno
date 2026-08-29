@@ -601,6 +601,9 @@ apis:
   - type: SDKs
     url: packages/dyno-packages.yml
 common:
+- type: CapabilityMap
+  url: capabilities/dyno-capability-edges.yml
+  name: Dyno Business Capability Map
 - type: Overlay
   url: overlays/dyno-phi-overlay.yaml
 - type: MCPServer
