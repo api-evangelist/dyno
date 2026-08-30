@@ -96,6 +96,8 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - Admin
+  tags_raw:
   - admin
   properties:
   - type: OpenAPI
@@ -126,6 +128,8 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - Agents
+  tags_raw:
   - agents
   properties:
   - type: OpenAPI
@@ -186,6 +190,8 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - Assets
+  tags_raw:
   - assets
   properties:
   - type: OpenAPI
@@ -216,6 +222,8 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - Authentication
+  tags_raw:
   - auth
   properties:
   - type: OpenAPI
@@ -246,6 +254,8 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - Datasets
+  tags_raw:
   - datasets
   properties:
   - type: OpenAPI
@@ -276,6 +286,8 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - File
+  tags_raw:
   - files
   properties:
   - type: OpenAPI
@@ -336,6 +348,8 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - Ingest
+  tags_raw:
   - ingest
   properties:
   - type: OpenAPI
@@ -366,6 +380,8 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - Job
+  tags_raw:
   - jobs
   properties:
   - type: OpenAPI
@@ -396,6 +412,8 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - PHI
+  tags_raw:
   - Phi
   properties:
   - type: OpenAPI
@@ -426,6 +444,8 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - Protocols
+  tags_raw:
   - protocols
   properties:
   - type: OpenAPI
@@ -516,6 +536,8 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - Tools
+  tags_raw:
   - tools
   properties:
   - type: OpenAPI
@@ -546,6 +568,8 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - Tutorial
+  tags_raw:
   - tutorial
   properties:
   - type: OpenAPI
@@ -576,6 +600,8 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
+  - Workflows
+  tags_raw:
   - workflows
   properties:
   - type: OpenAPI
