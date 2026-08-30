@@ -1,0 +1,368 @@
+openapi: 3.2.0
+info:
+  title: Phi — Protein Design Admin API
+  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
+
+
+    ## Authentication
+
+    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
+
+
+    ## Quick links
+
+    - `POST /v1/phi/jobs` — submit a job
+
+    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
+
+    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
+
+    '
+  version: 1.0.0
+servers:
+- url: https://api.dyno-agents.app
+  description: Production
+- url: http://localhost:8000
+  description: Local development
+tags:
+- name: admin
+paths:
+  /v1/phi/admin/seed-test-data:
+    post:
+      tags:
+      - admin
+      summary: Seed Test Data
+      description: "Seed test organization and user for development/staging.\n\n⚠️  DEV/STAGING ONLY: This endpoint should be disabled in production.\n\nCreates:\n- Organization: test-org\n- User: test-user (test@example.com)\n\nReturns:\n    Status and counts of created entities"
+      operationId: seed_test_data_v1_phi_admin_seed_test_data_post
+      parameters:
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Seed Test Data V1 Phi Admin Seed Test Data Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/admin/quotas:
+    get:
+      tags:
+      - admin
+      summary: List Quotas
+      description: List all configured job quotas with current usage counts.
+      operationId: list_quotas_v1_phi_admin_quotas_get
+      parameters:
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuotaResponse'
+                title: Response List Quotas V1 Phi Admin Quotas Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/admin/quotas/{scope}/{scope_id}:
+    put:
+      tags:
+      - admin
+      summary: Set Quota
+      description: 'Create or update job quota limits for an org or user.
+
+
+        - **scope**: `org` to cap all jobs in an organisation, `user` to cap a single user.
+
+        - **scope_id**: the `org_id` or `user_id` to apply the limit to.
+
+        - **max_total_jobs**: lifetime cap (-1 = unlimited).
+
+        - **max_concurrent_jobs**: max active jobs at one time (-1 = unlimited).'
+      operationId: set_quota_v1_phi_admin_quotas__scope___scope_id__put
+      parameters:
+      - name: scope
+        in: path
+        required: true
+        schema:
+          enum:
+          - org
+          - user
+          type: string
+          title: Scope
+      - name: scope_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Scope Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuotaRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - admin
+      summary: Delete Quota
+      description: Remove quota limits for an org or user, restoring them to the default (100 jobs for users).
+      operationId: delete_quota_v1_phi_admin_quotas__scope___scope_id__delete
+      parameters:
+      - name: scope
+        in: path
+        required: true
+        schema:
+          enum:
+          - org
+          - user
+          type: string
+          title: Scope
+      - name: scope_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Scope Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/admin/quotas/user/{user_id}/reset:
+    post:
+      tags:
+      - admin
+      summary: Reset User Quota
+      description: 'Reset a user''s job usage counter.
+
+
+        Sets ``reset_at`` to the current time so only jobs submitted *after* this
+
+        call count toward their limit.  The user effectively gets a fresh 100-job
+
+        allowance (or whatever ``max_total_jobs`` is set to on their row).
+
+
+        Creates the quota row with the default limit if it does not exist yet.'
+      operationId: reset_user_quota_v1_phi_admin_quotas_user__user_id__reset_post
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: User Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/admin/quotas/user/{user_id}/usage:
+    get:
+      tags:
+      - admin
+      summary: Get User Quota Usage
+      description: 'Return current quota limits and usage for a specific user.
+
+
+        Works even when no explicit quota row exists — reports the default limit.'
+      operationId: get_user_quota_usage_v1_phi_admin_quotas_user__user_id__usage_get
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: User Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    QuotaRequest:
+      properties:
+        max_total_jobs:
+          type: integer
+          title: Max Total Jobs
+          description: Lifetime job cap for this scope. -1 means unlimited.
+          default: -1
+        max_concurrent_jobs:
+          type: integer
+          title: Max Concurrent Jobs
+          description: Maximum simultaneously active (pending/running) jobs. -1 means unlimited.
+          default: -1
+      type: object
+      title: QuotaRequest
+    QuotaResponse:
+      properties:
+        scope:
+          type: string
+          title: Scope
+        scope_id:
+          type: string
+          title: Scope Id
+        max_total_jobs:
+          type: integer
+          title: Max Total Jobs
+        max_concurrent_jobs:
+          type: integer
+          title: Max Concurrent Jobs
+        reset_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reset At
+        current_total_jobs:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Current Total Jobs
+        current_concurrent_jobs:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Current Concurrent Jobs
+      type: object
+      required:
+      - scope
+      - scope_id
+      - max_total_jobs
+      - max_concurrent_jobs
+      title: QuotaResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

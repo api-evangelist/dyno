@@ -1,0 +1,329 @@
+openapi: 3.2.0
+info:
+  title: Phi — Protein Design Runs API
+  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
+
+
+    ## Authentication
+
+    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
+
+
+    ## Quick links
+
+    - `POST /v1/phi/jobs` — submit a job
+
+    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
+
+    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
+
+    '
+  version: 1.0.0
+servers:
+- url: https://api.dyno-agents.app
+  description: Production
+- url: http://localhost:8000
+  description: Local development
+tags:
+- name: Runs
+paths:
+  /runs:
+    post:
+      summary: Create Run
+      description: 'Submit a design workflow to Temporal (async execution).
+
+
+        Returns immediately with a run_id. Check status with GET /runs/{run_id}.'
+      operationId: create_run_runs_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DesignRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Create Run Runs Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      tags:
+      - Runs
+  /runs/{run_id}:
+    get:
+      summary: Get Run Status
+      description: Get workflow status from database.
+      operationId: get_run_status_runs__run_id__get
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Run Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Run Status Runs  Run Id  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      tags:
+      - Runs
+    delete:
+      summary: Cancel Run
+      description: Cancel a running workflow.
+      operationId: cancel_run_runs__run_id__delete
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Run Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+                title: Response Cancel Run Runs  Run Id  Delete
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      tags:
+      - Runs
+  /runs/{run_id}/result:
+    get:
+      summary: Get Run Result
+      description: 'Get workflow result from database.
+
+
+        Returns 404 if run not found, 202 if still running, 500 if failed.'
+      operationId: get_run_result_runs__run_id__result_get
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Run Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DesignResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      tags:
+      - Runs
+  /runs/{run_id}/artifacts:
+    get:
+      summary: List Run Artifacts
+      description: "List all artifacts for a specific run.\n\nReturns:\n    ArtifactListResponse with all artifacts and summary statistics"
+      operationId: list_run_artifacts_runs__run_id__artifacts_get
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Run Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      tags:
+      - Runs
+components:
+  schemas:
+    DesignResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+        tool_calls:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Tool Calls
+        results:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Results
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+      type: object
+      required:
+      - message
+      - tool_calls
+      - results
+      - metadata
+      title: DesignResponse
+      description: Response from design agent.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    DesignRequest:
+      properties:
+        message:
+          type: string
+          maxLength: 10000
+          minLength: 1
+          title: Message
+          description: User's design request
+        context:
+          additionalProperties: true
+          type: object
+          title: Context
+          description: Optional context
+      type: object
+      required:
+      - message
+      title: DesignRequest
+      description: Request to design protein.
+    ArtifactListResponse:
+      properties:
+        run_id:
+          type: string
+          title: Run Id
+        artifacts:
+          items:
+            $ref: '#/components/schemas/ArtifactResponse'
+          type: array
+          title: Artifacts
+        total_count:
+          type: integer
+          title: Total Count
+        total_size_bytes:
+          type: integer
+          title: Total Size Bytes
+      type: object
+      required:
+      - run_id
+      - artifacts
+      - total_count
+      - total_size_bytes
+      title: ArtifactListResponse
+      description: Response model for list of artifacts.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ArtifactResponse:
+      properties:
+        artifact_id:
+          type: string
+          title: Artifact Id
+        run_id:
+          type: string
+          title: Run Id
+        artifact_type:
+          type: string
+          title: Artifact Type
+        filename:
+          type: string
+          title: Filename
+        storage_path:
+          type: string
+          title: Storage Path
+        size_bytes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Size Bytes
+        mime_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mime Type
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - artifact_id
+      - run_id
+      - artifact_type
+      - filename
+      - storage_path
+      - size_bytes
+      - mime_type
+      - created_at
+      - metadata
+      title: ArtifactResponse
+      description: Response model for artifact details.

@@ -1,0 +1,547 @@
+openapi: 3.2.0
+info:
+  title: Phi — Protein Design Datasets API
+  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
+
+
+    ## Authentication
+
+    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
+
+
+    ## Quick links
+
+    - `POST /v1/phi/jobs` — submit a job
+
+    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
+
+    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
+
+    '
+  version: 1.0.0
+servers:
+- url: https://api.dyno-agents.app
+  description: Production
+- url: http://localhost:8000
+  description: Local development
+tags:
+- name: datasets
+paths:
+  /v1/phi/datasets/:
+    get:
+      tags:
+      - datasets
+      summary: List Datasets
+      description: List datasets owned by the current organization.
+      operationId: list_datasets_v1_phi_datasets__get
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Page Size
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/datasets/{dataset_id}:
+    get:
+      tags:
+      - datasets
+      summary: Get Dataset
+      description: Return dataset metadata and a sample of its file artifacts.
+      operationId: get_dataset_v1_phi_datasets__dataset_id__get
+      parameters:
+      - name: dataset_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Dataset Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - datasets
+      summary: Update Dataset
+      description: Rename a dataset. Returns the full updated dataset object.
+      operationId: update_dataset_v1_phi_datasets__dataset_id__patch
+      parameters:
+      - name: dataset_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Dataset Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchDatasetRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/datasets/{dataset_id}/jobs:
+    get:
+      tags:
+      - datasets
+      summary: List Dataset Jobs
+      description: List all jobs that were run against this dataset, newest first.
+      operationId: list_dataset_jobs_v1_phi_datasets__dataset_id__jobs_get
+      parameters:
+      - name: dataset_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Dataset Id
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Page Size
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetJobsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/datasets/{dataset_id}/scores:
+    get:
+      tags:
+      - datasets
+      summary: Get Dataset Scores
+      description: Return a signed download URL for the most recent scores.csv for this dataset.
+      operationId: get_dataset_scores_v1_phi_datasets__dataset_id__scores_get
+      parameters:
+      - name: dataset_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Dataset Id
+      - name: expires_in
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 3600
+          title: Expires In
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetScoresResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    DatasetResponse:
+      properties:
+        dataset_id:
+          type: string
+          title: Dataset Id
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        file_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: File Type
+        artifact_count:
+          type: integer
+          title: Artifact Count
+        status:
+          type: string
+          title: Status
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        sample_files:
+          items:
+            $ref: '#/components/schemas/DatasetFileSummary'
+          type: array
+          title: Sample Files
+      type: object
+      required:
+      - dataset_id
+      - org_id
+      - user_id
+      - artifact_count
+      - status
+      title: DatasetResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    DatasetScoresResponse:
+      properties:
+        dataset_id:
+          type: string
+          title: Dataset Id
+        job_id:
+          type: string
+          title: Job Id
+        download_url:
+          type: string
+          title: Download Url
+        filename:
+          type: string
+          title: Filename
+        expires_in:
+          type: integer
+          title: Expires In
+        completed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completed At
+      type: object
+      required:
+      - dataset_id
+      - job_id
+      - download_url
+      - filename
+      - expires_in
+      title: DatasetScoresResponse
+    DatasetJobsResponse:
+      properties:
+        dataset_id:
+          type: string
+          title: Dataset Id
+        jobs:
+          items:
+            $ref: '#/components/schemas/DatasetJobSummary'
+          type: array
+          title: Jobs
+        total_count:
+          type: integer
+          title: Total Count
+        page:
+          type: integer
+          title: Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+      - dataset_id
+      - jobs
+      - total_count
+      - page
+      - page_size
+      title: DatasetJobsResponse
+    DatasetJobSummary:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        job_type:
+          type: string
+          title: Job Type
+        status:
+          type: string
+          title: Status
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        completed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completed At
+        scores_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Scores Url
+      type: object
+      required:
+      - job_id
+      - job_type
+      - status
+      title: DatasetJobSummary
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    PatchDatasetRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+      type: object
+      required:
+      - name
+      title: PatchDatasetRequest
+    DatasetFileSummary:
+      properties:
+        filename:
+          type: string
+          title: Filename
+        size_bytes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Size Bytes
+        checksum:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Checksum
+      type: object
+      required:
+      - filename
+      title: DatasetFileSummary
+    DatasetListResponse:
+      properties:
+        datasets:
+          items:
+            $ref: '#/components/schemas/DatasetResponse'
+          type: array
+          title: Datasets
+        total_count:
+          type: integer
+          title: Total Count
+      type: object
+      required:
+      - datasets
+      - total_count
+      title: DatasetListResponse

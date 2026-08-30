@@ -1,0 +1,510 @@
+openapi: 3.2.0
+info:
+  title: Phi — Protein Design Assets API
+  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
+
+
+    ## Authentication
+
+    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
+
+
+    ## Quick links
+
+    - `POST /v1/phi/jobs` — submit a job
+
+    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
+
+    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
+
+    '
+  version: 1.0.0
+servers:
+- url: https://api.dyno-agents.app
+  description: Production
+- url: http://localhost:8000
+  description: Local development
+tags:
+- name: assets
+paths:
+  /v1/phi/projects:
+    post:
+      tags:
+      - assets
+      summary: Create Project
+      description: "Create a new project.\n\nArgs:\n    request: Project creation request\n    auth: Verified auth context (org_id maps to team_id, user_id maps to owner_id)\n    db: Database session\n\nReturns:\n    Created project details"
+      operationId: create_project_v1_phi_projects_post
+      parameters:
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Create Project V1 Phi Projects Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - assets
+      summary: List Projects
+      description: "List projects for team.\n\nArgs:\n    auth: Verified auth context\n    status: Status filter (active/archived)\n    db: Database session\n\nReturns:\n    List of projects"
+      operationId: list_projects_v1_phi_projects_get
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          default: active
+          title: Status
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List Projects V1 Phi Projects Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/projects/{project_id}:
+    get:
+      tags:
+      - assets
+      summary: Get Project
+      description: "Get project details.\n\nArgs:\n    project_id: Project ID\n    auth: Verified auth context\n    db: Database session\n\nReturns:\n    Project details"
+      operationId: get_project_v1_phi_projects__project_id__get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Project V1 Phi Projects  Project Id  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/projects/{project_id}/asset-groups:
+    get:
+      tags:
+      - assets
+      summary: List Asset Groups
+      description: "List asset groups for a project.\n\nArgs:\n    project_id: Project ID\n    auth: Verified auth context\n    db: Database session\n\nReturns:\n    List of asset groups"
+      operationId: list_asset_groups_v1_phi_projects__project_id__asset_groups_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List Asset Groups V1 Phi Projects  Project Id  Asset Groups Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/asset-groups/{asset_group_id}/assets:
+    get:
+      tags:
+      - assets
+      summary: List Assets
+      description: "List assets in an asset group with optional filtering and sorting.\n\nArgs:\n    asset_group_id: Asset group ID\n    team_id: Team ID from header\n    asset_type: Optional filter by asset type (sequence, structure, etc.)\n    filter_key: Metadata key to filter on (e.g., \"plddt\", \"rmsd\", \"score\")\n    filter_op: Comparison operator (eq, ne, gt, gte, lt, lte, contains)\n    filter_value: Value to compare against\n    sort_by: Metadata key to sort by (e.g., \"plddt\", \"rmsd\")\n    sort_order: Sort order (\"asc\" or \"desc\", default \"asc\")\n    db: Database session\n\nReturns:\n    List of filtered/sorted assets\n\nExamples:\n    ?filter_key=plddt&filter_op=gte&filter_value=90  # pLDDT >= 90\n    ?filter_key=rmsd&filter_op=lt&filter_value=2.0   # RMSD < 2.0\n    ?sort_by=plddt&sort_order=desc                   # Sort by pLDDT descending"
+      operationId: list_assets_v1_phi_asset_groups__asset_group_id__assets_get
+      parameters:
+      - name: asset_group_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Asset Group Id
+      - name: asset_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Asset Type
+      - name: filter_key
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filter Key
+      - name: filter_op
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filter Op
+      - name: filter_value
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filter Value
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort By
+      - name: sort_order
+        in: query
+        required: false
+        schema:
+          type: string
+          default: asc
+          title: Sort Order
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List Assets V1 Phi Asset Groups  Asset Group Id  Assets Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/assets/{asset_id}:
+    get:
+      tags:
+      - assets
+      summary: Get Asset
+      description: "Get asset details.\n\nArgs:\n    asset_id: Asset ID\n    auth: Verified auth context\n    db: Database session\n\nReturns:\n    Asset details"
+      operationId: get_asset_v1_phi_assets__asset_id__get
+      parameters:
+      - name: asset_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Asset Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Asset V1 Phi Assets  Asset Id  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/runs/{run_id}/assets:
+    get:
+      tags:
+      - assets
+      summary: Get Run Assets
+      description: "Get asset group and assets for a specific run.\n\nArgs:\n    run_id: Run ID\n    auth: Verified auth context\n    db: Database session\n\nReturns:\n    Asset group with assets"
+      operationId: get_run_assets_v1_phi_runs__run_id__assets_get
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Run Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Run Assets V1 Phi Runs  Run Id  Assets Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    CreateProjectRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Project name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Optional description
+      type: object
+      required:
+      - name
+      title: CreateProjectRequest
+      description: Request to create a new project.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

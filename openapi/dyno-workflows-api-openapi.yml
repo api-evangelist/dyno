@@ -1,0 +1,966 @@
+openapi: 3.2.0
+info:
+  title: Phi — Protein Design Workflows API
+  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
+
+
+    ## Authentication
+
+    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
+
+
+    ## Quick links
+
+    - `POST /v1/phi/jobs` — submit a job
+
+    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
+
+    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
+
+    '
+  version: 1.0.0
+servers:
+- url: https://api.dyno-agents.app
+  description: Production
+- url: http://localhost:8000
+  description: Local development
+tags:
+- name: workflows
+paths:
+  /v1/phi/workflows/plan/public:
+    post:
+      tags:
+      - workflows
+      summary: Plan Workflow Public
+      description: 'Generate a workflow plan from a natural language prompt — no authentication required.
+
+
+        Identical to POST /plan but:
+
+        - Requires no API key or session token
+
+        - ``execute_immediately`` and ``auto_publish`` are always ignored (planning only)
+
+        - The resulting spec is **not saved** to the database; no ``workflow_id`` is returned
+
+
+        Intended for public demos, embedded widgets, and unauthenticated frontend previews.'
+      operationId: plan_workflow_public_v1_phi_workflows_plan_public_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanWorkflowRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Plan Workflow Public V1 Phi Workflows Plan Public Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/workflows/plan:
+    post:
+      tags:
+      - workflows
+      summary: Plan Workflow
+      description: "Generate workflow plan from natural language prompt.\n\nThis is the primary endpoint for AI-powered workflow planning.\nTakes a natural language description and generates a validated WorkflowSpec.\n\nArgs:\n    request: Planning request with prompt and options\n    org_id: Organization ID from header\n    user_id: User ID from header\n    openai_api_key: OpenAI API key from dependency\n\nReturns:\n    workflow_id: ID of created workflow\n    spec: Full WorkflowSpec JSON\n    status: draft or published\n    validation_errors: Any validation issues\n    run_id: If execute_immediately=true, the run ID\n\nRaises:\n    HTTPException: If planning fails or validation errors occur"
+      operationId: plan_workflow_v1_phi_workflows_plan_post
+      parameters:
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanWorkflowRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Plan Workflow V1 Phi Workflows Plan Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/workflows/plan/execute:
+    post:
+      tags:
+      - workflows
+      summary: Plan And Execute With Protocol
+      description: "Plan and execute workflow from protocol with user adjustments (frontend contract).\n\nThis endpoint:\n1. Loads the selected protocol template\n2. Substitutes protocolAdjustments into template variables\n3. Uses agent to adapt template to user's specific query\n4. Executes the workflow if executeImmediately=true\n\nArgs:\n    request: PlanExecuteRequest with protocol ID and adjustments\n    org_id: Organization ID from header\n    user_id: User ID from header\n    openai_api_key: OpenAI API key from dependency\n\nReturns:\n    workflow_id: ID of created workflow\n    spec: Full WorkflowSpec JSON\n    status: published\n    run_id: The execution run ID (if executeImmediately=true)\n\nRaises:\n    HTTPException: If protocol not found or planning fails"
+      operationId: plan_and_execute_with_protocol_v1_phi_workflows_plan_execute_post
+      parameters:
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanExecuteRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Plan And Execute With Protocol V1 Phi Workflows Plan Execute Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/workflows/:
+    post:
+      tags:
+      - workflows
+      summary: Create Workflow
+      description: "Create new workflow from planner output.\n\nValidates and saves the workflow to database as a draft.\n\nBy default, returns existing workflow if identical spec already exists.\nSet force_new=true query parameter to create a copy anyway.\n\nArgs:\n    request: Workflow creation request\n    org_id: Organization ID (from header)\n    user_id: User ID (from header)\n    force_new: If true, always create new workflow even if duplicate exists\n\nReturns:\n    workflow_id: ID of workflow (new or existing)\n    is_new: Whether a new workflow was created\n    message: Description of what happened"
+      operationId: create_workflow_v1_phi_workflows__post
+      parameters:
+      - name: force_new
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Force New
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkflowRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Create Workflow V1 Phi Workflows  Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - workflows
+      summary: List Workflows
+      description: "List workflows for organization.\n\nArgs:\n    org_id: Organization ID from header\n    status: Optional status filter (draft/published/archived)\n    limit: Maximum workflows to return (default: 100)\n    offset: Pagination offset (default: 0)\n    include_runs: Include recent execution runs (default: False for list endpoint)\n    runs_limit: Maximum number of runs per workflow (default: 10, max: 50)\n    db: Database session\n\nReturns:\n    List of workflows with optional runs arrays"
+      operationId: list_workflows_v1_phi_workflows__get
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      - name: include_runs
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Runs
+      - name: runs_limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 10
+          title: Runs Limit
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List Workflows V1 Phi Workflows  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/workflows/{workflow_id}:
+    get:
+      tags:
+      - workflows
+      summary: Get Workflow
+      description: "Get workflow by ID.\n\nArgs:\n    workflow_id: Workflow ID\n    org_id: Organization ID from header\n    include_runs: Include recent execution runs (default: True)\n    runs_limit: Maximum number of runs to return (default: 10, max: 50)\n    db: Database session\n\nReturns:\n    Workflow details with optional runs array"
+      operationId: get_workflow_v1_phi_workflows__workflow_id__get
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Id
+      - name: include_runs
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Include Runs
+      - name: runs_limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 10
+          title: Runs Limit
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Workflow V1 Phi Workflows  Workflow Id  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - workflows
+      summary: Update Workflow
+      description: Update workflow (creates new version).
+      operationId: update_workflow_v1_phi_workflows__workflow_id__put
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkflowRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Update Workflow V1 Phi Workflows  Workflow Id  Put
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/workflows/{workflow_id}/publish:
+    post:
+      tags:
+      - workflows
+      summary: Publish Workflow
+      description: Publish workflow (make it executable).
+      operationId: publish_workflow_v1_phi_workflows__workflow_id__publish_post
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Publish Workflow V1 Phi Workflows  Workflow Id  Publish Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/workflows/{workflow_id}/versions:
+    get:
+      tags:
+      - workflows
+      summary: Get Workflow Versions
+      description: Get all versions of workflow.
+      operationId: get_workflow_versions_v1_phi_workflows__workflow_id__versions_get
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Workflow Versions V1 Phi Workflows  Workflow Id  Versions Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/workflows/{workflow_id}/execute:
+    post:
+      tags:
+      - workflows
+      summary: Execute Workflow
+      description: Execute a published workflow.
+      operationId: execute_workflow_v1_phi_workflows__workflow_id__execute_post
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecuteWorkflowRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Execute Workflow V1 Phi Workflows  Workflow Id  Execute Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/workflows/{workflow_id}/runs/{run_id}/status:
+    get:
+      tags:
+      - workflows
+      summary: Get Workflow Run Status
+      description: "Get real-time workflow execution status.\n\nQueries the running Temporal workflow for current state including\nnode-level progress, artifacts produced, and execution metrics.\n\nArgs:\n    workflow_id: Workflow ID\n    run_id: Temporal run ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    WorkflowStatusResponse with real-time state\n\nRaises:\n    HTTPException: If workflow not found or query fails"
+      operationId: get_workflow_run_status_v1_phi_workflows__workflow_id__runs__run_id__status_get
+      parameters:
+      - name: workflow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Workflow Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Run Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Workflow Run Status V1 Phi Workflows  Workflow Id  Runs  Run Id  Status Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    EdgeSpec:
+      properties:
+        src:
+          type: string
+          title: Src
+        dst:
+          type: string
+          title: Dst
+        condition:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Condition
+      additionalProperties: false
+      type: object
+      required:
+      - src
+      - dst
+      title: EdgeSpec
+      description: 'Specification for a workflow edge (dependency).
+
+
+        An edge defines the flow between nodes. It can include an optional
+
+        condition that must be satisfied for execution to continue.'
+    PlanExecuteRequest:
+      properties:
+        query:
+          type: string
+          minLength: 1
+          title: Query
+          description: User's natural language query
+        planContext:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Plancontext
+          description: Full plan text for additional context
+        protocolId:
+          type: string
+          title: Protocolid
+          description: Protocol ID to use as template
+        protocolAdjustments:
+          additionalProperties: true
+          type: object
+          title: Protocoladjustments
+          description: User adjustments to protocol template variables (e.g., generate_n, top_n, temperature)
+        targetPdbId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Targetpdbid
+          description: Explicit PDB ID for target structure (merged into protocol params; do not set with target_gcs_uri)
+        targetChain:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Targetchain
+          description: Chain ID for target structure (merged into protocol params)
+        targetGcsUri:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Targetgcsuri
+          description: GCS URI of existing target structure (upload or previous run); do not set with target_pdb_id
+        executeImmediately:
+          type: boolean
+          title: Executeimmediately
+          description: Execute without human review (automatically publishes first)
+          default: true
+        context:
+          additionalProperties: true
+          type: object
+          title: Context
+          description: Additional context for the run (e.g., project_id, team_id)
+      type: object
+      required:
+      - query
+      - protocolId
+      title: PlanExecuteRequest
+      description: Request to plan and execute workflow from protocol (frontend contract).
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ExecuteWorkflowRequest:
+      properties:
+        inputs:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Inputs
+          description: Optional workflow inputs
+      type: object
+      title: ExecuteWorkflowRequest
+      description: Request to execute workflow.
+    PlanWorkflowRequest:
+      properties:
+        prompt:
+          type: string
+          minLength: 1
+          title: Prompt
+          description: Natural language workflow description
+        protocol_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Protocol Id
+          description: Optional protocol ID to use as planning guidance
+        disable_auto_recommendations:
+          type: boolean
+          title: Disable Auto Recommendations
+          description: Disable automatic protocol recommendations (for de novo workflows)
+          default: false
+        auto_publish:
+          type: boolean
+          title: Auto Publish
+          description: Auto-publish after creation
+          default: false
+        execute_immediately:
+          type: boolean
+          title: Execute Immediately
+          description: Execute without human review (automatically publishes first)
+          default: false
+      type: object
+      required:
+      - prompt
+      title: PlanWorkflowRequest
+      description: Request to plan workflow from natural language prompt.
+    UpdateWorkflowRequest:
+      properties:
+        spec:
+          $ref: '#/components/schemas/WorkflowSpec'
+          description: Updated workflow specification
+        change_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Change Summary
+          description: Description of changes
+      type: object
+      required:
+      - spec
+      title: UpdateWorkflowRequest
+      description: Request to update workflow.
+    WorkflowSpec:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        nodes:
+          items:
+            $ref: '#/components/schemas/NodeSpec'
+          type: array
+          title: Nodes
+        edges:
+          items:
+            $ref: '#/components/schemas/EdgeSpec'
+          type: array
+          title: Edges
+        version:
+          type: string
+          title: Version
+          default: '1.0'
+        expected_artifacts:
+          items:
+            type: string
+          type: array
+          title: Expected Artifacts
+        initial_artifacts:
+          additionalProperties: true
+          type: object
+          title: Initial Artifacts
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - nodes
+      - edges
+      title: WorkflowSpec
+      description: 'Complete workflow specification.
+
+
+        This is the immutable "plan" for a workflow. It defines all nodes,
+
+        edges, and expected outputs. Once validated, this spec is executed
+
+        by the Temporal workflow executor.'
+    NodeSpec:
+      properties:
+        id:
+          type: string
+          title: Id
+        op:
+          type: string
+          title: Op
+        params:
+          title: Params
+        retry_policy:
+          title: Retry Policy
+        map_config:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Map Config
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - op
+      title: NodeSpec
+      description: 'Specification for a single workflow node.
+
+
+        A node represents a single operation (tool execution) in the workflow.
+
+        It includes the operation name, parameters, and optional retry policy.
+
+
+        Special node type: op="map" for parallel execution over collections.
+
+
+        Note: params uses Any type to avoid strict schema validation issues
+
+        with dict[str, Any] in OpenAI Agents SDK.'
+    CreateWorkflowRequest:
+      properties:
+        spec:
+          $ref: '#/components/schemas/WorkflowSpec'
+          description: Workflow specification
+        name:
+          type: string
+          title: Name
+          description: Workflow name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Optional description
+      type: object
+      required:
+      - spec
+      - name
+      title: CreateWorkflowRequest
+      description: Request to create workflow from spec.

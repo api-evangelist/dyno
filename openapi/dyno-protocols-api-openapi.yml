@@ -1,0 +1,914 @@
+openapi: 3.2.0
+info:
+  title: Phi — Protein Design Protocols API
+  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
+
+
+    ## Authentication
+
+    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
+
+
+    ## Quick links
+
+    - `POST /v1/phi/jobs` — submit a job
+
+    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
+
+    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
+
+    '
+  version: 1.0.0
+servers:
+- url: https://api.dyno-agents.app
+  description: Production
+- url: http://localhost:8000
+  description: Local development
+tags:
+- name: protocols
+paths:
+  /v1/phi/protocols:
+    get:
+      tags:
+      - protocols
+      summary: List Protocols
+      description: "List protocols for organization.\n\nArgs:\n    org_id: Organization ID from header\n    visibility: Filter by visibility (private/team/org)\n    tags: Comma-separated tags to filter by\n    starred: Filter by starred status (true/false/null for all)\n    limit: Max results\n    offset: Pagination offset\n    db: Database session\n\nReturns:\n    List of protocols with reputation"
+      operationId: list_protocols_v1_phi_protocols_get
+      parameters:
+      - name: visibility
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Visibility
+      - name: tags
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tags
+      - name: starred
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Starred
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List Protocols V1 Phi Protocols Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - protocols
+      summary: Create Protocol
+      description: "Create new protocol.\n\nArgs:\n    request: Protocol creation request\n    org_id: Organization ID from header\n    user_id: User ID from header\n    db: Database session\n\nReturns:\n    Created protocol"
+      operationId: create_protocol_v1_phi_protocols_post
+      parameters:
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProtocolRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/protocols/{protocol_id}:
+    get:
+      tags:
+      - protocols
+      summary: Get Protocol
+      description: "Get protocol by ID.\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Protocol details"
+      operationId: get_protocol_v1_phi_protocols__protocol_id__get
+      parameters:
+      - name: protocol_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Protocol Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - protocols
+      summary: Update Protocol
+      description: "Update protocol metadata.\n\nArgs:\n    protocol_id: Protocol ID\n    request: Update request\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Updated protocol"
+      operationId: update_protocol_v1_phi_protocols__protocol_id__put
+      parameters:
+      - name: protocol_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Protocol Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProtocolRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - protocols
+      summary: Delete Protocol
+      description: "Delete a protocol.\n\nDeletes the protocol and cascades to:\n- ProtocolExecution records (CASCADE)\n- ProtocolReputation records (CASCADE)\n\nSets NULL on:\n- Workflow.source_workflow_id (SET NULL)\n- Protocol.parent_protocol_id (SET NULL)\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Success response\n\nRaises:\n    HTTPException: If protocol not found or deletion fails"
+      operationId: delete_protocol_v1_phi_protocols__protocol_id__delete
+      parameters:
+      - name: protocol_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Protocol Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Delete Protocol V1 Phi Protocols  Protocol Id  Delete
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/protocols/validate:
+    post:
+      tags:
+      - protocols
+      summary: Validate Protocol Template
+      description: 'Validate a protocol template without persisting.
+
+
+        Returns validation errors and warnings. Useful for UI to validate before submit.'
+      operationId: validate_protocol_template_v1_phi_protocols_validate_post
+      parameters:
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateProtocolRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Validate Protocol Template V1 Phi Protocols Validate Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/protocols/{protocol_id}/fork:
+    post:
+      tags:
+      - protocols
+      summary: Fork Protocol
+      description: "Fork protocol to create variant.\n\nArgs:\n    protocol_id: Protocol to fork\n    request: Fork request\n    org_id: Organization ID from header\n    user_id: User ID from header\n    db: Database session\n\nReturns:\n    Forked protocol"
+      operationId: fork_protocol_v1_phi_protocols__protocol_id__fork_post
+      parameters:
+      - name: protocol_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Protocol Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForkProtocolRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/protocols/{protocol_id}/executions:
+    get:
+      tags:
+      - protocols
+      summary: Get Protocol Executions
+      description: "Get execution history for protocol.\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    limit: Max results\n    offset: Pagination offset\n    db: Database session\n\nReturns:\n    List of protocol executions"
+      operationId: get_protocol_executions_v1_phi_protocols__protocol_id__executions_get
+      parameters:
+      - name: protocol_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Protocol Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Protocol Executions V1 Phi Protocols  Protocol Id  Executions Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/protocols/recommend:
+    post:
+      tags:
+      - protocols
+      summary: Recommend Protocols
+      description: "Recommend protocols based on user intent.\n\nExtracts intent from prompt, searches for matching protocols,\nand ranks by performance metrics.\n\nArgs:\n    request: Recommendation request with prompt\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Recommended protocols with match scores and rationale"
+      operationId: recommend_protocols_v1_phi_protocols_recommend_post
+      parameters:
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecommendProtocolRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Recommend Protocols V1 Phi Protocols Recommend Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/protocols/{protocol_id}/star:
+    post:
+      tags:
+      - protocols
+      summary: Star Protocol
+      description: "Star a protocol for the organization.\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Success response with updated starred status"
+      operationId: star_protocol_v1_phi_protocols__protocol_id__star_post
+      parameters:
+      - name: protocol_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Protocol Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Star Protocol V1 Phi Protocols  Protocol Id  Star Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - protocols
+      summary: Unstar Protocol
+      description: "Unstar a protocol for the organization.\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Success response with updated starred status"
+      operationId: unstar_protocol_v1_phi_protocols__protocol_id__star_delete
+      parameters:
+      - name: protocol_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Protocol Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Unstar Protocol V1 Phi Protocols  Protocol Id  Star Delete
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    CreateProtocolRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Protocol name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Protocol description
+        intent_signature:
+          additionalProperties: true
+          type: object
+          title: Intent Signature
+          description: Structured intent
+        protocol_template:
+          additionalProperties: true
+          type: object
+          title: Protocol Template
+          description: Parameterized workflow template
+        source_workflow_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Workflow Id
+          description: Source workflow ID
+        visibility:
+          type: string
+          title: Visibility
+          description: Visibility level
+          default: private
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tags
+          description: Tags for search
+      type: object
+      required:
+      - name
+      - intent_signature
+      - protocol_template
+      title: CreateProtocolRequest
+      description: Request to create protocol.
+    UpdateProtocolRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+          description: Protocol name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Protocol description
+        intent_signature:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Intent Signature
+          description: Structured intent
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tags
+          description: Tags for search
+      type: object
+      title: UpdateProtocolRequest
+      description: Request to update protocol.
+    RecommendProtocolRequest:
+      properties:
+        user_prompt:
+          type: string
+          title: User Prompt
+          description: User's workflow request
+        force_refresh:
+          type: boolean
+          title: Force Refresh
+          description: If true, bypass intent cache and re-extract (for 'Regenerate recommendations' button)
+          default: false
+        filters:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Filters
+          description: Optional filters (target_type, allowed_tools)
+      type: object
+      required:
+      - user_prompt
+      title: RecommendProtocolRequest
+      description: Request for protocol recommendations.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ProtocolResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        intent_signature:
+          additionalProperties: true
+          type: object
+          title: Intent Signature
+        protocol_template:
+          additionalProperties: true
+          type: object
+          title: Protocol Template
+        source_workflow_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Workflow Id
+        parent_protocol_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Parent Protocol Id
+        version:
+          type: integer
+          title: Version
+        visibility:
+          type: string
+          title: Visibility
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        is_starred:
+          type: boolean
+          title: Is Starred
+        created_at:
+          type: string
+          title: Created At
+        updated_at:
+          type: string
+          title: Updated At
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - intent_signature
+      - protocol_template
+      - source_workflow_id
+      - parent_protocol_id
+      - version
+      - visibility
+      - tags
+      - is_starred
+      - created_at
+      - updated_at
+      title: ProtocolResponse
+      description: Protocol response model.
+    ValidateProtocolRequest:
+      properties:
+        protocol_template:
+          additionalProperties: true
+          type: object
+          title: Protocol Template
+          description: Parameterized workflow template to validate
+        dry_run:
+          type: boolean
+          title: Dry Run
+          description: If true, instantiate with synthetic params and run workflow/preflight validation
+          default: true
+      type: object
+      required:
+      - protocol_template
+      title: ValidateProtocolRequest
+      description: Request to validate a protocol template without persisting.
+    ForkProtocolRequest:
+      properties:
+        new_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: New Name
+          description: Name for forked protocol
+      type: object
+      title: ForkProtocolRequest
+      description: Request to fork protocol.

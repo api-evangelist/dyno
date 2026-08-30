@@ -1,0 +1,205 @@
+openapi: 3.2.0
+info:
+  title: Phi — Protein Design Artifacts API
+  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
+
+
+    ## Authentication
+
+    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
+
+
+    ## Quick links
+
+    - `POST /v1/phi/jobs` — submit a job
+
+    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
+
+    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
+
+    '
+  version: 1.0.0
+servers:
+- url: https://api.dyno-agents.app
+  description: Production
+- url: http://localhost:8000
+  description: Local development
+tags:
+- name: Artifacts
+paths:
+  /artifacts/{artifact_id}:
+    get:
+      summary: Get Artifact
+      description: "Get details for a specific artifact.\n\nReturns:\n    ArtifactResponse with artifact metadata"
+      operationId: get_artifact_artifacts__artifact_id__get
+      parameters:
+      - name: artifact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Artifact Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      tags:
+      - Artifacts
+  /artifacts/{artifact_id}/download:
+    get:
+      summary: Get Artifact Download Url
+      description: "Generate a signed HTTPS download URL for an artifact.\n\nThe signed URL allows the caller to download the file directly from GCS\nwithout any GCP credentials.  The URL expires after `expires_in` seconds\n(default 1 hour).\n\nAuthentication is required: provide a valid x-api-key header (Clerk API key\nor the static API_SECRET_KEY for local dev).\n\nArgs:\n    artifact_id: Artifact ID\n    expires_in: URL expiry time in seconds (default: 3600 = 1 hour)\n\nReturns:\n    DownloadURLResponse with signed HTTPS download URL"
+      operationId: get_artifact_download_url_artifacts__artifact_id__download_get
+      parameters:
+      - name: artifact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Artifact Id
+      - name: expires_in
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 3600
+          title: Expires In
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DownloadURLResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      tags:
+      - Artifacts
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    DownloadURLResponse:
+      properties:
+        artifact_id:
+          type: string
+          title: Artifact Id
+        filename:
+          type: string
+          title: Filename
+        download_url:
+          type: string
+          title: Download Url
+        expires_in:
+          type: integer
+          title: Expires In
+          description: URL expiry time in seconds
+          default: 3600
+      type: object
+      required:
+      - artifact_id
+      - filename
+      - download_url
+      title: DownloadURLResponse
+      description: Response model for download URL.
+    ArtifactResponse:
+      properties:
+        artifact_id:
+          type: string
+          title: Artifact Id
+        run_id:
+          type: string
+          title: Run Id
+        artifact_type:
+          type: string
+          title: Artifact Type
+        filename:
+          type: string
+          title: Filename
+        storage_path:
+          type: string
+          title: Storage Path
+        size_bytes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Size Bytes
+        mime_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mime Type
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - artifact_id
+      - run_id
+      - artifact_type
+      - filename
+      - storage_path
+      - size_bytes
+      - mime_type
+      - created_at
+      - metadata
+      title: ArtifactResponse
+      description: Response model for artifact details.

@@ -1,0 +1,219 @@
+openapi: 3.2.0
+info:
+  title: Phi — Protein Design Research Notes API
+  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
+
+
+    ## Authentication
+
+    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
+
+
+    ## Quick links
+
+    - `POST /v1/phi/jobs` — submit a job
+
+    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
+
+    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
+
+    '
+  version: 1.0.0
+servers:
+- url: https://api.dyno-agents.app
+  description: Production
+- url: http://localhost:8000
+  description: Local development
+tags:
+- name: research-notes
+paths:
+  /v1/phi/datasets/{dataset_id}/research-notes:
+    post:
+      tags:
+      - research-notes
+      summary: Append to dataset research notes
+      description: 'Append markdown content to the dataset''s cumulative research notes file in GCS.
+
+
+        The notes file lives at ``research/{dataset_id}/notes.md``. If it does not exist
+
+        yet it is created. If it does, the new content is appended after a separator.'
+      operationId: append_research_notes_v1_phi_datasets__dataset_id__research_notes_post
+      parameters:
+      - name: dataset_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Dataset Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppendNotesRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchNotesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - research-notes
+      summary: Get dataset research notes
+      description: 'Retrieve the accumulated research notes for a dataset.
+
+
+        Returns the full markdown content inline plus a signed GCS URL for direct
+
+        download. Returns ``exists: false`` (with no content) if no notes have been
+
+        saved for this dataset yet.'
+      operationId: get_research_notes_v1_phi_datasets__dataset_id__research_notes_get
+      parameters:
+      - name: dataset_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Dataset Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchNotesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AppendNotesRequest:
+      properties:
+        content:
+          type: string
+          title: Content
+          description: Markdown content to append to the dataset's research notes
+      type: object
+      required:
+      - content
+      title: AppendNotesRequest
+    ResearchNotesResponse:
+      properties:
+        dataset_id:
+          type: string
+          title: Dataset Id
+        exists:
+          type: boolean
+          title: Exists
+        content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content
+          description: Full notes content (markdown)
+        gcs_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Gcs Url
+          description: Signed download URL (24 h TTL)
+      type: object
+      required:
+      - dataset_id
+      - exists
+      title: ResearchNotesResponse

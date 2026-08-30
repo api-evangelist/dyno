@@ -1,0 +1,502 @@
+openapi: 3.2.0
+info:
+  title: Phi — Protein Design Ingest API
+  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
+
+
+    ## Authentication
+
+    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
+
+
+    ## Quick links
+
+    - `POST /v1/phi/jobs` — submit a job
+
+    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
+
+    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
+
+    '
+  version: 1.0.0
+servers:
+- url: https://api.dyno-agents.app
+  description: Production
+- url: http://localhost:8000
+  description: Local development
+tags:
+- name: ingest
+paths:
+  /v1/phi/ingest_sessions/:
+    post:
+      tags:
+      - ingest
+      summary: Create Ingest Session
+      description: 'Create a new ingest session for a batch of files.
+
+
+        Returns a session ID and a GCS prefix where files should be uploaded
+
+        using the signed URLs returned by POST /ingest_sessions/{id}/upload_urls.'
+      operationId: create_ingest_session_v1_phi_ingest_sessions__post
+      parameters:
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSessionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/ingest_sessions/{session_id}/upload_urls:
+    post:
+      tags:
+      - ingest
+      summary: Get Upload Urls
+      description: 'Return signed GCS PUT URLs for a batch of filenames (max 50 per request).
+
+
+        The client should PUT each file directly to its signed URL.
+
+        Multiple calls are supported for large batches.'
+      operationId: get_upload_urls_v1_phi_ingest_sessions__session_id__upload_urls_post
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadUrlsRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadUrlsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/ingest_sessions/{session_id}/upload/{filename}:
+    post:
+      tags:
+      - ingest
+      summary: Upload File To Session
+      description: "Upload a single file to an ingest session through the API server (proxy to GCS).\n\nUse this instead of ``POST /upload_urls`` + client-side PUT when a direct\nclient→GCS PUT is blocked by VPC Service Controls or firewall rules.\n\nClient workflow:\n  1. POST /v1/phi/ingest_sessions/ → session_id\n  2. POST /v1/phi/ingest_sessions/{id}/upload/{filename} for each file\n  3. POST /v1/phi/ingest_sessions/{id}/finalize\n  4. Poll GET /v1/phi/ingest_sessions/{id} until status == READY"
+      operationId: upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Filename
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectFileUploadResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/ingest_sessions/{session_id}/finalize:
+    post:
+      tags:
+      - ingest
+      summary: Finalize Ingest Session
+      description: "Trigger the asynchronous ingest pipeline for a completed upload session.\n\nThe pipeline will:\n  1. List all objects under the session's GCS prefix\n  2. Compute checksums and deduplicate\n  3. Create a Dataset record and link DatasetFile rows\n  4. Update the session status to READY\n\nPoll GET /ingest_sessions/{id} to track progress."
+      operationId: finalize_ingest_session_v1_phi_ingest_sessions__session_id__finalize_post
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Finalize Ingest Session V1 Phi Ingest Sessions  Session Id  Finalize Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phi/ingest_sessions/{session_id}:
+    get:
+      tags:
+      - ingest
+      summary: Get Ingest Session
+      description: Poll ingest session status.
+      operationId: get_ingest_session_v1_phi_ingest_sessions__session_id__get
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: API key for authentication
+          title: X-Api-Key
+        description: API key for authentication
+      - name: X-User-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-User-Id
+      - name: X-Organization-ID
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Organization-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestSessionStatusResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+          description: File to upload
+      type: object
+      required:
+      - file
+      title: Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    IngestSessionStatusResponse:
+      properties:
+        session_id:
+          type: string
+          title: Session Id
+        status:
+          type: string
+          title: Status
+        expected_files:
+          type: integer
+          title: Expected Files
+        uploaded_files:
+          type: integer
+          title: Uploaded Files
+        dataset_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dataset Id
+        artifact_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Artifact Count
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - session_id
+      - status
+      - expected_files
+      - uploaded_files
+      title: IngestSessionStatusResponse
+    FileUploadUrl:
+      properties:
+        file:
+          type: string
+          title: File
+        url:
+          type: string
+          title: Url
+      type: object
+      required:
+      - file
+      - url
+      title: FileUploadUrl
+    UploadUrlsRequest:
+      properties:
+        files:
+          items:
+            type: string
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Files
+          description: List of filenames (max 50 per request)
+      type: object
+      required:
+      - files
+      title: UploadUrlsRequest
+    UploadUrlsResponse:
+      properties:
+        urls:
+          items:
+            $ref: '#/components/schemas/FileUploadUrl'
+          type: array
+          title: Urls
+      type: object
+      required:
+      - urls
+      title: UploadUrlsResponse
+    CreateSessionResponse:
+      properties:
+        session_id:
+          type: string
+          title: Session Id
+        upload_prefix:
+          type: string
+          title: Upload Prefix
+          description: GCS prefix where files should be uploaded
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+      - session_id
+      - upload_prefix
+      - status
+      title: CreateSessionResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    DirectFileUploadResponse:
+      properties:
+        file:
+          type: string
+          title: File
+          description: Filename as stored in GCS
+        gcs_uri:
+          type: string
+          title: Gcs Uri
+          description: Full GCS URI of the uploaded file
+        size_bytes:
+          type: integer
+          title: Size Bytes
+          description: Number of bytes written
+      type: object
+      required:
+      - file
+      - gcs_uri
+      - size_bytes
+      title: DirectFileUploadResponse
+      description: Response for POST /v1/phi/ingest_sessions/{id}/upload/{filename}.
+    CreateSessionRequest:
+      properties:
+        expected_files:
+          type: integer
+          minimum: 1.0
+          title: Expected Files
+          description: Total number of files to upload
+        file_type:
+          type: string
+          title: File Type
+          description: File type hint for validation (pdb, fasta, etc.)
+          default: pdb
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+          description: Optional client-provided label for this batch
+      type: object
+      required:
+      - expected_files
+      title: CreateSessionRequest
