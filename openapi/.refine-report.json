@@ -1,0 +1,62 @@
+{
+  "provider": "dyno",
+  "sources": [
+    "dyno-phi-openapi.yml"
+  ],
+  "outputs": [
+    "dyno-artifacts-api-openapi.yml",
+    "dyno-health-api-openapi.yml",
+    "dyno-phi-api-openapi.yml",
+    "dyno-runs-api-openapi.yml",
+    "dyno-admin-api-openapi.yml",
+    "dyno-agents-api-openapi.yml",
+    "dyno-assets-api-openapi.yml",
+    "dyno-auth-api-openapi.yml",
+    "dyno-datasets-api-openapi.yml",
+    "dyno-files-api-openapi.yml",
+    "dyno-ingest-api-openapi.yml",
+    "dyno-jobs-api-openapi.yml",
+    "dyno-protocols-api-openapi.yml",
+    "dyno-research-notes-api-openapi.yml",
+    "dyno-tools-api-openapi.yml",
+    "dyno-tutorial-api-openapi.yml",
+    "dyno-workflows-api-openapi.yml"
+  ],
+  "archived": [
+    "archived openapi/dyno-phi-openapi.yml"
+  ],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "dyno-phi-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "dyno-phi-openapi.yml: tagged paths GET /health -> Health",
+    "dyno-phi-openapi.yml: tagged paths POST /runs -> Runs",
+    "dyno-phi-openapi.yml: tagged paths GET /runs/{run_id} -> Runs",
+    "dyno-phi-openapi.yml: tagged paths DELETE /runs/{run_id} -> Runs",
+    "dyno-phi-openapi.yml: tagged paths GET /runs/{run_id}/result -> Runs",
+    "dyno-phi-openapi.yml: tagged paths GET /v1/phi/runs/{run_id}/results -> Phi",
+    "dyno-phi-openapi.yml: tagged paths GET /runs/{run_id}/artifacts -> Runs",
+    "dyno-phi-openapi.yml: tagged paths GET /artifacts/{artifact_id} -> Artifacts",
+    "dyno-phi-openapi.yml: tagged paths GET /artifacts/{artifact_id}/download -> Artifacts",
+    "dyno-phi-openapi.yml: tagged paths GET /v1/phi/artifacts/{artifact_id}/download -> Phi",
+    "dyno-phi-openapi.yml: declared missing tag: Artifacts",
+    "dyno-phi-openapi.yml: declared missing tag: Health",
+    "dyno-phi-openapi.yml: declared missing tag: Phi",
+    "dyno-phi-openapi.yml: declared missing tag: Runs",
+    "dyno-phi-openapi.yml: declared missing tag: admin",
+    "dyno-phi-openapi.yml: declared missing tag: agents",
+    "dyno-phi-openapi.yml: declared missing tag: assets",
+    "dyno-phi-openapi.yml: declared missing tag: auth",
+    "dyno-phi-openapi.yml: declared missing tag: datasets",
+    "dyno-phi-openapi.yml: declared missing tag: files",
+    "dyno-phi-openapi.yml: declared missing tag: ingest",
+    "dyno-phi-openapi.yml: declared missing tag: jobs",
+    "dyno-phi-openapi.yml: declared missing tag: protocols",
+    "dyno-phi-openapi.yml: declared missing tag: research-notes",
+    "dyno-phi-openapi.yml: declared missing tag: tools",
+    "dyno-phi-openapi.yml: declared missing tag: tutorial",
+    "dyno-phi-openapi.yml: declared missing tag: workflows",
+    "apis.yml register: written (+17 apis, 17 total)"
+  ],
+  "skipped": []
+}

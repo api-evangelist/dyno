@@ -2,20 +2,20 @@
   "repo": "dyno",
   "feeds": [
     {
-      "source": "https://www.dynotx.com",
-      "feed_url": "https://www.dynotx.com",
+      "source": "https://design.dynotx.com/cli",
+      "feed_url": "https://design.dynotx.com/cli",
       "title": "",
       "saved": 0,
       "method": "none"
     },
     {
-      "source": "https://design.dynotx.com/cli",
-      "feed_url": "https://design.dynotx.com/cli",
+      "source": "https://www.dynotx.com",
+      "feed_url": "https://www.dynotx.com",
       "title": "",
       "saved": 0,
       "method": "none"
     }
   ],
   "post_count": 0,
-  "fetched": "2026-08-30T22:33:40Z"
+  "fetched": "2026-09-06T19:17:18Z"
 }
