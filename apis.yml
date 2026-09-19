@@ -444,7 +444,7 @@ apis:
   humanURL: https://design.dynotx.com/docs
   baseURL: https://api.dyno-agents.app
   tags:
-  - Protocols
+  - Protocol
   tags_raw:
   - protocols
   properties:
