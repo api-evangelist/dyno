@@ -1,23 +1,7 @@
 openapi: 3.2.0
 info:
   title: Phi — Protein Design Admin API
-  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
-
-
-    ## Authentication
-
-    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
-
-
-    ## Quick links
-
-    - `POST /v1/phi/jobs` — submit a job
-
-    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
-
-    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
-
-    '
+  description: Phi is a biomodal computation platform for protein design.
   version: 1.0.0
 servers:
 - url: https://api.dyno-agents.app
@@ -25,14 +9,29 @@ servers:
 - url: http://localhost:8000
   description: Local development
 tags:
-- name: admin
+- name: Admin
 paths:
   /v1/phi/admin/seed-test-data:
     post:
       tags:
-      - admin
+      - Admin
       summary: Seed Test Data
-      description: "Seed test organization and user for development/staging.\n\n⚠️  DEV/STAGING ONLY: This endpoint should be disabled in production.\n\nCreates:\n- Organization: test-org\n- User: test-user (test@example.com)\n\nReturns:\n    Status and counts of created entities"
+      description: 'Seed test organization and user for development/staging.
+
+
+        ⚠️ DEV/STAGING ONLY: This endpoint should be disabled in production.
+
+
+        Creates:
+
+        - Organization: test-org
+
+        - User: test-user (test@example.com)
+
+
+        Returns:
+
+        Status and counts of created entities'
       operationId: seed_test_data_v1_phi_admin_seed_test_data_post
       parameters:
       - name: x-api-key
@@ -63,7 +62,7 @@ paths:
   /v1/phi/admin/quotas:
     get:
       tags:
-      - admin
+      - Admin
       summary: List Quotas
       description: List all configured job quotas with current usage counts.
       operationId: list_quotas_v1_phi_admin_quotas_get
@@ -97,7 +96,7 @@ paths:
   /v1/phi/admin/quotas/{scope}/{scope_id}:
     put:
       tags:
-      - admin
+      - Admin
       summary: Set Quota
       description: 'Create or update job quota limits for an org or user.
 
@@ -157,7 +156,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
       tags:
-      - admin
+      - Admin
       summary: Delete Quota
       description: Remove quota limits for an org or user, restoring them to the default (100 jobs for users).
       operationId: delete_quota_v1_phi_admin_quotas__scope___scope_id__delete
@@ -199,14 +198,14 @@ paths:
   /v1/phi/admin/quotas/user/{user_id}/reset:
     post:
       tags:
-      - admin
+      - Admin
       summary: Reset User Quota
       description: 'Reset a user''s job usage counter.
 
 
         Sets ``reset_at`` to the current time so only jobs submitted *after* this
 
-        call count toward their limit.  The user effectively gets a fresh 100-job
+        call count toward their limit. The user effectively gets a fresh 100-job
 
         allowance (or whatever ``max_total_jobs`` is set to on their row).
 
@@ -246,7 +245,7 @@ paths:
   /v1/phi/admin/quotas/user/{user_id}/usage:
     get:
       tags:
-      - admin
+      - Admin
       summary: Get User Quota Usage
       description: 'Return current quota limits and usage for a specific user.
 
@@ -308,6 +307,27 @@ components:
           default: -1
       type: object
       title: QuotaRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     QuotaResponse:
       properties:
         scope:
@@ -345,24 +365,3 @@ components:
       - max_total_jobs
       - max_concurrent_jobs
       title: QuotaResponse
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError

@@ -1,23 +1,7 @@
 openapi: 3.2.0
 info:
   title: Phi — Protein Design Datasets API
-  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
-
-
-    ## Authentication
-
-    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
-
-
-    ## Quick links
-
-    - `POST /v1/phi/jobs` — submit a job
-
-    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
-
-    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
-
-    '
+  description: Phi is a biomodal computation platform for protein design.
   version: 1.0.0
 servers:
 - url: https://api.dyno-agents.app
@@ -25,12 +9,12 @@ servers:
 - url: http://localhost:8000
   description: Local development
 tags:
-- name: datasets
+- name: Datasets
 paths:
   /v1/phi/datasets/:
     get:
       tags:
-      - datasets
+      - Datasets
       summary: List Datasets
       description: List datasets owned by the current organization.
       operationId: list_datasets_v1_phi_datasets__get
@@ -91,7 +75,7 @@ paths:
   /v1/phi/datasets/{dataset_id}:
     get:
       tags:
-      - datasets
+      - Datasets
       summary: Get Dataset
       description: Return dataset metadata and a sample of its file artifacts.
       operationId: get_dataset_v1_phi_datasets__dataset_id__get
@@ -143,7 +127,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     patch:
       tags:
-      - datasets
+      - Datasets
       summary: Update Dataset
       description: Rename a dataset. Returns the full updated dataset object.
       operationId: update_dataset_v1_phi_datasets__dataset_id__patch
@@ -202,7 +186,7 @@ paths:
   /v1/phi/datasets/{dataset_id}/jobs:
     get:
       tags:
-      - datasets
+      - Datasets
       summary: List Dataset Jobs
       description: List all jobs that were run against this dataset, newest first.
       operationId: list_dataset_jobs_v1_phi_datasets__dataset_id__jobs_get
@@ -277,7 +261,7 @@ paths:
   /v1/phi/datasets/{dataset_id}/scores:
     get:
       tags:
-      - datasets
+      - Datasets
       summary: Get Dataset Scores
       description: Return a signed download URL for the most recent scores.csv for this dataset.
       operationId: get_dataset_scores_v1_phi_datasets__dataset_id__scores_get
@@ -336,60 +320,38 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    DatasetResponse:
+    ValidationError:
       properties:
-        dataset_id:
-          type: string
-          title: Dataset Id
-        org_id:
-          type: string
-          title: Org Id
-        user_id:
-          type: string
-          title: User Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        file_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: File Type
-        artifact_count:
-          type: integer
-          title: Artifact Count
-        status:
-          type: string
-          title: Status
-        created_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created At
-        sample_files:
+        loc:
           items:
-            $ref: '#/components/schemas/DatasetFileSummary'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Sample Files
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
       type: object
       required:
-      - dataset_id
-      - org_id
-      - user_id
-      - artifact_count
-      - status
-      title: DatasetResponse
-    HTTPValidationError:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    PatchDatasetRequest:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
       type: object
-      title: HTTPValidationError
+      required:
+      - name
+      title: PatchDatasetRequest
     DatasetScoresResponse:
       properties:
         dataset_id:
@@ -447,6 +409,15 @@ components:
       - page
       - page_size
       title: DatasetJobsResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     DatasetJobSummary:
       properties:
         job_id:
@@ -479,38 +450,66 @@ components:
       - job_type
       - status
       title: DatasetJobSummary
-    ValidationError:
+    DatasetListResponse:
       properties:
-        loc:
+        datasets:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/DatasetResponse'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
+          title: Datasets
+        total_count:
+          type: integer
+          title: Total Count
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    PatchDatasetRequest:
+      - datasets
+      - total_count
+      title: DatasetListResponse
+    DatasetResponse:
       properties:
-        name:
+        dataset_id:
           type: string
-          maxLength: 200
-          minLength: 1
+          title: Dataset Id
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Name
+        file_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: File Type
+        artifact_count:
+          type: integer
+          title: Artifact Count
+        status:
+          type: string
+          title: Status
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        sample_files:
+          items:
+            $ref: '#/components/schemas/DatasetFileSummary'
+          type: array
+          title: Sample Files
       type: object
       required:
-      - name
-      title: PatchDatasetRequest
+      - dataset_id
+      - org_id
+      - user_id
+      - artifact_count
+      - status
+      title: DatasetResponse
     DatasetFileSummary:
       properties:
         filename:
@@ -530,18 +529,3 @@ components:
       required:
       - filename
       title: DatasetFileSummary
-    DatasetListResponse:
-      properties:
-        datasets:
-          items:
-            $ref: '#/components/schemas/DatasetResponse'
-          type: array
-          title: Datasets
-        total_count:
-          type: integer
-          title: Total Count
-      type: object
-      required:
-      - datasets
-      - total_count
-      title: DatasetListResponse

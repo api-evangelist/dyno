@@ -1,23 +1,7 @@
 openapi: 3.2.0
 info:
   title: Phi — Protein Design Health API
-  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
-
-
-    ## Authentication
-
-    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
-
-
-    ## Quick links
-
-    - `POST /v1/phi/jobs` — submit a job
-
-    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
-
-    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
-
-    '
+  description: Phi is a biomodal computation platform for protein design.
   version: 1.0.0
 servers:
 - url: https://api.dyno-agents.app

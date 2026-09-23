@@ -1,23 +1,7 @@
 openapi: 3.2.0
 info:
   title: Phi — Protein Design Protocols API
-  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
-
-
-    ## Authentication
-
-    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
-
-
-    ## Quick links
-
-    - `POST /v1/phi/jobs` — submit a job
-
-    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
-
-    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
-
-    '
+  description: Phi is a biomodal computation platform for protein design.
   version: 1.0.0
 servers:
 - url: https://api.dyno-agents.app
@@ -25,14 +9,36 @@ servers:
 - url: http://localhost:8000
   description: Local development
 tags:
-- name: protocols
+- name: Protocols
 paths:
   /v1/phi/protocols:
     get:
       tags:
-      - protocols
+      - Protocols
       summary: List Protocols
-      description: "List protocols for organization.\n\nArgs:\n    org_id: Organization ID from header\n    visibility: Filter by visibility (private/team/org)\n    tags: Comma-separated tags to filter by\n    starred: Filter by starred status (true/false/null for all)\n    limit: Max results\n    offset: Pagination offset\n    db: Database session\n\nReturns:\n    List of protocols with reputation"
+      description: 'List protocols for organization.
+
+
+        Args:
+
+        org_id: Organization ID from header
+
+        visibility: Filter by visibility (private/team/org)
+
+        tags: Comma-separated tags to filter by
+
+        starred: Filter by starred status (true/false/null for all)
+
+        limit: Max results
+
+        offset: Pagination offset
+
+        db: Database session
+
+
+        Returns:
+
+        List of protocols with reputation'
       operationId: list_protocols_v1_phi_protocols_get
       parameters:
       - name: visibility
@@ -116,9 +122,25 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     post:
       tags:
-      - protocols
+      - Protocols
       summary: Create Protocol
-      description: "Create new protocol.\n\nArgs:\n    request: Protocol creation request\n    org_id: Organization ID from header\n    user_id: User ID from header\n    db: Database session\n\nReturns:\n    Created protocol"
+      description: 'Create new protocol.
+
+
+        Args:
+
+        request: Protocol creation request
+
+        org_id: Organization ID from header
+
+        user_id: User ID from header
+
+        db: Database session
+
+
+        Returns:
+
+        Created protocol'
       operationId: create_protocol_v1_phi_protocols_post
       parameters:
       - name: x-api-key
@@ -169,9 +191,23 @@ paths:
   /v1/phi/protocols/{protocol_id}:
     get:
       tags:
-      - protocols
+      - Protocols
       summary: Get Protocol
-      description: "Get protocol by ID.\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Protocol details"
+      description: 'Get protocol by ID.
+
+
+        Args:
+
+        protocol_id: Protocol ID
+
+        org_id: Organization ID from header
+
+        db: Database session
+
+
+        Returns:
+
+        Protocol details'
       operationId: get_protocol_v1_phi_protocols__protocol_id__get
       parameters:
       - name: protocol_id
@@ -221,9 +257,25 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     put:
       tags:
-      - protocols
+      - Protocols
       summary: Update Protocol
-      description: "Update protocol metadata.\n\nArgs:\n    protocol_id: Protocol ID\n    request: Update request\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Updated protocol"
+      description: 'Update protocol metadata.
+
+
+        Args:
+
+        protocol_id: Protocol ID
+
+        request: Update request
+
+        org_id: Organization ID from header
+
+        db: Database session
+
+
+        Returns:
+
+        Updated protocol'
       operationId: update_protocol_v1_phi_protocols__protocol_id__put
       parameters:
       - name: protocol_id
@@ -279,9 +331,42 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
       tags:
-      - protocols
+      - Protocols
       summary: Delete Protocol
-      description: "Delete a protocol.\n\nDeletes the protocol and cascades to:\n- ProtocolExecution records (CASCADE)\n- ProtocolReputation records (CASCADE)\n\nSets NULL on:\n- Workflow.source_workflow_id (SET NULL)\n- Protocol.parent_protocol_id (SET NULL)\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Success response\n\nRaises:\n    HTTPException: If protocol not found or deletion fails"
+      description: 'Delete a protocol.
+
+
+        Deletes the protocol and cascades to:
+
+        - ProtocolExecution records (CASCADE)
+
+        - ProtocolReputation records (CASCADE)
+
+
+        Sets NULL on:
+
+        - Workflow.source_workflow_id (SET NULL)
+
+        - Protocol.parent_protocol_id (SET NULL)
+
+
+        Args:
+
+        protocol_id: Protocol ID
+
+        org_id: Organization ID from header
+
+        db: Database session
+
+
+        Returns:
+
+        Success response
+
+
+        Raises:
+
+        HTTPException: If protocol not found or deletion fails'
       operationId: delete_protocol_v1_phi_protocols__protocol_id__delete
       parameters:
       - name: protocol_id
@@ -334,7 +419,7 @@ paths:
   /v1/phi/protocols/validate:
     post:
       tags:
-      - protocols
+      - Protocols
       summary: Validate Protocol Template
       description: 'Validate a protocol template without persisting.
 
@@ -392,9 +477,27 @@ paths:
   /v1/phi/protocols/{protocol_id}/fork:
     post:
       tags:
-      - protocols
+      - Protocols
       summary: Fork Protocol
-      description: "Fork protocol to create variant.\n\nArgs:\n    protocol_id: Protocol to fork\n    request: Fork request\n    org_id: Organization ID from header\n    user_id: User ID from header\n    db: Database session\n\nReturns:\n    Forked protocol"
+      description: 'Fork protocol to create variant.
+
+
+        Args:
+
+        protocol_id: Protocol to fork
+
+        request: Fork request
+
+        org_id: Organization ID from header
+
+        user_id: User ID from header
+
+        db: Database session
+
+
+        Returns:
+
+        Forked protocol'
       operationId: fork_protocol_v1_phi_protocols__protocol_id__fork_post
       parameters:
       - name: protocol_id
@@ -451,9 +554,27 @@ paths:
   /v1/phi/protocols/{protocol_id}/executions:
     get:
       tags:
-      - protocols
+      - Protocols
       summary: Get Protocol Executions
-      description: "Get execution history for protocol.\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    limit: Max results\n    offset: Pagination offset\n    db: Database session\n\nReturns:\n    List of protocol executions"
+      description: 'Get execution history for protocol.
+
+
+        Args:
+
+        protocol_id: Protocol ID
+
+        org_id: Organization ID from header
+
+        limit: Max results
+
+        offset: Pagination offset
+
+        db: Database session
+
+
+        Returns:
+
+        List of protocol executions'
       operationId: get_protocol_executions_v1_phi_protocols__protocol_id__executions_get
       parameters:
       - name: protocol_id
@@ -520,9 +641,28 @@ paths:
   /v1/phi/protocols/recommend:
     post:
       tags:
-      - protocols
+      - Protocols
       summary: Recommend Protocols
-      description: "Recommend protocols based on user intent.\n\nExtracts intent from prompt, searches for matching protocols,\nand ranks by performance metrics.\n\nArgs:\n    request: Recommendation request with prompt\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Recommended protocols with match scores and rationale"
+      description: 'Recommend protocols based on user intent.
+
+
+        Extracts intent from prompt, searches for matching protocols,
+
+        and ranks by performance metrics.
+
+
+        Args:
+
+        request: Recommendation request with prompt
+
+        org_id: Organization ID from header
+
+        db: Database session
+
+
+        Returns:
+
+        Recommended protocols with match scores and rationale'
       operationId: recommend_protocols_v1_phi_protocols_recommend_post
       parameters:
       - name: x-api-key
@@ -575,9 +715,23 @@ paths:
   /v1/phi/protocols/{protocol_id}/star:
     post:
       tags:
-      - protocols
+      - Protocols
       summary: Star Protocol
-      description: "Star a protocol for the organization.\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Success response with updated starred status"
+      description: 'Star a protocol for the organization.
+
+
+        Args:
+
+        protocol_id: Protocol ID
+
+        org_id: Organization ID from header
+
+        db: Database session
+
+
+        Returns:
+
+        Success response with updated starred status'
       operationId: star_protocol_v1_phi_protocols__protocol_id__star_post
       parameters:
       - name: protocol_id
@@ -629,9 +783,23 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
       tags:
-      - protocols
+      - Protocols
       summary: Unstar Protocol
-      description: "Unstar a protocol for the organization.\n\nArgs:\n    protocol_id: Protocol ID\n    org_id: Organization ID from header\n    db: Database session\n\nReturns:\n    Success response with updated starred status"
+      description: 'Unstar a protocol for the organization.
+
+
+        Args:
+
+        protocol_id: Protocol ID
+
+        org_id: Organization ID from header
+
+        db: Database session
+
+
+        Returns:
+
+        Success response with updated starred status'
       operationId: unstar_protocol_v1_phi_protocols__protocol_id__star_delete
       parameters:
       - name: protocol_id
@@ -683,15 +851,106 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    HTTPValidationError:
+    ProtocolResponse:
       properties:
-        detail:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        intent_signature:
+          additionalProperties: true
+          type: object
+          title: Intent Signature
+        protocol_template:
+          additionalProperties: true
+          type: object
+          title: Protocol Template
+        source_workflow_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Workflow Id
+        parent_protocol_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Parent Protocol Id
+        version:
+          type: integer
+          title: Version
+        visibility:
+          type: string
+          title: Visibility
+        tags:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            type: string
           type: array
-          title: Detail
+          title: Tags
+        is_starred:
+          type: boolean
+          title: Is Starred
+        created_at:
+          type: string
+          title: Created At
+        updated_at:
+          type: string
+          title: Updated At
       type: object
-      title: HTTPValidationError
+      required:
+      - id
+      - name
+      - description
+      - intent_signature
+      - protocol_template
+      - source_workflow_id
+      - parent_protocol_id
+      - version
+      - visibility
+      - tags
+      - is_starred
+      - created_at
+      - updated_at
+      title: ProtocolResponse
+      description: Protocol response model.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ForkProtocolRequest:
+      properties:
+        new_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: New Name
+          description: Name for forked protocol
+      type: object
+      title: ForkProtocolRequest
+      description: Request to fork protocol.
     CreateProtocolRequest:
       properties:
         name:
@@ -772,6 +1031,32 @@ components:
       type: object
       title: UpdateProtocolRequest
       description: Request to update protocol.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidateProtocolRequest:
+      properties:
+        protocol_template:
+          additionalProperties: true
+          type: object
+          title: Protocol Template
+          description: Parameterized workflow template to validate
+        dry_run:
+          type: boolean
+          title: Dry Run
+          description: If true, instantiate with synthetic params and run workflow/preflight validation
+          default: true
+      type: object
+      required:
+      - protocol_template
+      title: ValidateProtocolRequest
+      description: Request to validate a protocol template without persisting.
     RecommendProtocolRequest:
       properties:
         user_prompt:
@@ -795,120 +1080,3 @@ components:
       - user_prompt
       title: RecommendProtocolRequest
       description: Request for protocol recommendations.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    ProtocolResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-        name:
-          type: string
-          title: Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        intent_signature:
-          additionalProperties: true
-          type: object
-          title: Intent Signature
-        protocol_template:
-          additionalProperties: true
-          type: object
-          title: Protocol Template
-        source_workflow_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source Workflow Id
-        parent_protocol_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Parent Protocol Id
-        version:
-          type: integer
-          title: Version
-        visibility:
-          type: string
-          title: Visibility
-        tags:
-          items:
-            type: string
-          type: array
-          title: Tags
-        is_starred:
-          type: boolean
-          title: Is Starred
-        created_at:
-          type: string
-          title: Created At
-        updated_at:
-          type: string
-          title: Updated At
-      type: object
-      required:
-      - id
-      - name
-      - description
-      - intent_signature
-      - protocol_template
-      - source_workflow_id
-      - parent_protocol_id
-      - version
-      - visibility
-      - tags
-      - is_starred
-      - created_at
-      - updated_at
-      title: ProtocolResponse
-      description: Protocol response model.
-    ValidateProtocolRequest:
-      properties:
-        protocol_template:
-          additionalProperties: true
-          type: object
-          title: Protocol Template
-          description: Parameterized workflow template to validate
-        dry_run:
-          type: boolean
-          title: Dry Run
-          description: If true, instantiate with synthetic params and run workflow/preflight validation
-          default: true
-      type: object
-      required:
-      - protocol_template
-      title: ValidateProtocolRequest
-      description: Request to validate a protocol template without persisting.
-    ForkProtocolRequest:
-      properties:
-        new_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: New Name
-          description: Name for forked protocol
-      type: object
-      title: ForkProtocolRequest
-      description: Request to fork protocol.

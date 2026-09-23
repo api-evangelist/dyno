@@ -1,23 +1,7 @@
 openapi: 3.2.0
 info:
   title: Protein Design Phi API
-  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
-
-
-    ## Authentication
-
-    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
-
-
-    ## Quick links
-
-    - `POST /v1/phi/jobs` — submit a job
-
-    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
-
-    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
-
-    '
+  description: Phi is a biomodal computation platform for protein design.
   version: 1.0.0
 servers:
 - url: https://api.dyno-agents.app
@@ -30,7 +14,41 @@ paths:
   /v1/phi/runs/{run_id}/results:
     get:
       summary: Get Workflow Results
-      description: "Get complete workflow execution results with all details.\n\nReturns comprehensive workflow results including:\n- Full workflow state (node-by-node status)\n- All artifacts with GCS URIs\n- Execution metrics (pLDDT, RMSD, alignment scores, etc.)\n- Node-level execution details\n\nArgs:\n    run_id: The workflow run ID\n    include_artifacts: Include artifact file list (default: true)\n    db: Database session\n\nReturns:\n    Complete workflow results with final_state, artifacts, metrics\n\nRaises:\n    404: Run not found\n    202: Run still in progress (check back later)\n    500: Run failed"
+      description: 'Get complete workflow execution results with all details.
+
+
+        Returns comprehensive workflow results including:
+
+        - Full workflow state (node-by-node status)
+
+        - All artifacts with GCS URIs
+
+        - Execution metrics (pLDDT, RMSD, alignment scores, etc.)
+
+        - Node-level execution details
+
+
+        Args:
+
+        run_id: The workflow run ID
+
+        include_artifacts: Include artifact file list (default: true)
+
+        db: Database session
+
+
+        Returns:
+
+        Complete workflow results with final_state, artifacts, metrics
+
+
+        Raises:
+
+        404: Run not found
+
+        202: Run still in progress (check back later)
+
+        500: Run failed'
       operationId: get_workflow_results_v1_phi_runs__run_id__results_get
       parameters:
       - name: run_id
@@ -66,7 +84,31 @@ paths:
   /v1/phi/artifacts/{artifact_id}/download:
     get:
       summary: Get Artifact Download Url
-      description: "Generate a signed HTTPS download URL for an artifact.\n\nThe signed URL allows the caller to download the file directly from GCS\nwithout any GCP credentials.  The URL expires after `expires_in` seconds\n(default 1 hour).\n\nAuthentication is required: provide a valid x-api-key header (Clerk API key\nor the static API_SECRET_KEY for local dev).\n\nArgs:\n    artifact_id: Artifact ID\n    expires_in: URL expiry time in seconds (default: 3600 = 1 hour)\n\nReturns:\n    DownloadURLResponse with signed HTTPS download URL"
+      description: 'Generate a signed HTTPS download URL for an artifact.
+
+
+        The signed URL allows the caller to download the file directly from GCS
+
+        without any GCP credentials. The URL expires after `expires_in` seconds
+
+        (default 1 hour).
+
+
+        Authentication is required: provide a valid x-api-key header (Clerk API key
+
+        or the static API_SECRET_KEY for local dev).
+
+
+        Args:
+
+        artifact_id: Artifact ID
+
+        expires_in: URL expiry time in seconds (default: 3600 = 1 hour)
+
+
+        Returns:
+
+        DownloadURLResponse with signed HTTPS download URL'
       operationId: get_artifact_download_url_v1_phi_artifacts__artifact_id__download_get
       parameters:
       - name: artifact_id
@@ -109,6 +151,15 @@ paths:
       - Phi
 components:
   schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ValidationError:
       properties:
         loc:
@@ -130,15 +181,6 @@ components:
       - msg
       - type
       title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     DownloadURLResponse:
       properties:
         artifact_id:

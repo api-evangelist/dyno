@@ -1,23 +1,7 @@
 openapi: 3.2.0
 info:
   title: Phi — Protein Design Runs API
-  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
-
-
-    ## Authentication
-
-    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
-
-
-    ## Quick links
-
-    - `POST /v1/phi/jobs` — submit a job
-
-    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
-
-    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
-
-    '
+  description: Phi is a biomodal computation platform for protein design.
   version: 1.0.0
 servers:
 - url: https://api.dyno-agents.app
@@ -150,7 +134,12 @@ paths:
   /runs/{run_id}/artifacts:
     get:
       summary: List Run Artifacts
-      description: "List all artifacts for a specific run.\n\nReturns:\n    ArtifactListResponse with all artifacts and summary statistics"
+      description: 'List all artifacts for a specific run.
+
+
+        Returns:
+
+        ArtifactListResponse with all artifacts and summary statistics'
       operationId: list_run_artifacts_runs__run_id__artifacts_get
       parameters:
       - name: run_id
@@ -176,86 +165,6 @@ paths:
       - Runs
 components:
   schemas:
-    DesignResponse:
-      properties:
-        message:
-          type: string
-          title: Message
-        tool_calls:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Tool Calls
-        results:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Results
-        metadata:
-          additionalProperties: true
-          type: object
-          title: Metadata
-      type: object
-      required:
-      - message
-      - tool_calls
-      - results
-      - metadata
-      title: DesignResponse
-      description: Response from design agent.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    DesignRequest:
-      properties:
-        message:
-          type: string
-          maxLength: 10000
-          minLength: 1
-          title: Message
-          description: User's design request
-        context:
-          additionalProperties: true
-          type: object
-          title: Context
-          description: Optional context
-      type: object
-      required:
-      - message
-      title: DesignRequest
-      description: Request to design protein.
-    ArtifactListResponse:
-      properties:
-        run_id:
-          type: string
-          title: Run Id
-        artifacts:
-          items:
-            $ref: '#/components/schemas/ArtifactResponse'
-          type: array
-          title: Artifacts
-        total_count:
-          type: integer
-          title: Total Count
-        total_size_bytes:
-          type: integer
-          title: Total Size Bytes
-      type: object
-      required:
-      - run_id
-      - artifacts
-      - total_count
-      - total_size_bytes
-      title: ArtifactListResponse
-      description: Response model for list of artifacts.
     ValidationError:
       properties:
         loc:
@@ -327,3 +236,83 @@ components:
       - metadata
       title: ArtifactResponse
       description: Response model for artifact details.
+    DesignRequest:
+      properties:
+        message:
+          type: string
+          maxLength: 10000
+          minLength: 1
+          title: Message
+          description: User's design request
+        context:
+          additionalProperties: true
+          type: object
+          title: Context
+          description: Optional context
+      type: object
+      required:
+      - message
+      title: DesignRequest
+      description: Request to design protein.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    DesignResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+        tool_calls:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Tool Calls
+        results:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Results
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+      type: object
+      required:
+      - message
+      - tool_calls
+      - results
+      - metadata
+      title: DesignResponse
+      description: Response from design agent.
+    ArtifactListResponse:
+      properties:
+        run_id:
+          type: string
+          title: Run Id
+        artifacts:
+          items:
+            $ref: '#/components/schemas/ArtifactResponse'
+          type: array
+          title: Artifacts
+        total_count:
+          type: integer
+          title: Total Count
+        total_size_bytes:
+          type: integer
+          title: Total Size Bytes
+      type: object
+      required:
+      - run_id
+      - artifacts
+      - total_count
+      - total_size_bytes
+      title: ArtifactListResponse
+      description: Response model for list of artifacts.

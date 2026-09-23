@@ -1,23 +1,7 @@
 openapi: 3.2.0
 info:
   title: Phi — Protein Design Tutorial API
-  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
-
-
-    ## Authentication
-
-    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
-
-
-    ## Quick links
-
-    - `POST /v1/phi/jobs` — submit a job
-
-    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
-
-    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
-
-    '
+  description: Phi is a biomodal computation platform for protein design.
   version: 1.0.0
 servers:
 - url: https://api.dyno-agents.app
@@ -25,22 +9,22 @@ servers:
 - url: http://localhost:8000
   description: Local development
 tags:
-- name: tutorial
+- name: Tutorial
 paths:
   /v1/phi/tutorial:
     get:
       tags:
-      - tutorial
+      - Tutorial
       summary: Get Tutorial
       description: 'Return signed download URLs for the PDL-1 tutorial files.
 
 
         Also idempotently pre-creates a tutorial Dataset in the caller''s org so
 
-        that ``phi filter --dataset-id <id>`` works without a prior ``phi upload``.
+        that ``phi filter --dataset-id `` works without a prior ``phi upload``.
 
 
-        Files are hosted at ``gs://<bucket>/tutorial/pdl1/`` and must be seeded
+        Files are hosted at ``gs:///tutorial/pdl1/`` and must be seeded
 
         once with ``uv run python scripts/seed_tutorial_files.py``.'
       operationId: get_tutorial_v1_phi_tutorial_get
@@ -86,15 +70,23 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    HTTPValidationError:
+    TutorialFile:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
+        filename:
+          type: string
+          title: Filename
+        url:
+          type: string
+          title: Url
+        gcs_uri:
+          type: string
+          title: Gcs Uri
       type: object
-      title: HTTPValidationError
+      required:
+      - filename
+      - url
+      - gcs_uri
+      title: TutorialFile
     TutorialResponse:
       properties:
         files:
@@ -115,23 +107,15 @@ components:
       required:
       - files
       title: TutorialResponse
-    TutorialFile:
+    HTTPValidationError:
       properties:
-        filename:
-          type: string
-          title: Filename
-        url:
-          type: string
-          title: Url
-        gcs_uri:
-          type: string
-          title: Gcs Uri
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      required:
-      - filename
-      - url
-      - gcs_uri
-      title: TutorialFile
+      title: HTTPValidationError
     ValidationError:
       properties:
         loc:

@@ -1,23 +1,7 @@
 openapi: 3.2.0
 info:
   title: Phi — Protein Design Ingest API
-  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
-
-
-    ## Authentication
-
-    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
-
-
-    ## Quick links
-
-    - `POST /v1/phi/jobs` — submit a job
-
-    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
-
-    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
-
-    '
+  description: Phi is a biomodal computation platform for protein design.
   version: 1.0.0
 servers:
 - url: https://api.dyno-agents.app
@@ -25,12 +9,12 @@ servers:
 - url: http://localhost:8000
   description: Local development
 tags:
-- name: ingest
+- name: Ingest
 paths:
   /v1/phi/ingest_sessions/:
     post:
       tags:
-      - ingest
+      - Ingest
       summary: Create Ingest Session
       description: 'Create a new ingest session for a batch of files.
 
@@ -88,7 +72,7 @@ paths:
   /v1/phi/ingest_sessions/{session_id}/upload_urls:
     post:
       tags:
-      - ingest
+      - Ingest
       summary: Get Upload Urls
       description: 'Return signed GCS PUT URLs for a batch of filenames (max 50 per request).
 
@@ -152,9 +136,25 @@ paths:
   /v1/phi/ingest_sessions/{session_id}/upload/{filename}:
     post:
       tags:
-      - ingest
+      - Ingest
       summary: Upload File To Session
-      description: "Upload a single file to an ingest session through the API server (proxy to GCS).\n\nUse this instead of ``POST /upload_urls`` + client-side PUT when a direct\nclient→GCS PUT is blocked by VPC Service Controls or firewall rules.\n\nClient workflow:\n  1. POST /v1/phi/ingest_sessions/ → session_id\n  2. POST /v1/phi/ingest_sessions/{id}/upload/{filename} for each file\n  3. POST /v1/phi/ingest_sessions/{id}/finalize\n  4. Poll GET /v1/phi/ingest_sessions/{id} until status == READY"
+      description: 'Upload a single file to an ingest session through the API server (proxy to GCS).
+
+
+        Use this instead of ``POST /upload_urls`` + client-side PUT when a direct
+
+        client→GCS PUT is blocked by VPC Service Controls or firewall rules.
+
+
+        Client workflow:
+
+        1. POST /v1/phi/ingest_sessions/ → session_id
+
+        2. POST /v1/phi/ingest_sessions/{id}/upload/{filename} for each file
+
+        3. POST /v1/phi/ingest_sessions/{id}/finalize
+
+        4. Poll GET /v1/phi/ingest_sessions/{id} until status == READY'
       operationId: upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post
       parameters:
       - name: session_id
@@ -217,9 +217,23 @@ paths:
   /v1/phi/ingest_sessions/{session_id}/finalize:
     post:
       tags:
-      - ingest
+      - Ingest
       summary: Finalize Ingest Session
-      description: "Trigger the asynchronous ingest pipeline for a completed upload session.\n\nThe pipeline will:\n  1. List all objects under the session's GCS prefix\n  2. Compute checksums and deduplicate\n  3. Create a Dataset record and link DatasetFile rows\n  4. Update the session status to READY\n\nPoll GET /ingest_sessions/{id} to track progress."
+      description: 'Trigger the asynchronous ingest pipeline for a completed upload session.
+
+
+        The pipeline will:
+
+        1. List all objects under the session''s GCS prefix
+
+        2. Compute checksums and deduplicate
+
+        3. Create a Dataset record and link DatasetFile rows
+
+        4. Update the session status to READY
+
+
+        Poll GET /ingest_sessions/{id} to track progress.'
       operationId: finalize_ingest_session_v1_phi_ingest_sessions__session_id__finalize_post
       parameters:
       - name: session_id
@@ -272,7 +286,7 @@ paths:
   /v1/phi/ingest_sessions/{session_id}:
     get:
       tags:
-      - ingest
+      - Ingest
       summary: Get Ingest Session
       description: Poll ingest session status.
       operationId: get_ingest_session_v1_phi_ingest_sessions__session_id__get
@@ -324,100 +338,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post:
-      properties:
-        file:
-          type: string
-          format: binary
-          title: File
-          description: File to upload
-      type: object
-      required:
-      - file
-      title: Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    IngestSessionStatusResponse:
-      properties:
-        session_id:
-          type: string
-          title: Session Id
-        status:
-          type: string
-          title: Status
-        expected_files:
-          type: integer
-          title: Expected Files
-        uploaded_files:
-          type: integer
-          title: Uploaded Files
-        dataset_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Dataset Id
-        artifact_count:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Artifact Count
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-      type: object
-      required:
-      - session_id
-      - status
-      - expected_files
-      - uploaded_files
-      title: IngestSessionStatusResponse
-    FileUploadUrl:
-      properties:
-        file:
-          type: string
-          title: File
-        url:
-          type: string
-          title: Url
-      type: object
-      required:
-      - file
-      - url
-      title: FileUploadUrl
-    UploadUrlsRequest:
-      properties:
-        files:
-          items:
-            type: string
-          type: array
-          maxItems: 50
-          minItems: 1
-          title: Files
-          description: List of filenames (max 50 per request)
-      type: object
-      required:
-      - files
-      title: UploadUrlsRequest
-    UploadUrlsResponse:
-      properties:
-        urls:
-          items:
-            $ref: '#/components/schemas/FileUploadUrl'
-          type: array
-          title: Urls
-      type: object
-      required:
-      - urls
-      title: UploadUrlsResponse
     CreateSessionResponse:
       properties:
         session_id:
@@ -500,3 +420,97 @@ components:
       required:
       - expected_files
       title: CreateSessionRequest
+    UploadUrlsRequest:
+      properties:
+        files:
+          items:
+            type: string
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Files
+          description: List of filenames (max 50 per request)
+      type: object
+      required:
+      - files
+      title: UploadUrlsRequest
+    IngestSessionStatusResponse:
+      properties:
+        session_id:
+          type: string
+          title: Session Id
+        status:
+          type: string
+          title: Status
+        expected_files:
+          type: integer
+          title: Expected Files
+        uploaded_files:
+          type: integer
+          title: Uploaded Files
+        dataset_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dataset Id
+        artifact_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Artifact Count
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - session_id
+      - status
+      - expected_files
+      - uploaded_files
+      title: IngestSessionStatusResponse
+    FileUploadUrl:
+      properties:
+        file:
+          type: string
+          title: File
+        url:
+          type: string
+          title: Url
+      type: object
+      required:
+      - file
+      - url
+      title: FileUploadUrl
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    UploadUrlsResponse:
+      properties:
+        urls:
+          items:
+            $ref: '#/components/schemas/FileUploadUrl'
+          type: array
+          title: Urls
+      type: object
+      required:
+      - urls
+      title: UploadUrlsResponse
+    Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+          description: File to upload
+      type: object
+      required:
+      - file
+      title: Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post

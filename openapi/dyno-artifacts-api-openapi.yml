@@ -1,23 +1,7 @@
 openapi: 3.2.0
 info:
   title: Phi — Protein Design Artifacts API
-  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
-
-
-    ## Authentication
-
-    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
-
-
-    ## Quick links
-
-    - `POST /v1/phi/jobs` — submit a job
-
-    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
-
-    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
-
-    '
+  description: Phi is a biomodal computation platform for protein design.
   version: 1.0.0
 servers:
 - url: https://api.dyno-agents.app
@@ -30,7 +14,12 @@ paths:
   /artifacts/{artifact_id}:
     get:
       summary: Get Artifact
-      description: "Get details for a specific artifact.\n\nReturns:\n    ArtifactResponse with artifact metadata"
+      description: 'Get details for a specific artifact.
+
+
+        Returns:
+
+        ArtifactResponse with artifact metadata'
       operationId: get_artifact_artifacts__artifact_id__get
       parameters:
       - name: artifact_id
@@ -57,7 +46,31 @@ paths:
   /artifacts/{artifact_id}/download:
     get:
       summary: Get Artifact Download Url
-      description: "Generate a signed HTTPS download URL for an artifact.\n\nThe signed URL allows the caller to download the file directly from GCS\nwithout any GCP credentials.  The URL expires after `expires_in` seconds\n(default 1 hour).\n\nAuthentication is required: provide a valid x-api-key header (Clerk API key\nor the static API_SECRET_KEY for local dev).\n\nArgs:\n    artifact_id: Artifact ID\n    expires_in: URL expiry time in seconds (default: 3600 = 1 hour)\n\nReturns:\n    DownloadURLResponse with signed HTTPS download URL"
+      description: 'Generate a signed HTTPS download URL for an artifact.
+
+
+        The signed URL allows the caller to download the file directly from GCS
+
+        without any GCP credentials. The URL expires after `expires_in` seconds
+
+        (default 1 hour).
+
+
+        Authentication is required: provide a valid x-api-key header (Clerk API key
+
+        or the static API_SECRET_KEY for local dev).
+
+
+        Args:
+
+        artifact_id: Artifact ID
+
+        expires_in: URL expiry time in seconds (default: 3600 = 1 hour)
+
+
+        Returns:
+
+        DownloadURLResponse with signed HTTPS download URL'
       operationId: get_artifact_download_url_artifacts__artifact_id__download_get
       parameters:
       - name: artifact_id
@@ -100,6 +113,15 @@ paths:
       - Artifacts
 components:
   schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ValidationError:
       properties:
         loc:
@@ -121,15 +143,6 @@ components:
       - msg
       - type
       title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     DownloadURLResponse:
       properties:
         artifact_id:

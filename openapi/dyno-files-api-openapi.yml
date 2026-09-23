@@ -1,23 +1,7 @@
 openapi: 3.2.0
 info:
   title: Phi — Protein Design Files API
-  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
-
-
-    ## Authentication
-
-    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
-
-
-    ## Quick links
-
-    - `POST /v1/phi/jobs` — submit a job
-
-    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
-
-    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
-
-    '
+  description: Phi is a biomodal computation platform for protein design.
   version: 1.0.0
 servers:
 - url: https://api.dyno-agents.app
@@ -25,14 +9,25 @@ servers:
 - url: http://localhost:8000
   description: Local development
 tags:
-- name: files
+- name: Files
 paths:
   /v1/phi/files/upload-url:
     post:
       tags:
-      - files
+      - Files
       summary: Create Upload Url
-      description: "Generate a short-lived signed GCS URL so the browser or CLI can PUT a file\ndirectly to cloud storage without routing through the API server.\n\nClient workflow:\n  1. POST /v1/phi/files/upload-url → receive upload_url + gcs_uri\n  2. PUT upload_url with raw file bytes (no auth header needed)\n  3. Pass gcs_uri as params.fasta_gcs_uri or params.pdb_gcs_uri in job submission"
+      description: 'Generate a short-lived signed GCS URL so the browser or CLI can PUT a file
+
+        directly to cloud storage without routing through the API server.
+
+
+        Client workflow:
+
+        1. POST /v1/phi/files/upload-url → receive upload_url + gcs_uri
+
+        2. PUT upload_url with raw file bytes (no auth header needed)
+
+        3. Pass gcs_uri as params.fasta_gcs_uri or params.pdb_gcs_uri in job submission'
       operationId: create_upload_url_v1_phi_files_upload_url_post
       parameters:
       - name: x-api-key
@@ -83,9 +78,23 @@ paths:
   /v1/phi/files/upload:
     post:
       tags:
-      - files
+      - Files
       summary: Upload File Direct
-      description: "Upload a file directly through the API server (proxy to GCS).\n\nUse this instead of ``POST /upload-url`` when a direct client→GCS PUT is\nblocked by VPC Service Controls or firewall rules.\n\nClient workflow:\n  1. POST /v1/phi/files/upload (multipart/form-data, field ``file``)\n  2. Pass the returned ``gcs_uri`` as ``params.fasta_gcs_uri`` or\n     ``params.pdb_gcs_uri`` in job submission — identical to the signed-URL flow."
+      description: 'Upload a file directly through the API server (proxy to GCS).
+
+
+        Use this instead of ``POST /upload-url`` when a direct client→GCS PUT is
+
+        blocked by VPC Service Controls or firewall rules.
+
+
+        Client workflow:
+
+        1. POST /v1/phi/files/upload (multipart/form-data, field ``file``)
+
+        2. Pass the returned ``gcs_uri`` as ``params.fasta_gcs_uri`` or
+
+        ``params.pdb_gcs_uri`` in job submission — identical to the signed-URL flow.'
       operationId: upload_file_direct_v1_phi_files_upload_post
       parameters:
       - name: x-api-key
@@ -135,15 +144,27 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    HTTPValidationError:
+    ValidationError:
       properties:
-        detail:
+        loc:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Detail
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
       type: object
-      title: HTTPValidationError
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     DirectUploadResponse:
       properties:
         gcs_uri:
@@ -178,27 +199,6 @@ components:
       - filename
       title: UploadUrlRequest
       description: Request body for POST /v1/phi/files/upload-url.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     Body_upload_file_direct_v1_phi_files_upload_post:
       properties:
         file:
@@ -215,6 +215,15 @@ components:
       required:
       - file
       title: Body_upload_file_direct_v1_phi_files_upload_post
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     UploadUrlResponse:
       properties:
         upload_url:

@@ -1,23 +1,7 @@
 openapi: 3.2.0
 info:
   title: Phi — Protein Design Auth API
-  description: 'Phi is a biomodal computation platform for protein design. Submit structure-prediction and sequence-design jobs, track their status, and retrieve scored results — all via a single REST API.
-
-
-    ## Authentication
-
-    All endpoints require an API key supplied as `Authorization: Bearer <key>` or a Clerk session token. Organisation ID is derived automatically from Clerk tokens; static-key callers must include `X-Organization-ID`.
-
-
-    ## Quick links
-
-    - `POST /v1/phi/jobs` — submit a job
-
-    - `GET  /v1/phi/jobs/{job_id}/status` — poll status
-
-    - `GET  /v1/phi/jobs/{job_id}/scores` — download scored results
-
-    '
+  description: Phi is a biomodal computation platform for protein design.
   version: 1.0.0
 servers:
 - url: https://api.dyno-agents.app
@@ -25,14 +9,38 @@ servers:
 - url: http://localhost:8000
   description: Local development
 tags:
-- name: auth
+- name: Auth
 paths:
   /v1/phi/auth/me:
     get:
       tags:
-      - auth
+      - Auth
       summary: Get Current User Profile
-      description: "Return the Clerk-verified user profile and primary org ID.\n\n``org_id`` is sourced in priority order:\n  1. Directly from the verified token claims (``org_id`` claim in session JWTs\n     and ``ak_…`` keys scoped to an org).  This is the common path now that\n     Clerk \"Membership required\" is enabled.\n  2. Fetched from the Clerk membership API when the token has no ``org_id``\n     claim (older sessions / tokens issued without an active org context).\n  3. Returns a 422 if no org can be determined for a Clerk-authed caller, so\n     the client receives a clear error instead of a silent \"default-org\" that\n     would be rejected downstream.\n\nStatic API-key callers receive a stub profile; ``org_id`` comes from the\n``X-Organization-ID`` header or falls back to ``\"default-org\"``."
+      description: 'Return the Clerk-verified user profile and primary org ID.
+
+
+        ``org_id`` is sourced in priority order:
+
+        1. Directly from the verified token claims (``org_id`` claim in session JWTs
+
+        and ``ak_…`` keys scoped to an org). This is the common path now that
+
+        Clerk "Membership required" is enabled.
+
+        2. Fetched from the Clerk membership API when the token has no ``org_id``
+
+        claim (older sessions / tokens issued without an active org context).
+
+        3. Returns a 422 if no org can be determined for a Clerk-authed caller, so
+
+        the client receives a clear error instead of a silent "default-org" that
+
+        would be rejected downstream.
+
+
+        Static API-key callers receive a stub profile; ``org_id`` comes from the
+
+        ``X-Organization-ID`` header or falls back to ``"default-org"``.'
       operationId: get_current_user_profile_v1_phi_auth_me_get
       parameters:
       - name: x-api-key
@@ -77,14 +85,14 @@ paths:
   /v1/phi/auth/me/quota:
     get:
       tags:
-      - auth
+      - Auth
       summary: Get My Quota
       description: 'Return the authenticated user''s quota limits and current usage.
 
 
         Available to any user with a valid Clerk JWT or ``ak_`` key — no admin
 
-        privilege required.  Use this to drive quota banners and progress bars in
+        privilege required. Use this to drive quota banners and progress bars in
 
         the frontend.'
       operationId: get_my_quota_v1_phi_auth_me_quota_get
@@ -130,6 +138,68 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    UserQuotaResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        max_total_jobs:
+          type: integer
+          title: Max Total Jobs
+        max_concurrent_jobs:
+          type: integer
+          title: Max Concurrent Jobs
+        reset_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reset At
+        current_total_jobs:
+          type: integer
+          title: Current Total Jobs
+        current_concurrent_jobs:
+          type: integer
+          title: Current Concurrent Jobs
+      type: object
+      required:
+      - user_id
+      - max_total_jobs
+      - max_concurrent_jobs
+      - current_total_jobs
+      - current_concurrent_jobs
+      title: UserQuotaResponse
+      description: Quota limits and live usage for the authenticated user.
     UserProfileResponse:
       properties:
         user_id:
@@ -168,65 +238,3 @@ components:
       - created_at
       title: UserProfileResponse
       description: User profile returned by GET /v1/phi/auth/me.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    UserQuotaResponse:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        max_total_jobs:
-          type: integer
-          title: Max Total Jobs
-        max_concurrent_jobs:
-          type: integer
-          title: Max Concurrent Jobs
-        reset_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Reset At
-        current_total_jobs:
-          type: integer
-          title: Current Total Jobs
-        current_concurrent_jobs:
-          type: integer
-          title: Current Concurrent Jobs
-      type: object
-      required:
-      - user_id
-      - max_total_jobs
-      - max_concurrent_jobs
-      - current_total_jobs
-      - current_concurrent_jobs
-      title: UserQuotaResponse
-      description: Quota limits and live usage for the authenticated user.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
