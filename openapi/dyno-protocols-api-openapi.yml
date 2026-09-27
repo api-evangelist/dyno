@@ -851,6 +851,101 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ValidateProtocolRequest:
+      properties:
+        protocol_template:
+          additionalProperties: true
+          type: object
+          title: Protocol Template
+          description: Parameterized workflow template to validate
+        dry_run:
+          type: boolean
+          title: Dry Run
+          description: If true, instantiate with synthetic params and run workflow/preflight validation
+          default: true
+      type: object
+      required:
+      - protocol_template
+      title: ValidateProtocolRequest
+      description: Request to validate a protocol template without persisting.
+    CreateProtocolRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Protocol name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Protocol description
+        intent_signature:
+          additionalProperties: true
+          type: object
+          title: Intent Signature
+          description: Structured intent
+        protocol_template:
+          additionalProperties: true
+          type: object
+          title: Protocol Template
+          description: Parameterized workflow template
+        source_workflow_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Workflow Id
+          description: Source workflow ID
+        visibility:
+          type: string
+          title: Visibility
+          description: Visibility level
+          default: private
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tags
+          description: Tags for search
+      type: object
+      required:
+      - name
+      - intent_signature
+      - protocol_template
+      title: CreateProtocolRequest
+      description: Request to create protocol.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ProtocolResponse:
       properties:
         id:
@@ -919,27 +1014,29 @@ components:
       - updated_at
       title: ProtocolResponse
       description: Protocol response model.
-    ValidationError:
+    RecommendProtocolRequest:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        user_prompt:
           type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
+          title: User Prompt
+          description: User's workflow request
+        force_refresh:
+          type: boolean
+          title: Force Refresh
+          description: If true, bypass intent cache and re-extract (for 'Regenerate recommendations' button)
+          default: false
+        filters:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Filters
+          description: Optional filters (target_type, allowed_tools)
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - user_prompt
+      title: RecommendProtocolRequest
+      description: Request for protocol recommendations.
     ForkProtocolRequest:
       properties:
         new_name:
@@ -951,54 +1048,6 @@ components:
       type: object
       title: ForkProtocolRequest
       description: Request to fork protocol.
-    CreateProtocolRequest:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: Protocol name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: Protocol description
-        intent_signature:
-          additionalProperties: true
-          type: object
-          title: Intent Signature
-          description: Structured intent
-        protocol_template:
-          additionalProperties: true
-          type: object
-          title: Protocol Template
-          description: Parameterized workflow template
-        source_workflow_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source Workflow Id
-          description: Source workflow ID
-        visibility:
-          type: string
-          title: Visibility
-          description: Visibility level
-          default: private
-        tags:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Tags
-          description: Tags for search
-      type: object
-      required:
-      - name
-      - intent_signature
-      - protocol_template
-      title: CreateProtocolRequest
-      description: Request to create protocol.
     UpdateProtocolRequest:
       properties:
         name:
@@ -1031,52 +1080,3 @@ components:
       type: object
       title: UpdateProtocolRequest
       description: Request to update protocol.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    ValidateProtocolRequest:
-      properties:
-        protocol_template:
-          additionalProperties: true
-          type: object
-          title: Protocol Template
-          description: Parameterized workflow template to validate
-        dry_run:
-          type: boolean
-          title: Dry Run
-          description: If true, instantiate with synthetic params and run workflow/preflight validation
-          default: true
-      type: object
-      required:
-      - protocol_template
-      title: ValidateProtocolRequest
-      description: Request to validate a protocol template without persisting.
-    RecommendProtocolRequest:
-      properties:
-        user_prompt:
-          type: string
-          title: User Prompt
-          description: User's workflow request
-        force_refresh:
-          type: boolean
-          title: Force Refresh
-          description: If true, bypass intent cache and re-extract (for 'Regenerate recommendations' button)
-          default: false
-        filters:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Filters
-          description: Optional filters (target_type, allowed_tools)
-      type: object
-      required:
-      - user_prompt
-      title: RecommendProtocolRequest
-      description: Request for protocol recommendations.

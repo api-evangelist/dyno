@@ -320,6 +320,21 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    DatasetListResponse:
+      properties:
+        datasets:
+          items:
+            $ref: '#/components/schemas/DatasetResponse'
+          type: array
+          title: Datasets
+        total_count:
+          type: integer
+          title: Total Count
+      type: object
+      required:
+      - datasets
+      - total_count
+      title: DatasetListResponse
     ValidationError:
       properties:
         loc:
@@ -341,47 +356,6 @@ components:
       - msg
       - type
       title: ValidationError
-    PatchDatasetRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Name
-      type: object
-      required:
-      - name
-      title: PatchDatasetRequest
-    DatasetScoresResponse:
-      properties:
-        dataset_id:
-          type: string
-          title: Dataset Id
-        job_id:
-          type: string
-          title: Job Id
-        download_url:
-          type: string
-          title: Download Url
-        filename:
-          type: string
-          title: Filename
-        expires_in:
-          type: integer
-          title: Expires In
-        completed_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Completed At
-      type: object
-      required:
-      - dataset_id
-      - job_id
-      - download_url
-      - filename
-      - expires_in
-      title: DatasetScoresResponse
     DatasetJobsResponse:
       properties:
         dataset_id:
@@ -409,6 +383,25 @@ components:
       - page
       - page_size
       title: DatasetJobsResponse
+    DatasetFileSummary:
+      properties:
+        filename:
+          type: string
+          title: Filename
+        size_bytes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Size Bytes
+        checksum:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Checksum
+      type: object
+      required:
+      - filename
+      title: DatasetFileSummary
     HTTPValidationError:
       properties:
         detail:
@@ -418,53 +411,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    DatasetJobSummary:
-      properties:
-        job_id:
-          type: string
-          title: Job Id
-        job_type:
-          type: string
-          title: Job Type
-        status:
-          type: string
-          title: Status
-        created_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created At
-        completed_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Completed At
-        scores_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Scores Url
-      type: object
-      required:
-      - job_id
-      - job_type
-      - status
-      title: DatasetJobSummary
-    DatasetListResponse:
-      properties:
-        datasets:
-          items:
-            $ref: '#/components/schemas/DatasetResponse'
-          type: array
-          title: Datasets
-        total_count:
-          type: integer
-          title: Total Count
-      type: object
-      required:
-      - datasets
-      - total_count
-      title: DatasetListResponse
     DatasetResponse:
       properties:
         dataset_id:
@@ -510,22 +456,76 @@ components:
       - artifact_count
       - status
       title: DatasetResponse
-    DatasetFileSummary:
+    DatasetScoresResponse:
       properties:
+        dataset_id:
+          type: string
+          title: Dataset Id
+        job_id:
+          type: string
+          title: Job Id
+        download_url:
+          type: string
+          title: Download Url
         filename:
           type: string
           title: Filename
-        size_bytes:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Size Bytes
-        checksum:
+        expires_in:
+          type: integer
+          title: Expires In
+        completed_at:
           anyOf:
           - type: string
           - type: 'null'
-          title: Checksum
+          title: Completed At
       type: object
       required:
+      - dataset_id
+      - job_id
+      - download_url
       - filename
-      title: DatasetFileSummary
+      - expires_in
+      title: DatasetScoresResponse
+    PatchDatasetRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+      type: object
+      required:
+      - name
+      title: PatchDatasetRequest
+    DatasetJobSummary:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        job_type:
+          type: string
+          title: Job Type
+        status:
+          type: string
+          title: Status
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        completed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completed At
+        scores_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Scores Url
+      type: object
+      required:
+      - job_id
+      - job_type
+      - status
+      title: DatasetJobSummary

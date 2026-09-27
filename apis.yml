@@ -63,14 +63,14 @@ tags:
 - Gene Delivery
 - AAV Capsid
 - Artificial Intelligence
-- Machine-Learning
+- Machine Learning
 - Drug Discovery
 - Healthcare
 - Protein Design
 - Protein Structure Prediction
 - Bioinformatics
 - Computational Biology
-- Agentic AI
+- AI Agents
 - Life Sciences
 tags_raw:
 - Company
@@ -89,6 +89,7 @@ tags_raw:
 - Computational Biology
 - Agentic AI
 - Life Sciences
+- Machine-Learning
 apis:
 - aid: dyno:dyno-admin-api
   name: Dyno Admin API

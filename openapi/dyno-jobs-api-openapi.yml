@@ -716,6 +716,27 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     JobSubmitRequest:
       properties:
         job_type:
@@ -763,27 +784,6 @@ components:
       - job_type
       title: JobSubmitRequest
       description: Request to submit a biomodal job.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     JobCancelResponse:
       properties:
         job_id:
@@ -802,6 +802,15 @@ components:
       - message
       title: JobCancelResponse
       description: Response for job cancellation.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ScoresDownloadResponse:
       properties:
         job_id:
@@ -831,66 +840,6 @@ components:
       - filename
       - expires_in
       title: ScoresDownloadResponse
-    JobType:
-      type: string
-      enum:
-      - esmfold
-      - proteinmpnn
-      - alphafold
-      - rfdiffusion
-      - ligandmpnn
-      - chai1
-      - boltz
-      - align_structures
-      - tm_score
-      - af2rank
-      - rso
-      - bindcraft
-      - rf3
-      - rfdiffusion3
-      - boltzgen
-      - esm2
-      - openfold3
-      - research
-      - design_pipeline
-      - filter_pipeline
-      title: JobType
-      description: Available biomodal job types.
-    BatchJobSubmitResponse:
-      properties:
-        job_ids:
-          items:
-            type: string
-          type: array
-          title: Job Ids
-        total_count:
-          type: integer
-          title: Total Count
-      type: object
-      required:
-      - job_ids
-      - total_count
-      title: BatchJobSubmitResponse
-      description: Response for batch job submission.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    JobStatus:
-      type: string
-      enum:
-      - pending
-      - running
-      - completed
-      - failed
-      - cancelled
-      title: JobStatus
-      description: Job execution status.
     JobListResponse:
       properties:
         jobs:
@@ -929,38 +878,71 @@ components:
       - total_failed
       title: JobListResponse
       description: Response for list of jobs.
-    JobSubmitResponse:
+    JobProgress:
       properties:
-        job_id:
+        current_step:
           type: string
-          title: Job Id
-          description: Database job ID (UUID)
-        run_id:
-          type: string
-          title: Run Id
-          description: Temporal workflow run ID
-        status:
-          type: string
-          title: Status
-          description: Initial job status (typically 'submitted' or 'pending')
-        estimated_duration:
+          title: Current Step
+          description: Current execution step (e.g., 'folding sequence 5/10')
+        percent_complete:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Percent Complete
+          description: Progress percentage
+        eta_seconds:
           anyOf:
           - type: integer
           - type: 'null'
-          title: Estimated Duration
-          description: Estimated execution time in seconds (if available)
-        message:
-          type: string
-          title: Message
-          description: Human-readable status message
+          title: Eta Seconds
+          description: Estimated time to completion in seconds
       type: object
       required:
-      - job_id
-      - run_id
-      - status
-      - message
-      title: JobSubmitResponse
-      description: Response from job submission.
+      - current_step
+      - percent_complete
+      title: JobProgress
+      description: Job execution progress information.
+    BatchJobSubmitResponse:
+      properties:
+        job_ids:
+          items:
+            type: string
+          type: array
+          title: Job Ids
+        total_count:
+          type: integer
+          title: Total Count
+      type: object
+      required:
+      - job_ids
+      - total_count
+      title: BatchJobSubmitResponse
+      description: Response for batch job submission.
+    JobType:
+      type: string
+      enum:
+      - esmfold
+      - proteinmpnn
+      - alphafold
+      - rfdiffusion
+      - ligandmpnn
+      - chai1
+      - boltz
+      - align_structures
+      - tm_score
+      - af2rank
+      - rso
+      - bindcraft
+      - rf3
+      - rfdiffusion3
+      - boltzgen
+      - esm2
+      - openfold3
+      - research
+      - design_pipeline
+      - filter_pipeline
+      title: JobType
+      description: Available biomodal job types.
     JobStatusResponse:
       properties:
         job_id:
@@ -1055,27 +1037,45 @@ components:
       - created_at
       title: JobStatusResponse
       description: Response with job status information.
-    JobProgress:
+    JobSubmitResponse:
       properties:
-        current_step:
+        job_id:
           type: string
-          title: Current Step
-          description: Current execution step (e.g., 'folding sequence 5/10')
-        percent_complete:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Percent Complete
-          description: Progress percentage
-        eta_seconds:
+          title: Job Id
+          description: Database job ID (UUID)
+        run_id:
+          type: string
+          title: Run Id
+          description: Temporal workflow run ID
+        status:
+          type: string
+          title: Status
+          description: Initial job status (typically 'submitted' or 'pending')
+        estimated_duration:
           anyOf:
           - type: integer
           - type: 'null'
-          title: Eta Seconds
-          description: Estimated time to completion in seconds
+          title: Estimated Duration
+          description: Estimated execution time in seconds (if available)
+        message:
+          type: string
+          title: Message
+          description: Human-readable status message
       type: object
       required:
-      - current_step
-      - percent_complete
-      title: JobProgress
-      description: Job execution progress information.
+      - job_id
+      - run_id
+      - status
+      - message
+      title: JobSubmitResponse
+      description: Response from job submission.
+    JobStatus:
+      type: string
+      enum:
+      - pending
+      - running
+      - completed
+      - failed
+      - cancelled
+      title: JobStatus
+      description: Job execution status.

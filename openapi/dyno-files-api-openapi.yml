@@ -176,6 +176,36 @@ components:
       - gcs_uri
       title: DirectUploadResponse
       description: Response for POST /v1/phi/files/upload.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    UploadUrlResponse:
+      properties:
+        upload_url:
+          type: string
+          title: Upload Url
+          description: Signed PUT URL to upload the file directly to GCS
+        gcs_uri:
+          type: string
+          title: Gcs Uri
+          description: GCS URI of the uploaded object (use as job param)
+        expires_in:
+          type: integer
+          title: Expires In
+          description: Seconds until the upload URL expires
+      type: object
+      required:
+      - upload_url
+      - gcs_uri
+      - expires_in
+      title: UploadUrlResponse
+      description: Response for POST /v1/phi/files/upload-url.
     UploadUrlRequest:
       properties:
         filename:
@@ -215,33 +245,3 @@ components:
       required:
       - file
       title: Body_upload_file_direct_v1_phi_files_upload_post
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    UploadUrlResponse:
-      properties:
-        upload_url:
-          type: string
-          title: Upload Url
-          description: Signed PUT URL to upload the file directly to GCS
-        gcs_uri:
-          type: string
-          title: Gcs Uri
-          description: GCS URI of the uploaded object (use as job param)
-        expires_in:
-          type: integer
-          title: Expires In
-          description: Seconds until the upload URL expires
-      type: object
-      required:
-      - upload_url
-      - gcs_uri
-      - expires_in
-      title: UploadUrlResponse
-      description: Response for POST /v1/phi/files/upload-url.

@@ -347,33 +347,24 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    CreateAgentRequest:
+    UpdateAgentRequest:
       properties:
         config:
-          $ref: '#/components/schemas/AgentConfig'
-          description: Agent configuration
-        name:
-          type: string
-          title: Name
-          description: Agent name
-        description:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/AgentConfig'
           - type: 'null'
-          title: Description
-          description: Optional description
+          description: Updated agent configuration
         tool_ids:
-          items:
-            type: string
-          type: array
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
           title: Tool Ids
-          description: Enabled tool IDs
+          description: Updated tool IDs
       type: object
-      required:
-      - config
-      - name
-      title: CreateAgentRequest
-      description: Request to create agent.
+      title: UpdateAgentRequest
+      description: Request to update agent.
     AgentConfig:
       properties:
         name:
@@ -411,21 +402,30 @@ components:
       - instructions
       title: AgentConfig
       description: Configuration for an AI agent.
-    UpdateAgentRequest:
+    CreateAgentRequest:
       properties:
         config:
+          $ref: '#/components/schemas/AgentConfig'
+          description: Agent configuration
+        name:
+          type: string
+          title: Name
+          description: Agent name
+        description:
           anyOf:
-          - $ref: '#/components/schemas/AgentConfig'
+          - type: string
           - type: 'null'
-          description: Updated agent configuration
+          title: Description
+          description: Optional description
         tool_ids:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
+          items:
+            type: string
+          type: array
           title: Tool Ids
-          description: Updated tool IDs
+          description: Enabled tool IDs
       type: object
-      title: UpdateAgentRequest
-      description: Request to update agent.
+      required:
+      - config
+      - name
+      title: CreateAgentRequest
+      description: Request to create agent.
