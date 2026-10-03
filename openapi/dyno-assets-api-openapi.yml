@@ -564,6 +564,23 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    CreateProjectRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Project name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Optional description
+      type: object
+      required:
+      - name
+      title: CreateProjectRequest
+      description: Request to create a new project.
     HTTPValidationError:
       properties:
         detail:
@@ -594,20 +611,3 @@ components:
       - msg
       - type
       title: ValidationError
-    CreateProjectRequest:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: Project name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: Optional description
-      type: object
-      required:
-      - name
-      title: CreateProjectRequest
-      description: Request to create a new project.

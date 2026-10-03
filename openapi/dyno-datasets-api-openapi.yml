@@ -320,21 +320,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    DatasetListResponse:
-      properties:
-        datasets:
-          items:
-            $ref: '#/components/schemas/DatasetResponse'
-          type: array
-          title: Datasets
-        total_count:
-          type: integer
-          title: Total Count
-      type: object
-      required:
-      - datasets
-      - total_count
-      title: DatasetListResponse
     ValidationError:
       properties:
         loc:
@@ -356,61 +341,6 @@ components:
       - msg
       - type
       title: ValidationError
-    DatasetJobsResponse:
-      properties:
-        dataset_id:
-          type: string
-          title: Dataset Id
-        jobs:
-          items:
-            $ref: '#/components/schemas/DatasetJobSummary'
-          type: array
-          title: Jobs
-        total_count:
-          type: integer
-          title: Total Count
-        page:
-          type: integer
-          title: Page
-        page_size:
-          type: integer
-          title: Page Size
-      type: object
-      required:
-      - dataset_id
-      - jobs
-      - total_count
-      - page
-      - page_size
-      title: DatasetJobsResponse
-    DatasetFileSummary:
-      properties:
-        filename:
-          type: string
-          title: Filename
-        size_bytes:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Size Bytes
-        checksum:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Checksum
-      type: object
-      required:
-      - filename
-      title: DatasetFileSummary
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     DatasetResponse:
       properties:
         dataset_id:
@@ -456,6 +386,30 @@ components:
       - artifact_count
       - status
       title: DatasetResponse
+    DatasetListResponse:
+      properties:
+        datasets:
+          items:
+            $ref: '#/components/schemas/DatasetResponse'
+          type: array
+          title: Datasets
+        total_count:
+          type: integer
+          title: Total Count
+      type: object
+      required:
+      - datasets
+      - total_count
+      title: DatasetListResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     DatasetScoresResponse:
       properties:
         dataset_id:
@@ -486,6 +440,25 @@ components:
       - filename
       - expires_in
       title: DatasetScoresResponse
+    DatasetFileSummary:
+      properties:
+        filename:
+          type: string
+          title: Filename
+        size_bytes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Size Bytes
+        checksum:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Checksum
+      type: object
+      required:
+      - filename
+      title: DatasetFileSummary
     PatchDatasetRequest:
       properties:
         name:
@@ -497,6 +470,33 @@ components:
       required:
       - name
       title: PatchDatasetRequest
+    DatasetJobsResponse:
+      properties:
+        dataset_id:
+          type: string
+          title: Dataset Id
+        jobs:
+          items:
+            $ref: '#/components/schemas/DatasetJobSummary'
+          type: array
+          title: Jobs
+        total_count:
+          type: integer
+          title: Total Count
+        page:
+          type: integer
+          title: Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+      - dataset_id
+      - jobs
+      - total_count
+      - page
+      - page_size
+      title: DatasetJobsResponse
     DatasetJobSummary:
       properties:
         job_id:

@@ -138,59 +138,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    UserQuotaResponse:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-        max_total_jobs:
-          type: integer
-          title: Max Total Jobs
-        max_concurrent_jobs:
-          type: integer
-          title: Max Concurrent Jobs
-        reset_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Reset At
-        current_total_jobs:
-          type: integer
-          title: Current Total Jobs
-        current_concurrent_jobs:
-          type: integer
-          title: Current Concurrent Jobs
-      type: object
-      required:
-      - user_id
-      - max_total_jobs
-      - max_concurrent_jobs
-      - current_total_jobs
-      - current_concurrent_jobs
-      title: UserQuotaResponse
-      description: Quota limits and live usage for the authenticated user.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     UserProfileResponse:
       properties:
         user_id:
@@ -229,6 +176,38 @@ components:
       - created_at
       title: UserProfileResponse
       description: User profile returned by GET /v1/phi/auth/me.
+    UserQuotaResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        max_total_jobs:
+          type: integer
+          title: Max Total Jobs
+        max_concurrent_jobs:
+          type: integer
+          title: Max Concurrent Jobs
+        reset_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reset At
+        current_total_jobs:
+          type: integer
+          title: Current Total Jobs
+        current_concurrent_jobs:
+          type: integer
+          title: Current Concurrent Jobs
+      type: object
+      required:
+      - user_id
+      - max_total_jobs
+      - max_concurrent_jobs
+      - current_total_jobs
+      - current_concurrent_jobs
+      title: UserQuotaResponse
+      description: Quota limits and live usage for the authenticated user.
     HTTPValidationError:
       properties:
         detail:
@@ -238,3 +217,24 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

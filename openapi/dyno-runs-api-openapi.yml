@@ -165,30 +165,6 @@ paths:
       - Runs
 components:
   schemas:
-    ArtifactListResponse:
-      properties:
-        run_id:
-          type: string
-          title: Run Id
-        artifacts:
-          items:
-            $ref: '#/components/schemas/ArtifactResponse'
-          type: array
-          title: Artifacts
-        total_count:
-          type: integer
-          title: Total Count
-        total_size_bytes:
-          type: integer
-          title: Total Size Bytes
-      type: object
-      required:
-      - run_id
-      - artifacts
-      - total_count
-      - total_size_bytes
-      title: ArtifactListResponse
-      description: Response model for list of artifacts.
     ValidationError:
       properties:
         loc:
@@ -210,44 +186,6 @@ components:
       - msg
       - type
       title: ValidationError
-    DesignResponse:
-      properties:
-        message:
-          type: string
-          title: Message
-        tool_calls:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Tool Calls
-        results:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Results
-        metadata:
-          additionalProperties: true
-          type: object
-          title: Metadata
-      type: object
-      required:
-      - message
-      - tool_calls
-      - results
-      - metadata
-      title: DesignResponse
-      description: Response from design agent.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ArtifactResponse:
       properties:
         artifact_id:
@@ -298,6 +236,68 @@ components:
       - metadata
       title: ArtifactResponse
       description: Response model for artifact details.
+    DesignResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+        tool_calls:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Tool Calls
+        results:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Results
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+      type: object
+      required:
+      - message
+      - tool_calls
+      - results
+      - metadata
+      title: DesignResponse
+      description: Response from design agent.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ArtifactListResponse:
+      properties:
+        run_id:
+          type: string
+          title: Run Id
+        artifacts:
+          items:
+            $ref: '#/components/schemas/ArtifactResponse'
+          type: array
+          title: Artifacts
+        total_count:
+          type: integer
+          title: Total Count
+        total_size_bytes:
+          type: integer
+          title: Total Size Bytes
+      type: object
+      required:
+      - run_id
+      - artifacts
+      - total_count
+      - total_size_bytes
+      title: ArtifactListResponse
+      description: Response model for list of artifacts.
     DesignRequest:
       properties:
         message:

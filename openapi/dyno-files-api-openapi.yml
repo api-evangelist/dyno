@@ -165,26 +165,6 @@ components:
       - msg
       - type
       title: ValidationError
-    DirectUploadResponse:
-      properties:
-        gcs_uri:
-          type: string
-          title: Gcs Uri
-          description: GCS URI of the uploaded object (use as job param)
-      type: object
-      required:
-      - gcs_uri
-      title: DirectUploadResponse
-      description: Response for POST /v1/phi/files/upload.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     UploadUrlResponse:
       properties:
         upload_url:
@@ -206,6 +186,31 @@ components:
       - expires_in
       title: UploadUrlResponse
       description: Response for POST /v1/phi/files/upload-url.
+    Body_upload_file_direct_v1_phi_files_upload_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+          description: File to upload
+        content_type:
+          type: string
+          title: Content Type
+          description: MIME type of the file
+          default: application/octet-stream
+      type: object
+      required:
+      - file
+      title: Body_upload_file_direct_v1_phi_files_upload_post
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     UploadUrlRequest:
       properties:
         filename:
@@ -229,19 +234,14 @@ components:
       - filename
       title: UploadUrlRequest
       description: Request body for POST /v1/phi/files/upload-url.
-    Body_upload_file_direct_v1_phi_files_upload_post:
+    DirectUploadResponse:
       properties:
-        file:
+        gcs_uri:
           type: string
-          format: binary
-          title: File
-          description: File to upload
-        content_type:
-          type: string
-          title: Content Type
-          description: MIME type of the file
-          default: application/octet-stream
+          title: Gcs Uri
+          description: GCS URI of the uploaded object (use as job param)
       type: object
       required:
-      - file
-      title: Body_upload_file_direct_v1_phi_files_upload_post
+      - gcs_uri
+      title: DirectUploadResponse
+      description: Response for POST /v1/phi/files/upload.

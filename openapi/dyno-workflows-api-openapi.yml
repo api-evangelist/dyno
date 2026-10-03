@@ -836,6 +836,48 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CreateWorkflowRequest:
+      properties:
+        spec:
+          $ref: '#/components/schemas/WorkflowSpec'
+          description: Workflow specification
+        name:
+          type: string
+          title: Name
+          description: Workflow name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Optional description
+      type: object
+      required:
+      - spec
+      - name
+      title: CreateWorkflowRequest
+      description: Request to create workflow from spec.
     WorkflowSpec:
       properties:
         name:
@@ -883,43 +925,15 @@ components:
         edges, and expected outputs. Once validated, this spec is executed
 
         by the Temporal workflow executor.'
-    ValidationError:
+    HTTPValidationError:
       properties:
-        loc:
+        detail:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
+          title: Detail
       type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    UpdateWorkflowRequest:
-      properties:
-        spec:
-          $ref: '#/components/schemas/WorkflowSpec'
-          description: Updated workflow specification
-        change_summary:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Change Summary
-          description: Description of changes
-      type: object
-      required:
-      - spec
-      title: UpdateWorkflowRequest
-      description: Request to update workflow.
+      title: HTTPValidationError
     EdgeSpec:
       properties:
         src:
@@ -945,27 +959,39 @@ components:
         An edge defines the flow between nodes. It can include an optional
 
         condition that must be satisfied for execution to continue.'
-    ExecuteWorkflowRequest:
+    PlanWorkflowRequest:
       properties:
-        inputs:
+        prompt:
+          type: string
+          minLength: 1
+          title: Prompt
+          description: Natural language workflow description
+        protocol_id:
           anyOf:
-          - additionalProperties: true
-            type: object
+          - type: string
           - type: 'null'
-          title: Inputs
-          description: Optional workflow inputs
+          title: Protocol Id
+          description: Optional protocol ID to use as planning guidance
+        disable_auto_recommendations:
+          type: boolean
+          title: Disable Auto Recommendations
+          description: Disable automatic protocol recommendations (for de novo workflows)
+          default: false
+        auto_publish:
+          type: boolean
+          title: Auto Publish
+          description: Auto-publish after creation
+          default: false
+        execute_immediately:
+          type: boolean
+          title: Execute Immediately
+          description: Execute without human review (automatically publishes first)
+          default: false
       type: object
-      title: ExecuteWorkflowRequest
-      description: Request to execute workflow.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      required:
+      - prompt
+      title: PlanWorkflowRequest
+      description: Request to plan workflow from natural language prompt.
     PlanExecuteRequest:
       properties:
         query:
@@ -1022,60 +1048,22 @@ components:
       - protocolId
       title: PlanExecuteRequest
       description: Request to plan and execute workflow from protocol (frontend contract).
-    CreateWorkflowRequest:
+    UpdateWorkflowRequest:
       properties:
         spec:
           $ref: '#/components/schemas/WorkflowSpec'
-          description: Workflow specification
-        name:
-          type: string
-          title: Name
-          description: Workflow name
-        description:
+          description: Updated workflow specification
+        change_summary:
           anyOf:
           - type: string
           - type: 'null'
-          title: Description
-          description: Optional description
+          title: Change Summary
+          description: Description of changes
       type: object
       required:
       - spec
-      - name
-      title: CreateWorkflowRequest
-      description: Request to create workflow from spec.
-    PlanWorkflowRequest:
-      properties:
-        prompt:
-          type: string
-          minLength: 1
-          title: Prompt
-          description: Natural language workflow description
-        protocol_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Protocol Id
-          description: Optional protocol ID to use as planning guidance
-        disable_auto_recommendations:
-          type: boolean
-          title: Disable Auto Recommendations
-          description: Disable automatic protocol recommendations (for de novo workflows)
-          default: false
-        auto_publish:
-          type: boolean
-          title: Auto Publish
-          description: Auto-publish after creation
-          default: false
-        execute_immediately:
-          type: boolean
-          title: Execute Immediately
-          description: Execute without human review (automatically publishes first)
-          default: false
-      type: object
-      required:
-      - prompt
-      title: PlanWorkflowRequest
-      description: Request to plan workflow from natural language prompt.
+      title: UpdateWorkflowRequest
+      description: Request to update workflow.
     NodeSpec:
       properties:
         id:
@@ -1114,3 +1102,15 @@ components:
         Note: params uses Any type to avoid strict schema validation issues
 
         with dict[str, Any] in OpenAI Agents SDK.'
+    ExecuteWorkflowRequest:
+      properties:
+        inputs:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Inputs
+          description: Optional workflow inputs
+      type: object
+      title: ExecuteWorkflowRequest
+      description: Request to execute workflow.
