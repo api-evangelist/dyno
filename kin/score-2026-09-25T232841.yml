@@ -1,29 +1,27 @@
-# Kin Score artifact — dyno — 2026-08-25T154045
+# Kin Score artifact — dyno — 2026-09-25T232841
 # The API Evangelist rating (https://github.com/api-evangelist/kin-score). Generated; do not edit.
 ---
 kin_score:
   slug: dyno
-  schema_version: 0.14.0
-  scored_at: '2026-08-25'
-  run_ts: 2026-08-25T154045
-  composite: 49.7
+  schema_version: 0.23.0
+  scored_at: '2026-09-25'
+  run_ts: 2026-09-25T232841
+  composite: 45.7
   band: developing
   facets:
-    discoverability: 68.5
-    contract_quality: 50.3
-    governance: 16.7
+    discoverability: 66.1
+    contract_quality: 44.2
+    contract_governance: 4.5
     operational_transparency: 18.4
-    developer_ergonomics: 85.7
-    commercial_clarity: 34.2
-    contract_governance: 16.7
+    developer_ergonomics: 85.0
     access_clarity: 34.2
   agent_readiness:
-    score: 27.3
-    band: agent-aware
+    score: 28.7
+    band: agent-ready
     dimensions:
       spec_presence: true
       agentic_access: false
-      reversibility_documented: false
+      reversibility_documented: documented
       mcp_server: false
       auth_clarity: bearer
       idempotency: false
@@ -31,7 +29,7 @@ kin_score:
       openapi_examples: false
       rate_limit_signal: documented
       event_surface_described: false
-      agent_skills: true
+      agent_skills: unknown
       well_known_catalog: false
       consent_identity: false
       agent_card: false
@@ -44,14 +42,14 @@ kin_score:
     applies: true
     regime: Health
     regime_id: health
-    score: 31.3
+    score: 18.4
     matched_via: tags
   provenance:
     mcp: derived
     skills: unknown
     conformance: derived
     contracts:
-      total: 1
+      total: 17
       derived: 0
       coverage: 0.0
       callable: 100.0
