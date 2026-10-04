@@ -165,27 +165,35 @@ paths:
       - Runs
 components:
   schemas:
-    ValidationError:
+    DesignResponse:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        message:
           type: string
           title: Message
-        type:
-          type: string
-          title: Error Type
+        tool_calls:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Tool Calls
+        results:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Results
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - message
+      - tool_calls
+      - results
+      - metadata
+      title: DesignResponse
+      description: Response from design agent.
     ArtifactResponse:
       properties:
         artifact_id:
@@ -236,35 +244,6 @@ components:
       - metadata
       title: ArtifactResponse
       description: Response model for artifact details.
-    DesignResponse:
-      properties:
-        message:
-          type: string
-          title: Message
-        tool_calls:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Tool Calls
-        results:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Results
-        metadata:
-          additionalProperties: true
-          type: object
-          title: Metadata
-      type: object
-      required:
-      - message
-      - tool_calls
-      - results
-      - metadata
-      title: DesignResponse
-      description: Response from design agent.
     HTTPValidationError:
       properties:
         detail:
@@ -316,3 +295,24 @@ components:
       - message
       title: DesignRequest
       description: Request to design protein.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

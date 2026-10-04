@@ -70,23 +70,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    TutorialFile:
-      properties:
-        filename:
-          type: string
-          title: Filename
-        url:
-          type: string
-          title: Url
-        gcs_uri:
-          type: string
-          title: Gcs Uri
-      type: object
-      required:
-      - filename
-      - url
-      - gcs_uri
-      title: TutorialFile
     HTTPValidationError:
       properties:
         detail:
@@ -137,3 +120,20 @@ components:
       required:
       - files
       title: TutorialResponse
+    TutorialFile:
+      properties:
+        filename:
+          type: string
+          title: Filename
+        url:
+          type: string
+          title: Url
+        gcs_uri:
+          type: string
+          title: Gcs Uri
+      type: object
+      required:
+      - filename
+      - url
+      - gcs_uri
+      title: TutorialFile

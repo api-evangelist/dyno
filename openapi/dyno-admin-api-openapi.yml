@@ -284,6 +284,15 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     QuotaResponse:
       properties:
         scope:
@@ -321,15 +330,20 @@ components:
       - max_total_jobs
       - max_concurrent_jobs
       title: QuotaResponse
-    HTTPValidationError:
+    QuotaRequest:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
+        max_total_jobs:
+          type: integer
+          title: Max Total Jobs
+          description: Lifetime job cap for this scope. -1 means unlimited.
+          default: -1
+        max_concurrent_jobs:
+          type: integer
+          title: Max Concurrent Jobs
+          description: Maximum simultaneously active (pending/running) jobs. -1 means unlimited.
+          default: -1
       type: object
-      title: HTTPValidationError
+      title: QuotaRequest
     ValidationError:
       properties:
         loc:
@@ -351,17 +365,3 @@ components:
       - msg
       - type
       title: ValidationError
-    QuotaRequest:
-      properties:
-        max_total_jobs:
-          type: integer
-          title: Max Total Jobs
-          description: Lifetime job cap for this scope. -1 means unlimited.
-          default: -1
-        max_concurrent_jobs:
-          type: integer
-          title: Max Concurrent Jobs
-          description: Maximum simultaneously active (pending/running) jobs. -1 means unlimited.
-          default: -1
-      type: object
-      title: QuotaRequest

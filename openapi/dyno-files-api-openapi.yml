@@ -144,73 +144,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    UploadUrlResponse:
-      properties:
-        upload_url:
-          type: string
-          title: Upload Url
-          description: Signed PUT URL to upload the file directly to GCS
-        gcs_uri:
-          type: string
-          title: Gcs Uri
-          description: GCS URI of the uploaded object (use as job param)
-        expires_in:
-          type: integer
-          title: Expires In
-          description: Seconds until the upload URL expires
-      type: object
-      required:
-      - upload_url
-      - gcs_uri
-      - expires_in
-      title: UploadUrlResponse
-      description: Response for POST /v1/phi/files/upload-url.
-    Body_upload_file_direct_v1_phi_files_upload_post:
-      properties:
-        file:
-          type: string
-          format: binary
-          title: File
-          description: File to upload
-        content_type:
-          type: string
-          title: Content Type
-          description: MIME type of the file
-          default: application/octet-stream
-      type: object
-      required:
-      - file
-      title: Body_upload_file_direct_v1_phi_files_upload_post
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     UploadUrlRequest:
       properties:
         filename:
@@ -234,6 +167,57 @@ components:
       - filename
       title: UploadUrlRequest
       description: Request body for POST /v1/phi/files/upload-url.
+    UploadUrlResponse:
+      properties:
+        upload_url:
+          type: string
+          title: Upload Url
+          description: Signed PUT URL to upload the file directly to GCS
+        gcs_uri:
+          type: string
+          title: Gcs Uri
+          description: GCS URI of the uploaded object (use as job param)
+        expires_in:
+          type: integer
+          title: Expires In
+          description: Seconds until the upload URL expires
+      type: object
+      required:
+      - upload_url
+      - gcs_uri
+      - expires_in
+      title: UploadUrlResponse
+      description: Response for POST /v1/phi/files/upload-url.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     DirectUploadResponse:
       properties:
         gcs_uri:
@@ -245,3 +229,19 @@ components:
       - gcs_uri
       title: DirectUploadResponse
       description: Response for POST /v1/phi/files/upload.
+    Body_upload_file_direct_v1_phi_files_upload_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+          description: File to upload
+        content_type:
+          type: string
+          title: Content Type
+          description: MIME type of the file
+          default: application/octet-stream
+      type: object
+      required:
+      - file
+      title: Body_upload_file_direct_v1_phi_files_upload_post

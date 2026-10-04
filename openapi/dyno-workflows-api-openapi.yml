@@ -836,27 +836,85 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ValidationError:
+    NodeSpec:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        id:
           type: string
-          title: Message
-        type:
+          title: Id
+        op:
           type: string
-          title: Error Type
+          title: Op
+        params:
+          title: Params
+        retry_policy:
+          title: Retry Policy
+        map_config:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Map Config
+      additionalProperties: false
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - id
+      - op
+      title: NodeSpec
+      description: 'Specification for a single workflow node.
+
+
+        A node represents a single operation (tool execution) in the workflow.
+
+        It includes the operation name, parameters, and optional retry policy.
+
+
+        Special node type: op="map" for parallel execution over collections.
+
+
+        Note: params uses Any type to avoid strict schema validation issues
+
+        with dict[str, Any] in OpenAI Agents SDK.'
+    EdgeSpec:
+      properties:
+        src:
+          type: string
+          title: Src
+        dst:
+          type: string
+          title: Dst
+        condition:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Condition
+      additionalProperties: false
+      type: object
+      required:
+      - src
+      - dst
+      title: EdgeSpec
+      description: 'Specification for a workflow edge (dependency).
+
+
+        An edge defines the flow between nodes. It can include an optional
+
+        condition that must be satisfied for execution to continue.'
+    UpdateWorkflowRequest:
+      properties:
+        spec:
+          $ref: '#/components/schemas/WorkflowSpec'
+          description: Updated workflow specification
+        change_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Change Summary
+          description: Description of changes
+      type: object
+      required:
+      - spec
+      title: UpdateWorkflowRequest
+      description: Request to update workflow.
     CreateWorkflowRequest:
       properties:
         spec:
@@ -878,6 +936,36 @@ components:
       - name
       title: CreateWorkflowRequest
       description: Request to create workflow from spec.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     WorkflowSpec:
       properties:
         name:
@@ -925,40 +1013,18 @@ components:
         edges, and expected outputs. Once validated, this spec is executed
 
         by the Temporal workflow executor.'
-    HTTPValidationError:
+    ExecuteWorkflowRequest:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    EdgeSpec:
-      properties:
-        src:
-          type: string
-          title: Src
-        dst:
-          type: string
-          title: Dst
-        condition:
+        inputs:
           anyOf:
-          - type: string
+          - additionalProperties: true
+            type: object
           - type: 'null'
-          title: Condition
-      additionalProperties: false
+          title: Inputs
+          description: Optional workflow inputs
       type: object
-      required:
-      - src
-      - dst
-      title: EdgeSpec
-      description: 'Specification for a workflow edge (dependency).
-
-
-        An edge defines the flow between nodes. It can include an optional
-
-        condition that must be satisfied for execution to continue.'
+      title: ExecuteWorkflowRequest
+      description: Request to execute workflow.
     PlanWorkflowRequest:
       properties:
         prompt:
@@ -1048,69 +1114,3 @@ components:
       - protocolId
       title: PlanExecuteRequest
       description: Request to plan and execute workflow from protocol (frontend contract).
-    UpdateWorkflowRequest:
-      properties:
-        spec:
-          $ref: '#/components/schemas/WorkflowSpec'
-          description: Updated workflow specification
-        change_summary:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Change Summary
-          description: Description of changes
-      type: object
-      required:
-      - spec
-      title: UpdateWorkflowRequest
-      description: Request to update workflow.
-    NodeSpec:
-      properties:
-        id:
-          type: string
-          title: Id
-        op:
-          type: string
-          title: Op
-        params:
-          title: Params
-        retry_policy:
-          title: Retry Policy
-        map_config:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Map Config
-      additionalProperties: false
-      type: object
-      required:
-      - id
-      - op
-      title: NodeSpec
-      description: 'Specification for a single workflow node.
-
-
-        A node represents a single operation (tool execution) in the workflow.
-
-        It includes the operation name, parameters, and optional retry policy.
-
-
-        Special node type: op="map" for parallel execution over collections.
-
-
-        Note: params uses Any type to avoid strict schema validation issues
-
-        with dict[str, Any] in OpenAI Agents SDK.'
-    ExecuteWorkflowRequest:
-      properties:
-        inputs:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Inputs
-          description: Optional workflow inputs
-      type: object
-      title: ExecuteWorkflowRequest
-      description: Request to execute workflow.

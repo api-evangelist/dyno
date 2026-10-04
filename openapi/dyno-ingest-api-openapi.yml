@@ -349,27 +349,30 @@ components:
       required:
       - urls
       title: UploadUrlsResponse
-    ValidationError:
+    FileUploadUrl:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        file:
           type: string
-          title: Message
-        type:
+          title: File
+        url:
           type: string
-          title: Error Type
+          title: Url
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - file
+      - url
+      title: FileUploadUrl
+    Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+          description: File to upload
+      type: object
+      required:
+      - file
+      title: Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post
     HTTPValidationError:
       properties:
         detail:
@@ -379,6 +382,59 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    UploadUrlsRequest:
+      properties:
+        files:
+          items:
+            type: string
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Files
+          description: List of filenames (max 50 per request)
+      type: object
+      required:
+      - files
+      title: UploadUrlsRequest
+    CreateSessionResponse:
+      properties:
+        session_id:
+          type: string
+          title: Session Id
+        upload_prefix:
+          type: string
+          title: Upload Prefix
+          description: GCS prefix where files should be uploaded
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+      - session_id
+      - upload_prefix
+      - status
+      title: CreateSessionResponse
+    DirectFileUploadResponse:
+      properties:
+        file:
+          type: string
+          title: File
+          description: Filename as stored in GCS
+        gcs_uri:
+          type: string
+          title: Gcs Uri
+          description: Full GCS URI of the uploaded file
+        size_bytes:
+          type: integer
+          title: Size Bytes
+          description: Number of bytes written
+      type: object
+      required:
+      - file
+      - gcs_uri
+      - size_bytes
+      title: DirectFileUploadResponse
+      description: Response for POST /v1/phi/ingest_sessions/{id}/upload/{filename}.
     CreateSessionRequest:
       properties:
         expected_files:
@@ -401,72 +457,6 @@ components:
       required:
       - expected_files
       title: CreateSessionRequest
-    CreateSessionResponse:
-      properties:
-        session_id:
-          type: string
-          title: Session Id
-        upload_prefix:
-          type: string
-          title: Upload Prefix
-          description: GCS prefix where files should be uploaded
-        status:
-          type: string
-          title: Status
-      type: object
-      required:
-      - session_id
-      - upload_prefix
-      - status
-      title: CreateSessionResponse
-    UploadUrlsRequest:
-      properties:
-        files:
-          items:
-            type: string
-          type: array
-          maxItems: 50
-          minItems: 1
-          title: Files
-          description: List of filenames (max 50 per request)
-      type: object
-      required:
-      - files
-      title: UploadUrlsRequest
-    FileUploadUrl:
-      properties:
-        file:
-          type: string
-          title: File
-        url:
-          type: string
-          title: Url
-      type: object
-      required:
-      - file
-      - url
-      title: FileUploadUrl
-    DirectFileUploadResponse:
-      properties:
-        file:
-          type: string
-          title: File
-          description: Filename as stored in GCS
-        gcs_uri:
-          type: string
-          title: Gcs Uri
-          description: Full GCS URI of the uploaded file
-        size_bytes:
-          type: integer
-          title: Size Bytes
-          description: Number of bytes written
-      type: object
-      required:
-      - file
-      - gcs_uri
-      - size_bytes
-      title: DirectFileUploadResponse
-      description: Response for POST /v1/phi/ingest_sessions/{id}/upload/{filename}.
     IngestSessionStatusResponse:
       properties:
         session_id:
@@ -503,14 +493,24 @@ components:
       - expected_files
       - uploaded_files
       title: IngestSessionStatusResponse
-    Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post:
+    ValidationError:
       properties:
-        file:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
           type: string
-          format: binary
-          title: File
-          description: File to upload
+          title: Message
+        type:
+          type: string
+          title: Error Type
       type: object
       required:
-      - file
-      title: Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post
+      - loc
+      - msg
+      - type
+      title: ValidationError

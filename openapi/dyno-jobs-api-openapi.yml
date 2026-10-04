@@ -716,69 +716,60 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    JobSubmitResponse:
+    JobListResponse:
       properties:
-        job_id:
-          type: string
-          title: Job Id
-          description: Database job ID (UUID)
-        run_id:
-          type: string
-          title: Run Id
-          description: Temporal workflow run ID
-        status:
-          type: string
-          title: Status
-          description: Initial job status (typically 'submitted' or 'pending')
-        estimated_duration:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Estimated Duration
-          description: Estimated execution time in seconds (if available)
-        message:
-          type: string
-          title: Message
-          description: Human-readable status message
-      type: object
-      required:
-      - job_id
-      - run_id
-      - status
-      - message
-      title: JobSubmitResponse
-      description: Response from job submission.
-    ValidationError:
-      properties:
-        loc:
+        jobs:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            additionalProperties: true
+            type: object
           type: array
-          title: Location
-        msg:
-          type: string
+          title: Jobs
+        total_count:
+          type: integer
+          title: Total Count
+        total_pending:
+          type: integer
+          title: Total Pending
+        total_running:
+          type: integer
+          title: Total Running
+        total_completed:
+          type: integer
+          title: Total Completed
+        total_failed:
+          type: integer
+          title: Total Failed
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Message
-        type:
-          type: string
-          title: Error Type
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    JobStatus:
-      type: string
-      enum:
-      - pending
-      - running
-      - completed
-      - failed
-      - cancelled
-      title: JobStatus
-      description: Job execution status.
+      - jobs
+      - total_count
+      - total_pending
+      - total_running
+      - total_completed
+      - total_failed
+      title: JobListResponse
+      description: Response for list of jobs.
+    BatchJobSubmitResponse:
+      properties:
+        job_ids:
+          items:
+            type: string
+          type: array
+          title: Job Ids
+        total_count:
+          type: integer
+          title: Total Count
+      type: object
+      required:
+      - job_ids
+      - total_count
+      title: BatchJobSubmitResponse
+      description: Response for batch job submission.
     JobSubmitRequest:
       properties:
         job_type:
@@ -826,6 +817,69 @@ components:
       - job_type
       title: JobSubmitRequest
       description: Request to submit a biomodal job.
+    JobType:
+      type: string
+      enum:
+      - esmfold
+      - proteinmpnn
+      - alphafold
+      - rfdiffusion
+      - ligandmpnn
+      - chai1
+      - boltz
+      - align_structures
+      - tm_score
+      - af2rank
+      - rso
+      - bindcraft
+      - rf3
+      - rfdiffusion3
+      - boltzgen
+      - esm2
+      - openfold3
+      - research
+      - design_pipeline
+      - filter_pipeline
+      title: JobType
+      description: Available biomodal job types.
+    ScoresDownloadResponse:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        artifact_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Artifact Id
+        download_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Download Url
+        filename:
+          type: string
+          title: Filename
+        expires_in:
+          type: integer
+          title: Expires In
+      type: object
+      required:
+      - job_id
+      - artifact_id
+      - download_url
+      - filename
+      - expires_in
+      title: ScoresDownloadResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     JobStatusResponse:
       properties:
         job_id:
@@ -920,69 +974,6 @@ components:
       - created_at
       title: JobStatusResponse
       description: Response with job status information.
-    BatchJobSubmitResponse:
-      properties:
-        job_ids:
-          items:
-            type: string
-          type: array
-          title: Job Ids
-        total_count:
-          type: integer
-          title: Total Count
-      type: object
-      required:
-      - job_ids
-      - total_count
-      title: BatchJobSubmitResponse
-      description: Response for batch job submission.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    JobListResponse:
-      properties:
-        jobs:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Jobs
-        total_count:
-          type: integer
-          title: Total Count
-        total_pending:
-          type: integer
-          title: Total Pending
-        total_running:
-          type: integer
-          title: Total Running
-        total_completed:
-          type: integer
-          title: Total Completed
-        total_failed:
-          type: integer
-          title: Total Failed
-        message:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Message
-      type: object
-      required:
-      - jobs
-      - total_count
-      - total_pending
-      - total_running
-      - total_completed
-      - total_failed
-      title: JobListResponse
-      description: Response for list of jobs.
     JobProgress:
       properties:
         current_step:
@@ -1007,35 +998,16 @@ components:
       - percent_complete
       title: JobProgress
       description: Job execution progress information.
-    ScoresDownloadResponse:
-      properties:
-        job_id:
-          type: string
-          title: Job Id
-        artifact_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Artifact Id
-        download_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Download Url
-        filename:
-          type: string
-          title: Filename
-        expires_in:
-          type: integer
-          title: Expires In
-      type: object
-      required:
-      - job_id
-      - artifact_id
-      - download_url
-      - filename
-      - expires_in
-      title: ScoresDownloadResponse
+    JobStatus:
+      type: string
+      enum:
+      - pending
+      - running
+      - completed
+      - failed
+      - cancelled
+      title: JobStatus
+      description: Job execution status.
     JobCancelResponse:
       properties:
         job_id:
@@ -1054,28 +1026,56 @@ components:
       - message
       title: JobCancelResponse
       description: Response for job cancellation.
-    JobType:
-      type: string
-      enum:
-      - esmfold
-      - proteinmpnn
-      - alphafold
-      - rfdiffusion
-      - ligandmpnn
-      - chai1
-      - boltz
-      - align_structures
-      - tm_score
-      - af2rank
-      - rso
-      - bindcraft
-      - rf3
-      - rfdiffusion3
-      - boltzgen
-      - esm2
-      - openfold3
-      - research
-      - design_pipeline
-      - filter_pipeline
-      title: JobType
-      description: Available biomodal job types.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    JobSubmitResponse:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+          description: Database job ID (UUID)
+        run_id:
+          type: string
+          title: Run Id
+          description: Temporal workflow run ID
+        status:
+          type: string
+          title: Status
+          description: Initial job status (typically 'submitted' or 'pending')
+        estimated_duration:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration
+          description: Estimated execution time in seconds (if available)
+        message:
+          type: string
+          title: Message
+          description: Human-readable status message
+      type: object
+      required:
+      - job_id
+      - run_id
+      - status
+      - message
+      title: JobSubmitResponse
+      description: Response from job submission.

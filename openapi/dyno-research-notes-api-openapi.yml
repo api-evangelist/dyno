@@ -136,16 +136,15 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    AppendNotesRequest:
+    HTTPValidationError:
       properties:
-        content:
-          type: string
-          title: Content
-          description: Markdown content to append to the dataset's research notes
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      required:
-      - content
-      title: AppendNotesRequest
+      title: HTTPValidationError
     ResearchNotesResponse:
       properties:
         dataset_id:
@@ -171,15 +170,16 @@ components:
       - dataset_id
       - exists
       title: ResearchNotesResponse
-    HTTPValidationError:
+    AppendNotesRequest:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
+        content:
+          type: string
+          title: Content
+          description: Markdown content to append to the dataset's research notes
       type: object
-      title: HTTPValidationError
+      required:
+      - content
+      title: AppendNotesRequest
     ValidationError:
       properties:
         loc:

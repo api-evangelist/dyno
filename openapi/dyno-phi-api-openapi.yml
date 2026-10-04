@@ -151,29 +151,6 @@ paths:
       - Phi
 components:
   schemas:
-    DownloadURLResponse:
-      properties:
-        artifact_id:
-          type: string
-          title: Artifact Id
-        filename:
-          type: string
-          title: Filename
-        download_url:
-          type: string
-          title: Download Url
-        expires_in:
-          type: integer
-          title: Expires In
-          description: URL expiry time in seconds
-          default: 3600
-      type: object
-      required:
-      - artifact_id
-      - filename
-      - download_url
-      title: DownloadURLResponse
-      description: Response model for download URL.
     HTTPValidationError:
       properties:
         detail:
@@ -204,3 +181,26 @@ components:
       - msg
       - type
       title: ValidationError
+    DownloadURLResponse:
+      properties:
+        artifact_id:
+          type: string
+          title: Artifact Id
+        filename:
+          type: string
+          title: Filename
+        download_url:
+          type: string
+          title: Download Url
+        expires_in:
+          type: integer
+          title: Expires In
+          description: URL expiry time in seconds
+          default: 3600
+      type: object
+      required:
+      - artifact_id
+      - filename
+      - download_url
+      title: DownloadURLResponse
+      description: Response model for download URL.

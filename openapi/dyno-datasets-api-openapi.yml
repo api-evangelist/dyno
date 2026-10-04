@@ -320,72 +320,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    DatasetResponse:
-      properties:
-        dataset_id:
-          type: string
-          title: Dataset Id
-        org_id:
-          type: string
-          title: Org Id
-        user_id:
-          type: string
-          title: User Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        file_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: File Type
-        artifact_count:
-          type: integer
-          title: Artifact Count
-        status:
-          type: string
-          title: Status
-        created_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created At
-        sample_files:
-          items:
-            $ref: '#/components/schemas/DatasetFileSummary'
-          type: array
-          title: Sample Files
-      type: object
-      required:
-      - dataset_id
-      - org_id
-      - user_id
-      - artifact_count
-      - status
-      title: DatasetResponse
     DatasetListResponse:
       properties:
         datasets:
@@ -440,63 +374,27 @@ components:
       - filename
       - expires_in
       title: DatasetScoresResponse
-    DatasetFileSummary:
+    ValidationError:
       properties:
-        filename:
-          type: string
-          title: Filename
-        size_bytes:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Size Bytes
-        checksum:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Checksum
-      type: object
-      required:
-      - filename
-      title: DatasetFileSummary
-    PatchDatasetRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Name
-      type: object
-      required:
-      - name
-      title: PatchDatasetRequest
-    DatasetJobsResponse:
-      properties:
-        dataset_id:
-          type: string
-          title: Dataset Id
-        jobs:
+        loc:
           items:
-            $ref: '#/components/schemas/DatasetJobSummary'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Jobs
-        total_count:
-          type: integer
-          title: Total Count
-        page:
-          type: integer
-          title: Page
-        page_size:
-          type: integer
-          title: Page Size
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
       type: object
       required:
-      - dataset_id
-      - jobs
-      - total_count
-      - page
-      - page_size
-      title: DatasetJobsResponse
+      - loc
+      - msg
+      - type
+      title: ValidationError
     DatasetJobSummary:
       properties:
         job_id:
@@ -529,3 +427,105 @@ components:
       - job_type
       - status
       title: DatasetJobSummary
+    DatasetFileSummary:
+      properties:
+        filename:
+          type: string
+          title: Filename
+        size_bytes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Size Bytes
+        checksum:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Checksum
+      type: object
+      required:
+      - filename
+      title: DatasetFileSummary
+    DatasetResponse:
+      properties:
+        dataset_id:
+          type: string
+          title: Dataset Id
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        file_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: File Type
+        artifact_count:
+          type: integer
+          title: Artifact Count
+        status:
+          type: string
+          title: Status
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        sample_files:
+          items:
+            $ref: '#/components/schemas/DatasetFileSummary'
+          type: array
+          title: Sample Files
+      type: object
+      required:
+      - dataset_id
+      - org_id
+      - user_id
+      - artifact_count
+      - status
+      title: DatasetResponse
+    DatasetJobsResponse:
+      properties:
+        dataset_id:
+          type: string
+          title: Dataset Id
+        jobs:
+          items:
+            $ref: '#/components/schemas/DatasetJobSummary'
+          type: array
+          title: Jobs
+        total_count:
+          type: integer
+          title: Total Count
+        page:
+          type: integer
+          title: Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+      - dataset_id
+      - jobs
+      - total_count
+      - page
+      - page_size
+      title: DatasetJobsResponse
+    PatchDatasetRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+      type: object
+      required:
+      - name
+      title: PatchDatasetRequest

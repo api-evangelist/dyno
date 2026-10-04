@@ -317,27 +317,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     HTTPValidationError:
       properties:
         detail:
@@ -365,6 +344,33 @@ components:
       type: object
       title: UpdateAgentRequest
       description: Request to update agent.
+    CreateAgentRequest:
+      properties:
+        config:
+          $ref: '#/components/schemas/AgentConfig'
+          description: Agent configuration
+        name:
+          type: string
+          title: Name
+          description: Agent name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Optional description
+        tool_ids:
+          items:
+            type: string
+          type: array
+          title: Tool Ids
+          description: Enabled tool IDs
+      type: object
+      required:
+      - config
+      - name
+      title: CreateAgentRequest
+      description: Request to create agent.
     AgentConfig:
       properties:
         name:
@@ -402,30 +408,24 @@ components:
       - instructions
       title: AgentConfig
       description: Configuration for an AI agent.
-    CreateAgentRequest:
+    ValidationError:
       properties:
-        config:
-          $ref: '#/components/schemas/AgentConfig'
-          description: Agent configuration
-        name:
-          type: string
-          title: Name
-          description: Agent name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: Optional description
-        tool_ids:
+        loc:
           items:
-            type: string
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Tool Ids
-          description: Enabled tool IDs
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
       type: object
       required:
-      - config
-      - name
-      title: CreateAgentRequest
-      description: Request to create agent.
+      - loc
+      - msg
+      - type
+      title: ValidationError
