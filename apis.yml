@@ -54,7 +54,7 @@ x-tier-reason: public-api-discovered
 x-industry: biotechnology
 specificationVersion: '0.23'
 created: '2026-07-17'
-modified: '2026-08-10'
+modified: '2026-10-06'
 x-docs-platform: redocly
 x-docs-platform-confidence: medium
 x-docs-platform-checked: 2026-10-03
@@ -631,6 +631,8 @@ apis:
   - type: SDKs
     url: packages/dyno-packages.yml
 common:
+- url: https://dynotx.substack.com/feed
+  type: BlogRSS
 - type: CapabilityMap
   url: capabilities/dyno-capability-edges.yml
   name: Dyno Business Capability Map
