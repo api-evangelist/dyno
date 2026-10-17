@@ -338,50 +338,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    UploadUrlsResponse:
-      properties:
-        urls:
-          items:
-            $ref: '#/components/schemas/FileUploadUrl'
-          type: array
-          title: Urls
-      type: object
-      required:
-      - urls
-      title: UploadUrlsResponse
-    FileUploadUrl:
-      properties:
-        file:
-          type: string
-          title: File
-        url:
-          type: string
-          title: Url
-      type: object
-      required:
-      - file
-      - url
-      title: FileUploadUrl
-    Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post:
-      properties:
-        file:
-          type: string
-          format: binary
-          title: File
-          description: File to upload
-      type: object
-      required:
-      - file
-      title: Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     UploadUrlsRequest:
       properties:
         files:
@@ -414,49 +370,27 @@ components:
       - upload_prefix
       - status
       title: CreateSessionResponse
-    DirectFileUploadResponse:
+    ValidationError:
       properties:
-        file:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
           type: string
-          title: File
-          description: Filename as stored in GCS
-        gcs_uri:
+          title: Message
+        type:
           type: string
-          title: Gcs Uri
-          description: Full GCS URI of the uploaded file
-        size_bytes:
-          type: integer
-          title: Size Bytes
-          description: Number of bytes written
+          title: Error Type
       type: object
       required:
-      - file
-      - gcs_uri
-      - size_bytes
-      title: DirectFileUploadResponse
-      description: Response for POST /v1/phi/ingest_sessions/{id}/upload/{filename}.
-    CreateSessionRequest:
-      properties:
-        expected_files:
-          type: integer
-          minimum: 1.0
-          title: Expected Files
-          description: Total number of files to upload
-        file_type:
-          type: string
-          title: File Type
-          description: File type hint for validation (pdb, fasta, etc.)
-          default: pdb
-        run_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Run Id
-          description: Optional client-provided label for this batch
-      type: object
-      required:
-      - expected_files
-      title: CreateSessionRequest
+      - loc
+      - msg
+      - type
+      title: ValidationError
     IngestSessionStatusResponse:
       properties:
         session_id:
@@ -493,24 +427,90 @@ components:
       - expected_files
       - uploaded_files
       title: IngestSessionStatusResponse
-    ValidationError:
+    CreateSessionRequest:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        expected_files:
+          type: integer
+          minimum: 1.0
+          title: Expected Files
+          description: Total number of files to upload
+        file_type:
           type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
+          title: File Type
+          description: File type hint for validation (pdb, fasta, etc.)
+          default: pdb
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+          description: Optional client-provided label for this batch
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - expected_files
+      title: CreateSessionRequest
+    UploadUrlsResponse:
+      properties:
+        urls:
+          items:
+            $ref: '#/components/schemas/FileUploadUrl'
+          type: array
+          title: Urls
+      type: object
+      required:
+      - urls
+      title: UploadUrlsResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    FileUploadUrl:
+      properties:
+        file:
+          type: string
+          title: File
+        url:
+          type: string
+          title: Url
+      type: object
+      required:
+      - file
+      - url
+      title: FileUploadUrl
+    Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+          description: File to upload
+      type: object
+      required:
+      - file
+      title: Body_upload_file_to_session_v1_phi_ingest_sessions__session_id__upload__filename__post
+    DirectFileUploadResponse:
+      properties:
+        file:
+          type: string
+          title: File
+          description: Filename as stored in GCS
+        gcs_uri:
+          type: string
+          title: Gcs Uri
+          description: Full GCS URI of the uploaded file
+        size_bytes:
+          type: integer
+          title: Size Bytes
+          description: Number of bytes written
+      type: object
+      required:
+      - file
+      - gcs_uri
+      - size_bytes
+      title: DirectFileUploadResponse
+      description: Response for POST /v1/phi/ingest_sessions/{id}/upload/{filename}.

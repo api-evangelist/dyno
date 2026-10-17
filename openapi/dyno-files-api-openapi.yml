@@ -144,29 +144,27 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    UploadUrlRequest:
+    ValidationError:
       properties:
-        filename:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
           type: string
-          title: Filename
-          description: Name of the file to upload (e.g. pdl1_binders.fasta)
-        content_type:
+          title: Message
+        type:
           type: string
-          title: Content Type
-          description: MIME type of the file being uploaded
-          default: application/octet-stream
-        size_bytes:
-          anyOf:
-          - type: integer
-            minimum: 1.0
-          - type: 'null'
-          title: Size Bytes
-          description: File size in bytes (optional; used for validation only)
+          title: Error Type
       type: object
       required:
-      - filename
-      title: UploadUrlRequest
-      description: Request body for POST /v1/phi/files/upload-url.
+      - loc
+      - msg
+      - type
+      title: ValidationError
     UploadUrlResponse:
       properties:
         upload_url:
@@ -197,38 +195,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    DirectUploadResponse:
-      properties:
-        gcs_uri:
-          type: string
-          title: Gcs Uri
-          description: GCS URI of the uploaded object (use as job param)
-      type: object
-      required:
-      - gcs_uri
-      title: DirectUploadResponse
-      description: Response for POST /v1/phi/files/upload.
     Body_upload_file_direct_v1_phi_files_upload_post:
       properties:
         file:
@@ -245,3 +211,37 @@ components:
       required:
       - file
       title: Body_upload_file_direct_v1_phi_files_upload_post
+    UploadUrlRequest:
+      properties:
+        filename:
+          type: string
+          title: Filename
+          description: Name of the file to upload (e.g. pdl1_binders.fasta)
+        content_type:
+          type: string
+          title: Content Type
+          description: MIME type of the file being uploaded
+          default: application/octet-stream
+        size_bytes:
+          anyOf:
+          - type: integer
+            minimum: 1.0
+          - type: 'null'
+          title: Size Bytes
+          description: File size in bytes (optional; used for validation only)
+      type: object
+      required:
+      - filename
+      title: UploadUrlRequest
+      description: Request body for POST /v1/phi/files/upload-url.
+    DirectUploadResponse:
+      properties:
+        gcs_uri:
+          type: string
+          title: Gcs Uri
+          description: GCS URI of the uploaded object (use as job param)
+      type: object
+      required:
+      - gcs_uri
+      title: DirectUploadResponse
+      description: Response for POST /v1/phi/files/upload.

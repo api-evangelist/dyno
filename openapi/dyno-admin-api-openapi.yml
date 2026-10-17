@@ -293,6 +293,41 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    QuotaRequest:
+      properties:
+        max_total_jobs:
+          type: integer
+          title: Max Total Jobs
+          description: Lifetime job cap for this scope. -1 means unlimited.
+          default: -1
+        max_concurrent_jobs:
+          type: integer
+          title: Max Concurrent Jobs
+          description: Maximum simultaneously active (pending/running) jobs. -1 means unlimited.
+          default: -1
+      type: object
+      title: QuotaRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     QuotaResponse:
       properties:
         scope:
@@ -330,38 +365,3 @@ components:
       - max_total_jobs
       - max_concurrent_jobs
       title: QuotaResponse
-    QuotaRequest:
-      properties:
-        max_total_jobs:
-          type: integer
-          title: Max Total Jobs
-          description: Lifetime job cap for this scope. -1 means unlimited.
-          default: -1
-        max_concurrent_jobs:
-          type: integer
-          title: Max Concurrent Jobs
-          description: Maximum simultaneously active (pending/running) jobs. -1 means unlimited.
-          default: -1
-      type: object
-      title: QuotaRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError

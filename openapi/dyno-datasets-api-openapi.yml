@@ -320,30 +320,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    DatasetListResponse:
-      properties:
-        datasets:
-          items:
-            $ref: '#/components/schemas/DatasetResponse'
-          type: array
-          title: Datasets
-        total_count:
-          type: integer
-          title: Total Count
-      type: object
-      required:
-      - datasets
-      - total_count
-      title: DatasetListResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     DatasetScoresResponse:
       properties:
         dataset_id:
@@ -374,6 +350,17 @@ components:
       - filename
       - expires_in
       title: DatasetScoresResponse
+    PatchDatasetRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+      type: object
+      required:
+      - name
+      title: PatchDatasetRequest
     ValidationError:
       properties:
         loc:
@@ -395,38 +382,21 @@ components:
       - msg
       - type
       title: ValidationError
-    DatasetJobSummary:
+    DatasetListResponse:
       properties:
-        job_id:
-          type: string
-          title: Job Id
-        job_type:
-          type: string
-          title: Job Type
-        status:
-          type: string
-          title: Status
-        created_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created At
-        completed_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Completed At
-        scores_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Scores Url
+        datasets:
+          items:
+            $ref: '#/components/schemas/DatasetResponse'
+          type: array
+          title: Datasets
+        total_count:
+          type: integer
+          title: Total Count
       type: object
       required:
-      - job_id
-      - job_type
-      - status
-      title: DatasetJobSummary
+      - datasets
+      - total_count
+      title: DatasetListResponse
     DatasetFileSummary:
       properties:
         filename:
@@ -491,6 +461,15 @@ components:
       - artifact_count
       - status
       title: DatasetResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     DatasetJobsResponse:
       properties:
         dataset_id:
@@ -518,14 +497,35 @@ components:
       - page
       - page_size
       title: DatasetJobsResponse
-    PatchDatasetRequest:
+    DatasetJobSummary:
       properties:
-        name:
+        job_id:
           type: string
-          maxLength: 200
-          minLength: 1
-          title: Name
+          title: Job Id
+        job_type:
+          type: string
+          title: Job Type
+        status:
+          type: string
+          title: Status
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        completed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completed At
+        scores_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Scores Url
       type: object
       required:
-      - name
-      title: PatchDatasetRequest
+      - job_id
+      - job_type
+      - status
+      title: DatasetJobSummary

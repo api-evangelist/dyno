@@ -317,33 +317,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    UpdateAgentRequest:
-      properties:
-        config:
-          anyOf:
-          - $ref: '#/components/schemas/AgentConfig'
-          - type: 'null'
-          description: Updated agent configuration
-        tool_ids:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Tool Ids
-          description: Updated tool IDs
-      type: object
-      title: UpdateAgentRequest
-      description: Request to update agent.
     CreateAgentRequest:
       properties:
         config:
@@ -429,3 +402,30 @@ components:
       - msg
       - type
       title: ValidationError
+    UpdateAgentRequest:
+      properties:
+        config:
+          anyOf:
+          - $ref: '#/components/schemas/AgentConfig'
+          - type: 'null'
+          description: Updated agent configuration
+        tool_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tool Ids
+          description: Updated tool IDs
+      type: object
+      title: UpdateAgentRequest
+      description: Request to update agent.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError

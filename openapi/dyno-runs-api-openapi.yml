@@ -165,6 +165,45 @@ paths:
       - Runs
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    DesignRequest:
+      properties:
+        message:
+          type: string
+          maxLength: 10000
+          minLength: 1
+          title: Message
+          description: User's design request
+        context:
+          additionalProperties: true
+          type: object
+          title: Context
+          description: Optional context
+      type: object
+      required:
+      - message
+      title: DesignRequest
+      description: Request to design protein.
     DesignResponse:
       properties:
         message:
@@ -244,15 +283,6 @@ components:
       - metadata
       title: ArtifactResponse
       description: Response model for artifact details.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ArtifactListResponse:
       properties:
         run_id:
@@ -277,42 +307,12 @@ components:
       - total_size_bytes
       title: ArtifactListResponse
       description: Response model for list of artifacts.
-    DesignRequest:
+    HTTPValidationError:
       properties:
-        message:
-          type: string
-          maxLength: 10000
-          minLength: 1
-          title: Message
-          description: User's design request
-        context:
-          additionalProperties: true
-          type: object
-          title: Context
-          description: Optional context
-      type: object
-      required:
-      - message
-      title: DesignRequest
-      description: Request to design protein.
-    ValidationError:
-      properties:
-        loc:
+        detail:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
+          title: Detail
       type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      title: HTTPValidationError

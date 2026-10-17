@@ -836,115 +836,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    NodeSpec:
-      properties:
-        id:
-          type: string
-          title: Id
-        op:
-          type: string
-          title: Op
-        params:
-          title: Params
-        retry_policy:
-          title: Retry Policy
-        map_config:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Map Config
-      additionalProperties: false
-      type: object
-      required:
-      - id
-      - op
-      title: NodeSpec
-      description: 'Specification for a single workflow node.
-
-
-        A node represents a single operation (tool execution) in the workflow.
-
-        It includes the operation name, parameters, and optional retry policy.
-
-
-        Special node type: op="map" for parallel execution over collections.
-
-
-        Note: params uses Any type to avoid strict schema validation issues
-
-        with dict[str, Any] in OpenAI Agents SDK.'
-    EdgeSpec:
-      properties:
-        src:
-          type: string
-          title: Src
-        dst:
-          type: string
-          title: Dst
-        condition:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Condition
-      additionalProperties: false
-      type: object
-      required:
-      - src
-      - dst
-      title: EdgeSpec
-      description: 'Specification for a workflow edge (dependency).
-
-
-        An edge defines the flow between nodes. It can include an optional
-
-        condition that must be satisfied for execution to continue.'
-    UpdateWorkflowRequest:
-      properties:
-        spec:
-          $ref: '#/components/schemas/WorkflowSpec'
-          description: Updated workflow specification
-        change_summary:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Change Summary
-          description: Description of changes
-      type: object
-      required:
-      - spec
-      title: UpdateWorkflowRequest
-      description: Request to update workflow.
-    CreateWorkflowRequest:
-      properties:
-        spec:
-          $ref: '#/components/schemas/WorkflowSpec'
-          description: Workflow specification
-        name:
-          type: string
-          title: Name
-          description: Workflow name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: Optional description
-      type: object
-      required:
-      - spec
-      - name
-      title: CreateWorkflowRequest
-      description: Request to create workflow from spec.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ValidationError:
       properties:
         loc:
@@ -966,98 +857,6 @@ components:
       - msg
       - type
       title: ValidationError
-    WorkflowSpec:
-      properties:
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-          default: ''
-        nodes:
-          items:
-            $ref: '#/components/schemas/NodeSpec'
-          type: array
-          title: Nodes
-        edges:
-          items:
-            $ref: '#/components/schemas/EdgeSpec'
-          type: array
-          title: Edges
-        version:
-          type: string
-          title: Version
-          default: '1.0'
-        expected_artifacts:
-          items:
-            type: string
-          type: array
-          title: Expected Artifacts
-        initial_artifacts:
-          additionalProperties: true
-          type: object
-          title: Initial Artifacts
-      additionalProperties: false
-      type: object
-      required:
-      - name
-      - nodes
-      - edges
-      title: WorkflowSpec
-      description: 'Complete workflow specification.
-
-
-        This is the immutable "plan" for a workflow. It defines all nodes,
-
-        edges, and expected outputs. Once validated, this spec is executed
-
-        by the Temporal workflow executor.'
-    ExecuteWorkflowRequest:
-      properties:
-        inputs:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Inputs
-          description: Optional workflow inputs
-      type: object
-      title: ExecuteWorkflowRequest
-      description: Request to execute workflow.
-    PlanWorkflowRequest:
-      properties:
-        prompt:
-          type: string
-          minLength: 1
-          title: Prompt
-          description: Natural language workflow description
-        protocol_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Protocol Id
-          description: Optional protocol ID to use as planning guidance
-        disable_auto_recommendations:
-          type: boolean
-          title: Disable Auto Recommendations
-          description: Disable automatic protocol recommendations (for de novo workflows)
-          default: false
-        auto_publish:
-          type: boolean
-          title: Auto Publish
-          description: Auto-publish after creation
-          default: false
-        execute_immediately:
-          type: boolean
-          title: Execute Immediately
-          description: Execute without human review (automatically publishes first)
-          default: false
-      type: object
-      required:
-      - prompt
-      title: PlanWorkflowRequest
-      description: Request to plan workflow from natural language prompt.
     PlanExecuteRequest:
       properties:
         query:
@@ -1114,3 +913,204 @@ components:
       - protocolId
       title: PlanExecuteRequest
       description: Request to plan and execute workflow from protocol (frontend contract).
+    UpdateWorkflowRequest:
+      properties:
+        spec:
+          $ref: '#/components/schemas/WorkflowSpec'
+          description: Updated workflow specification
+        change_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Change Summary
+          description: Description of changes
+      type: object
+      required:
+      - spec
+      title: UpdateWorkflowRequest
+      description: Request to update workflow.
+    ExecuteWorkflowRequest:
+      properties:
+        inputs:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Inputs
+          description: Optional workflow inputs
+      type: object
+      title: ExecuteWorkflowRequest
+      description: Request to execute workflow.
+    CreateWorkflowRequest:
+      properties:
+        spec:
+          $ref: '#/components/schemas/WorkflowSpec'
+          description: Workflow specification
+        name:
+          type: string
+          title: Name
+          description: Workflow name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Optional description
+      type: object
+      required:
+      - spec
+      - name
+      title: CreateWorkflowRequest
+      description: Request to create workflow from spec.
+    WorkflowSpec:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        nodes:
+          items:
+            $ref: '#/components/schemas/NodeSpec'
+          type: array
+          title: Nodes
+        edges:
+          items:
+            $ref: '#/components/schemas/EdgeSpec'
+          type: array
+          title: Edges
+        version:
+          type: string
+          title: Version
+          default: '1.0'
+        expected_artifacts:
+          items:
+            type: string
+          type: array
+          title: Expected Artifacts
+        initial_artifacts:
+          additionalProperties: true
+          type: object
+          title: Initial Artifacts
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - nodes
+      - edges
+      title: WorkflowSpec
+      description: 'Complete workflow specification.
+
+
+        This is the immutable "plan" for a workflow. It defines all nodes,
+
+        edges, and expected outputs. Once validated, this spec is executed
+
+        by the Temporal workflow executor.'
+    NodeSpec:
+      properties:
+        id:
+          type: string
+          title: Id
+        op:
+          type: string
+          title: Op
+        params:
+          title: Params
+        retry_policy:
+          title: Retry Policy
+        map_config:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Map Config
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - op
+      title: NodeSpec
+      description: 'Specification for a single workflow node.
+
+
+        A node represents a single operation (tool execution) in the workflow.
+
+        It includes the operation name, parameters, and optional retry policy.
+
+
+        Special node type: op="map" for parallel execution over collections.
+
+
+        Note: params uses Any type to avoid strict schema validation issues
+
+        with dict[str, Any] in OpenAI Agents SDK.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PlanWorkflowRequest:
+      properties:
+        prompt:
+          type: string
+          minLength: 1
+          title: Prompt
+          description: Natural language workflow description
+        protocol_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Protocol Id
+          description: Optional protocol ID to use as planning guidance
+        disable_auto_recommendations:
+          type: boolean
+          title: Disable Auto Recommendations
+          description: Disable automatic protocol recommendations (for de novo workflows)
+          default: false
+        auto_publish:
+          type: boolean
+          title: Auto Publish
+          description: Auto-publish after creation
+          default: false
+        execute_immediately:
+          type: boolean
+          title: Execute Immediately
+          description: Execute without human review (automatically publishes first)
+          default: false
+      type: object
+      required:
+      - prompt
+      title: PlanWorkflowRequest
+      description: Request to plan workflow from natural language prompt.
+    EdgeSpec:
+      properties:
+        src:
+          type: string
+          title: Src
+        dst:
+          type: string
+          title: Dst
+        condition:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Condition
+      additionalProperties: false
+      type: object
+      required:
+      - src
+      - dst
+      title: EdgeSpec
+      description: 'Specification for a workflow edge (dependency).
+
+
+        An edge defines the flow between nodes. It can include an optional
+
+        condition that must be satisfied for execution to continue.'

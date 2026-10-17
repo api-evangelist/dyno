@@ -79,6 +79,23 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    TutorialFile:
+      properties:
+        filename:
+          type: string
+          title: Filename
+        url:
+          type: string
+          title: Url
+        gcs_uri:
+          type: string
+          title: Gcs Uri
+      type: object
+      required:
+      - filename
+      - url
+      - gcs_uri
+      title: TutorialFile
     ValidationError:
       properties:
         loc:
@@ -120,20 +137,3 @@ components:
       required:
       - files
       title: TutorialResponse
-    TutorialFile:
-      properties:
-        filename:
-          type: string
-          title: Filename
-        url:
-          type: string
-          title: Url
-        gcs_uri:
-          type: string
-          title: Gcs Uri
-      type: object
-      required:
-      - filename
-      - url
-      - gcs_uri
-      title: TutorialFile

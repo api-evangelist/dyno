@@ -145,6 +145,16 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    AppendNotesRequest:
+      properties:
+        content:
+          type: string
+          title: Content
+          description: Markdown content to append to the dataset's research notes
+      type: object
+      required:
+      - content
+      title: AppendNotesRequest
     ResearchNotesResponse:
       properties:
         dataset_id:
@@ -170,16 +180,6 @@ components:
       - dataset_id
       - exists
       title: ResearchNotesResponse
-    AppendNotesRequest:
-      properties:
-        content:
-          type: string
-          title: Content
-          description: Markdown content to append to the dataset's research notes
-      type: object
-      required:
-      - content
-      title: AppendNotesRequest
     ValidationError:
       properties:
         loc:
