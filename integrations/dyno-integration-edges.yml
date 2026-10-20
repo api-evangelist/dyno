@@ -1,0 +1,38 @@
+edges:
+- partner_name: Alliance for Regenerative Medicine (members)
+  partner: null
+  partner_match: register
+  type: register
+  channel: standard-directory
+  relationship: standard-participant
+  direction: partner-built
+  evidence: https://members.alliancerm.org/Online/Directory/Member-Directory-Profile.aspx?ID=47083
+  category: CGT trade body member
+  contract_reference:
+    register: Alliance for Regenerative Medicine member directory (members.alliancerm.org)
+    standard: null
+    spec_file: null
+    role: arm-member
+    registered_name: Dyno Therapeutics
+    register_id: '47083'
+    organization_focus: Therapeutic Developer
+    listed_website: http://www.dynotx.com/
+    matched_domain: dynotx.com
+    matched_by: domain
+    signal_note: 'self-filed paid membership: listing alone = standard-participant; hand-reviewed'
+    detected_by: sweep-cell-gene-therapy.py
+    detected: '2026-10-20'
+  detected_by: sweep-cell-gene-therapy.py
+  first_seen: '2026-10-20'
+generated: '2026-10-20'
+method: searched
+source:
+- https://www.fda.gov/vaccines-blood-biologics/cellular-gene-therapy-products/approved-cellular-and-gene-therapy-products
+- https://www.ema.europa.eu/en/documents/report/medicines-output-medicines-report_en.xlsx
+- https://clinicaltrials.gov/api/v2/studies
+- https://members.alliancerm.org/Online/Directory/Member-Directory.aspx?WebsiteKey=0a8f86de-1bef-4044-be59-e2f7f1c52e39
+checked:
+- https://clinicaltrials.gov/api/v2/studies
+- https://members.alliancerm.org/Online/Directory/Member-Directory.aspx?WebsiteKey=0a8f86de-1bef-4044-be59-e2f7f1c52e39
+- https://www.ema.europa.eu/en/documents/report/medicines-output-medicines-report_en.xlsx
+- https://www.fda.gov/vaccines-blood-biologics/cellular-gene-therapy-products/approved-cellular-and-gene-therapy-products
