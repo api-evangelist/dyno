@@ -1114,3 +1114,9 @@ components:
         An edge defines the flow between nodes. It can include an optional
 
         condition that must be satisfied for execution to continue.'
+x-provenance:
+  method: harvested
+  publisher: Dyno
+  source: https://api.dyno-agents.app/v1/phi/openapi.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
