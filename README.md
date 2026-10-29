@@ -64,10 +64,141 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Dyno Therapeutics was first surfaced as an a16z portfolio company and profiled as a stub. It is no longer a stub: Dyno operates a public developer platform, **Dyno Psi-Phi** at [design.dynotx.com](https://design.dynotx.com/), whose **Phi Protein Design API** serves a live OpenAPI 3.1.0 document at `https://api.dyno-agents.app/v1/phi/openapi.json` — 64 paths, 80 operations, 62 schemas — with ReDoc at the API root.
+Dyno Therapeutics is an AI and biotechnology company building high-performance gene delivery technologies to unlock the potential of next-generation genetic medicine. Using its CapsidMap platform, which combines machine learning with high-throughput in vivo measurement, Dyno designs novel adeno-associated virus (AAV) capsids with improved tissue targeting, immune evasion, manufacturability, and payload capacity. Alongside its capsid partnerships, Dyno operates a public developer platform — Dyno Psi-Phi at design.dynotx.com — that exposes a REST API for agentic protein design: submit structure-prediction, inverse-folding and binder-scoring jobs against GPU-backed open models (AlphaFold2, ESMFold, ProteinMPNN, Boltz, ESM-2, RFDiffusion3, BoltzGen, OpenFold3), track job status, and retrieve scored results. The platform ships a first-party Python CLI (dyno-phi), an MIT-licensed open-source repository, and a provider-published Claude Code Agent Skill. Founded on research from George Church's lab at Harvard, Dyno is headquartered in Watertown, Massachusetts, and is an a16z Bio+Health portfolio company.
 
-The platform runs GPU-backed open protein models (AlphaFold2, ESMFold, ProteinMPNN, Boltz, ESM-2, Chai-1, RFDiffusion3, BoltzGen, OpenFold3) as submit-and-poll jobs over uploaded PDB/CIF structures and returns filtered, scored binder candidates. Dyno also publishes a first-party Python CLI (`dyno-phi` on PyPI, MIT, [github.com/dynotx/phi-cli](https://github.com/dynotx/phi-cli)) and its own Claude Code Agent Skill.
+**Areas:** Company · Biotechnology · Gene Therapy · Genetic Medicine · Gene Delivery · AAV Capsid · Artificial Intelligence · Machine Learning · Drug Discovery · Healthcare · Protein Design · Protein Structure Prediction
 
-What this profile captures, and the gaps it records: the OpenAPI declares no `securitySchemes` even though `x-api-key` is enforced; only `200` and `422` responses are declared, while `401` and `429` are real; there is no status page, no deprecation policy, no pricing page, no idempotency key, no rate-limit response headers, and every `/.well-known/` path 404s on all three hosts. See `authentication/`, `errors/`, `lifecycle/`, `plans/`, `rate-limits/` and `well-known/` for the evidence.
+## Dyno on APIs.io
 
-Backed by: a16z
+Everything profiled for Dyno is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/dyno/](https://apis.io/providers/dyno/)** — or go straight to one of the APIs or properties below.
+
+### APIs (17)
+
+- [Dyno Admin API](https://apis.io/apis/dyno/dyno-admin-api/) — The admin API from Dyno — 5 operation(s) for admin.
+- [Dyno Agents API](https://apis.io/apis/dyno/dyno-agents-api/) — The agents API from Dyno — 3 operation(s) for agents.
+- [Dyno Artifacts API](https://apis.io/apis/dyno/dyno-artifacts-api/) — The Artifacts API from Dyno — 2 operation(s) for artifacts.
+- [Dyno Assets API](https://apis.io/apis/dyno/dyno-assets-api/) — The assets API from Dyno — 6 operation(s) for assets.
+- [Dyno Auth API](https://apis.io/apis/dyno/dyno-auth-api/) — The auth API from Dyno — 2 operation(s) for auth.
+- [Dyno Datasets API](https://apis.io/apis/dyno/dyno-datasets-api/) — The datasets API from Dyno — 4 operation(s) for datasets.
+- [Dyno Files API](https://apis.io/apis/dyno/dyno-files-api/) — The files API from Dyno — 2 operation(s) for files.
+- [Dyno Health API](https://apis.io/apis/dyno/dyno-health-api/) — The Health API from Dyno — 1 operation(s) for health.
+- [Dyno Ingest API](https://apis.io/apis/dyno/dyno-ingest-api/) — The ingest API from Dyno — 5 operation(s) for ingest.
+- [Dyno Jobs API](https://apis.io/apis/dyno/dyno-jobs-api/) — The jobs API from Dyno — 7 operation(s) for jobs.
+- [Dyno Phi API](https://apis.io/apis/dyno/dyno-phi-api/) — The Phi API from Dyno — 2 operation(s) for phi.
+- [Dyno Protocols API](https://apis.io/apis/dyno/dyno-protocols-api/) — The protocols API from Dyno — 7 operation(s) for protocols.
+- [Dyno Research Notes API](https://apis.io/apis/dyno/dyno-research-notes-api/) — The research-notes API from Dyno — 1 operation(s) for research-notes.
+- [Dyno Runs API](https://apis.io/apis/dyno/dyno-runs-api/) — The Runs API from Dyno — 4 operation(s) for runs.
+- [Dyno Tools API](https://apis.io/apis/dyno/dyno-tools-api/) — The tools API from Dyno — 3 operation(s) for tools.
+- [Dyno Tutorial API](https://apis.io/apis/dyno/dyno-tutorial-api/) — The tutorial API from Dyno — 1 operation(s) for tutorial.
+- [Dyno Workflows API](https://apis.io/apis/dyno/dyno-workflows-api/) — The workflows API from Dyno — 9 operation(s) for workflows.
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [dyno-mcp.yml](https://apis.io/servers/dyno/dyno-mcp-yml/)
+
+#### Collections (1)
+
+Postman and Open Collection request collections.
+
+- [Phi — Protein Design API](https://apis.io/collections/dyno/open-dyno-phi/)
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Dyno Phi Overlay](https://apis.io/overlays/dyno/dyno-phi-overlay/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Dyno Authentication](https://apis.io/security/dyno/dyno-authentication/)
+- [Dyno Domain Security](https://apis.io/security/dyno/dyno-domain-security/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Dyno Plans Pricing](https://apis.io/plans/dyno/dyno-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Dyno Rate Limits](https://apis.io/rate-limits/dyno/dyno-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://www.dynotx.com)
+- [Documentation](https://design.dynotx.com/docs)
+- [Getting started](https://design.dynotx.com/cli)
+- [API reference](https://api.dyno-agents.app/)
+- [Sign up](https://design.dynotx.com/)
+- [Support](https://github.com/dynotx/phi-cli/issues)
+- [Blog](https://dynotx.substack.com/)
+- [Terms of service](https://www.dynotx.com/legal/terms-and-conditions)
+- [Privacy policy](https://www.dynotx.com/legal/privacy-policy)
+- [GitHub](https://github.com/dynotx)
+
+## API Evangelist rating
+
+**Kin Score 45.8** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 66.1 |
+| Contract quality | 44.2 |
+| Contract governance | 4.5 |
+| Operational transparency | 18.4 |
+| Developer ergonomics | 85.0 |
+| Access clarity | 34.2 |
+
+**Agent readiness 29.2** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | documented (partial credit) |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | verified |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | — |
+| Agent Skills | unknown |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | — |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 18.4** — Health
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/dyno/](https://apis.io/providers/dyno/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Dyno: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/dyno/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
